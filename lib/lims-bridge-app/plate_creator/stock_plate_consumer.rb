@@ -1,6 +1,7 @@
 require 'lims-busclient'
 require 'lims-bridge-app/plate_creator/json_decoder'
 require 'lims-bridge-app/plate_creator/sequencescape_updater'
+require 'lims-bridge-app/s2_resource'
 
 module Lims::BridgeApp
   module PlateCreator
@@ -23,6 +24,7 @@ module Lims::BridgeApp
       include Lims::BusClient::Consumer
       include JsonDecoder
       include SequencescapeUpdater
+      include S2Resource
 
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
@@ -87,18 +89,6 @@ module Lims::BridgeApp
             log.debug("Message rejected: plate creator not interested with the message (routing key: #{metadata.routing_key})")
           end
         end
-      end
-
-      # Decode the json message and return a S2 core resource
-      # and additional informations like its uuid in S2.
-      # @param [String] message
-      # @return [Hash] S2 core resource and uuid
-      # @example
-      # {:plate => Lims::Core::Laboratory::Plate, :uuid => xxxx}
-      def s2_resource(message)
-        body = JSON.parse(message)
-        model = body.keys.first
-        json_decoder_for(model).call(body)
       end
 
       # When a plate creation message is received, 
