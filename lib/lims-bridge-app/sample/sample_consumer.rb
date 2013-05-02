@@ -57,6 +57,32 @@ module Lims::BridgeApp
           end
         end
       end
+
+      def sample_create_message_handler(metadata, s2_resource)
+        begin
+          create_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid])
+        rescue Sequel::Rollback => e
+          metadata.reject(:requeue => true)
+          log.error("Error saving sample in Sequencescape: #{e}")
+        else
+          metadata.ack
+          log.info("Sample message processed and acknowledged")
+        end
+      end
+
+      def bulk_create_sample_message_handler(metadata, s2_resource)
+        begin
+          s2_resource[:samples].each do |h|
+            create_sample_in_sequencescape(h[:sample], h[:uuid])
+          end
+        rescue Sequel::Rollback => e
+          metadata.reject(:requeue => true)
+          log.error("Error saving samples in Sequencescape: #{e}")
+        else
+          metadata.ack
+          log.info("Bulk create sample message processed and acknowledged")
+        end
+      end
     end
   end
 end
