@@ -46,16 +46,10 @@ module Lims::BridgeApp
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
             s2_resource = s2_resource(payload)
 
-            # On reception of a plate creation message
-            # Plate and tuberack are stored in the same place in sequencescape
-            if metadata.routing_key =~ /plate|tuberack\.create/
-              plate_message_handler(metadata, s2_resource)       
-              # On reception of an order creation/update message
-            elsif metadata.routing_key =~ /order\.create|updateorder/
-              order_message_handler(metadata, s2_resource)
-              # On reception of a plate transfer message
-            elsif metadata.routing_key =~ /platetransfer/
-              platetransfer_message_handler(metadata, s2_resource)
+            if metadata.routing_key =~ /sample\.create/
+              sample_create_message_handler(metadata, s2_resource)       
+            elsif metadata.routing_key =~ /bulkcreatesample/
+              bulk_create_sample_message_handler(metadata, s2_resource)
             end
           else
             metadata.reject
