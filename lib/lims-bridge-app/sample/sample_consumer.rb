@@ -47,22 +47,13 @@ module Lims::BridgeApp
           if expected_message?(metadata.routing_key)
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
             s2_resource = s2_resource(payload)
-
             action = case metadata.routing_key
                      when /sample\.create/ || /bulkcreatesample/ then "create"
                      when /sample\.updatesample/ then "udpate"
                      when /sample\.deletesample/ then "delete"
                      end
 
-            sample_message_handler(metadata, s2_resource, action) do |s2_resource|
-              if s2_resource[:samples]
-                s2_resource[:samples].each do |h|
-                  dispatch_s2_sample_in_sequencescape(h[:sample], h[:uuid], action)
-                end
-              else
-                dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], action)
-              end
-            end
+            sample_message_handler(metadata, s2_resource, action)
           else
             metadata.reject
             log.debug("Message rejected: unused message (routing key: #{metadata.routing_key})")
@@ -72,14 +63,20 @@ module Lims::BridgeApp
 
       def sample_message_handler(metadata, s2_resource, action)
         begin
-          yield(s2_resource)
-        rescue Sequel::Rollback => e
-          metadata.reject(:requeue => true)
-          log.error("Error saving sample in Sequencescape: #{e}")
-        else
-          metadata.ack
-          log.info("Sample message processed and acknowledged")
+          if s2_resource[:samples]
+            s2_resource[:samples].each do |h|
+              dispatch_s2_sample_in_sequencescape(h[:sample], h[:uuid], action)
+            end
+          else
+            dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], action)
+          end
         end
+      rescue Sequel::Rollback => e
+        metadata.reject(:requeue => true)
+        log.error("Error saving sample in Sequencescape: #{e}")
+      else
+        metadata.ack
+        log.info("Sample message processed and acknowledged")
       end
     end
   end
