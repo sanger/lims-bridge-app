@@ -11,4 +11,4 @@ development:
 
 production:
   <<: *MYSQL
-  database: sequencescape_production
+  database: sequencescape_development

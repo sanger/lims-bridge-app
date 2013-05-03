@@ -19,6 +19,6 @@ development:
 
 production:
   <<: *defaults
-  url: "url"
+  url: "amqp://localhost:5672"
   exchange_name: "psd.s2"
-  queue_name: "psd.s2.platecreator"
+  queue_name: "psd.s2.bridge"
