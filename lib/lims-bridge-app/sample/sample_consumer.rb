@@ -54,7 +54,7 @@ module Lims::BridgeApp
                      when /sample\.deletesample/ then "delete"
                      end
 
-            block = lambda do |s2_resource|
+            sample_message_handler(metadata, s2_resource, action) do |s2_resource|
               if s2_resource[:samples]
                 s2_resource[:samples].each do |h|
                   dispatch_s2_sample_in_sequencescape(h[:sample], h[:uuid], action)
@@ -63,8 +63,6 @@ module Lims::BridgeApp
                 dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], action)
               end
             end
-
-            sample_message_handler(metadata, s2_resource, action, block)
           else
             metadata.reject
             log.debug("Message rejected: unused message (routing key: #{metadata.routing_key})")
@@ -72,9 +70,9 @@ module Lims::BridgeApp
         end
       end
 
-      def sample_message_handler(metadata, s2_resource, action, handler)
+      def sample_message_handler(metadata, s2_resource, action)
         begin
-          handler.call(s2_resource)
+          yield(s2_resource)
         rescue Sequel::Rollback => e
           metadata.reject(:requeue => true)
           log.error("Error saving sample in Sequencescape: #{e}")
