@@ -6,9 +6,8 @@ module Lims::BridgeApp
   module SampleManagement
     module JsonDecoder
       include BaseJsonDecoder
-      
 
-      module SampleDecoder
+      module SampleJsonDecoder
         def self.call(json)
           sample_hash = json["sample"]
           sample(sample_hash)
@@ -24,16 +23,17 @@ module Lims::BridgeApp
         end
       end
 
+      module BulkCreateSampleJsonDecoder
+        def self.call(json)
+          bulk_sample_hash = json["bulk_create_sample"]
+          samples_hash = bulk_sample_hash["result"]["samples"]
+          samples = []
+          samples_hash.each do |sample_hash|
+            samples << SampleDecoder.sample(sample_hash)        
+          end
 
-      module BulkCreateSample
-        bulk_sample_hash = json["bulk_create_sample"]
-        samples_hash = bulk_sample_hash["result"]["samples"]
-        samples = []
-        samples_hash.each do |sample_hash|
-          samples << SampleDecoder.sample(sample_hash)        
+          {:samples => samples}
         end
-
-        {:samples => samples}
       end
     end
   end

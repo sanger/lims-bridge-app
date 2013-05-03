@@ -1,7 +1,7 @@
 require 'lims-busclient'
 require 'lims-bridge-app/sample/sequencescape_updater'
 require 'lims-bridge-app/s2_resource'
-require 'lims-bridge-app/json_decoder'
+require 'lims-bridge-app/sample/json_decoder'
 
 module Lims::BridgeApp
   module SampleManagement
@@ -40,7 +40,7 @@ module Lims::BridgeApp
       end
 
       def set_queue
-        self.add_queue(queue_name, routing_keys) do |metadata, payload|
+        self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
           if expected_message?(metadata.routing_key)
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
@@ -60,7 +60,7 @@ module Lims::BridgeApp
 
       def sample_create_message_handler(metadata, s2_resource)
         begin
-          create_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid])
+          dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid])
         rescue Sequel::Rollback => e
           metadata.reject(:requeue => true)
           log.error("Error saving sample in Sequencescape: #{e}")
@@ -73,7 +73,7 @@ module Lims::BridgeApp
       def bulk_create_sample_message_handler(metadata, s2_resource)
         begin
           s2_resource[:samples].each do |h|
-            create_sample_in_sequencescape(h[:sample], h[:uuid])
+            dispatch_s2_sample_in_sequencescape(h[:sample], h[:uuid])
           end
         rescue Sequel::Rollback => e
           metadata.reject(:requeue => true)

@@ -2,7 +2,7 @@ module Lims::BridgeApp
   module SampleManagement
     module SequencescapeMapper
 
-      MAPPING = [
+      MAPPING = { 
         :samples => {
           :sanger_sample_id => :sanger_sample_id,
           :name => :common_name
@@ -31,8 +31,8 @@ module Lims::BridgeApp
           :sample_description => nil,
           :sibling => :sibling,
           :is_resubmitted => :is_re_submitted_sample,
-          :date_of_sample_collection => nil,
-          :date_of_sample_extraction => :date_of_sample_extraction,
+          :date_of_sample_collection => :date_of_sample_collection,
+          :date_of_sample_extraction => :__component__date_of_sample_extraction,
           :sample_extraction_method => :__component__extraction_method,
           :sample_purified => :__component__sample_purified,
           :purification_method => nil,
@@ -59,7 +59,7 @@ module Lims::BridgeApp
           :subject => nil,
           :treatment => nil
         }
-      ]
+      }
 
     end
   end

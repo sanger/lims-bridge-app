@@ -1,6 +1,8 @@
 require 'lims-bridge-app/sample/sequencescape_mapper'
 require 'sequel'
 require 'sequel/adapters/mysql'
+require 'rubygems'
+require 'ruby-debug/debugger'
 
 module Lims::BridgeApp
   module SampleManagement
@@ -27,29 +29,48 @@ module Lims::BridgeApp
                              :database => mysql_settings['database'])
       end 
 
-      def create_sample_in_sequencescape(sample, sample_uuid)
+      def dispatch_s2_sample_in_sequencescape(sample, sample_uuid)
         db.transaction do
-          [:dna, :rna].each do |component|
-            if sample.send(component)
-              sample_values = prepare_data_for_sequencescape(sample, :samples)
-              sample_id = db[:samples].insert(sample_values)
-
-              sample_metadata_values = prepare_data_for_sequencescape(sample, :sample_metadata, component)
-              sample_metadata_values.merge!({:sample_id => sample_id})
-              db[:sample_metadata].insert(sample_metadata_values)
+          components = [:dna, :rna].keep_if { |c| sample.send(c) }
+          if components.empty?
+            sample_id = create_sample_record(sample)
+            create_uuid_record(sample_id, sample_uuid)
+          else
+            components.each do |c|
+              sample_id = create_sample_record(sample, c)
+              create_uuid_record(sample_id, sample_uuid)
             end
           end
         end
       end
 
-      def prepare_data_for_sequencescape(sample, table, component = nil)
+      def create_sample_record(sample, component = nil)
+        sample_values = prepare_data(sample, :samples)
+        sample_id = db[:samples].insert(sample_values)
+
+        sample_metadata_values = prepare_data(sample, :sample_metadata, component)
+        sample_metadata_values.merge!({:sample_id => sample_id})
+        db[:sample_metadata].insert(sample_metadata_values)
+        sample_id
+      end
+
+      def create_uuid_record(sample_id, sample_uuid)
+        db[:uuids].insert({
+          :resource_type => 'Sample',
+          :resource_id => sample_id,
+          :external_id => sample_uuid
+        })
+      end
+
+      def prepare_data(sample, table, component = nil)
         map = MAPPING[table]
         {}.tap do |h|
           map.each do |s_attribute, s2_attribute|
-            if s2_attribute =~ /__component__/
+            if component && s2_attribute =~ /__component__/
+              next unless sample.send(component)
               h[s_attribute] = sample.send(component).send(s2_attributes.scan(/__component__(.*)/).last.first) 
             else
-              h[s_attribute] = sample.send(s2_attribute) 
+              h[s_attribute] = sample.send(s2_attribute) if s2_attribute && sample.respond_to?(s2_attribute) 
             end
           end
         end
