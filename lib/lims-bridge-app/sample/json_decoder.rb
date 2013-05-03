@@ -29,7 +29,7 @@ module Lims::BridgeApp
           samples_hash = bulk_sample_hash["result"]["samples"]
           samples = []
           samples_hash.each do |sample_hash|
-            samples << SampleDecoder.sample(sample_hash)        
+            samples << JsonDecoder::SampleJsonDecoder.sample(sample_hash)        
           end
 
           {:samples => samples}

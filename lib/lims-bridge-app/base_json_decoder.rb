@@ -9,7 +9,7 @@ module Lims::BridgeApp
     # @param [String] model
     def json_decoder_for(model)
       begin
-        decoder = "#{model.to_s.capitalize.sub(/_./) {|p| p[1].upcase}}JsonDecoder"
+        decoder = "#{model.to_s.capitalize.gsub(/_./) {|p| p[1].upcase}}JsonDecoder"
         self.class.const_get(decoder)
       rescue NameError => e
         raise UndefinedDecoder, "#{decoder} is undefined"
