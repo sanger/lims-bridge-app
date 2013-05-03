@@ -48,14 +48,23 @@ module Lims::BridgeApp
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
             s2_resource = s2_resource(payload)
 
-            message_handler = case metadata.routing_key
-                              when /sample\.create/ then {:method => :sample_message_handler, :action => "create"}
-                              when /sample\.updatesample/ then {:method => :sample_message_handler, :action => "udpate"}
-                              when /sample\.deletesample/ then {:method => :sample_message_handler, :action => "delete"}
-                              when /bulkcreatesample/ then {:method => :bulk_create_sample_message_handler, :action => nil}
-                              else {}
-                              end
-            send(message_handler[:method], metadata, s2_resource, message_handler[:action])
+            action = case metadata.routing_key
+                     when /sample\.create/ || /bulkcreatesample/ then "create"
+                     when /sample\.updatesample/ then "udpate"
+                     when /sample\.deletesample/ then "delete"
+                     end
+
+            block = lambda do |s2_resource|
+              if s2_resource[:samples]
+                s2_resource[:samples].each do |h|
+                  dispatch_s2_sample_in_sequencescape(h[:sample], h[:uuid], action)
+                end
+              else
+                dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], action)
+              end
+            end
+
+            sample_message_handler(metadata, s2_resource, action, block)
           else
             metadata.reject
             log.debug("Message rejected: unused message (routing key: #{metadata.routing_key})")
@@ -63,29 +72,15 @@ module Lims::BridgeApp
         end
       end
 
-      def sample_message_handler(metadata, s2_resource, action)
+      def sample_message_handler(metadata, s2_resource, action, handler)
         begin
-          dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], action)
+          handler.call(s2_resource)
         rescue Sequel::Rollback => e
           metadata.reject(:requeue => true)
           log.error("Error saving sample in Sequencescape: #{e}")
         else
           metadata.ack
           log.info("Sample message processed and acknowledged")
-        end
-      end
-
-      def bulk_create_sample_message_handler(metadata, s2_resource)
-        begin
-          s2_resource[:samples].each do |h|
-            dispatch_s2_sample_in_sequencescape(h[:sample], h[:uuid])
-          end
-        rescue Sequel::Rollback => e
-          metadata.reject(:requeue => true)
-          log.error("Error saving samples in Sequencescape: #{e}")
-        else
-          metadata.ack
-          log.info("Bulk create sample message processed and acknowledged")
         end
       end
     end
