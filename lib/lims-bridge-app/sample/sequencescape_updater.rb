@@ -29,16 +29,30 @@ module Lims::BridgeApp
                              :database => mysql_settings['database'])
       end 
 
-      def dispatch_s2_sample_in_sequencescape(sample, sample_uuid)
+      def dispatch_s2_sample_in_sequencescape(sample, sample_uuid, method)
         db.transaction do
           components = [:dna, :rna].keep_if { |c| sample.send(c) }
           if components.empty?
-            sample_id = create_sample_record(sample)
-            create_uuid_record(sample_id, sample_uuid)
+            case method
+            when "create" then
+              sample_id = create_sample_record(sample)
+              create_uuid_record(sample_id, sample_uuid)
+            when "update" then
+              update_sample_record(sample, sample_uuid)
+            when "delete" then
+              delete_sample_record(sample_uuid)
+            end
           else
             components.each do |c|
-              sample_id = create_sample_record(sample, c)
-              create_uuid_record(sample_id, sample_uuid)
+              case method
+              when "create" then
+                sample_id = create_sample_record(sample, c)
+                create_uuid_record(sample_id, sample_uuid)
+              when "update" then
+                update_sample_record(sample, sample_uuid, c)
+              when "delete" then
+                delete_sample_record(sample_uuid)
+              end
             end
           end
         end
@@ -60,6 +74,26 @@ module Lims::BridgeApp
           :resource_id => sample_id,
           :external_id => sample_uuid
         })
+      end
+
+      def update_sample_record(sample, sample_uuid, component)
+        sample_id = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first[:resource_id] 
+
+        updated_attributes = prepare_data(sample, :samples) 
+        db[:samples].where(:id => sample_id).update(updated_attributes)
+
+        updated_attributes = prepare_data(sample, :sample_metadata, component)
+        db[:sample_metadata].where(:sample_id => sample_id).update(updated_attributes)
+
+        sample_id
+      end
+
+      def delete_sample_record(sample_uuid)
+        sample_id = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first[:resource_id] 
+        db[:uuids].where(:external_id => sample_uuid).delete
+        db[:sample_metadata].where(:sample_id => sample_id).delete
+        db[:samples].where(:id => sample_id).delete
+        sample_id
       end
 
       def prepare_data(sample, table, component = nil)

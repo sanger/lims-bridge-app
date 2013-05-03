@@ -16,6 +16,8 @@ module Lims::BridgeApp
 
       EXPECTED_ROUTING_KEYS_PATTERNS = [
         '*.*.sample.create',
+        '*.*.sample.updatesample',
+        '*.*.sample.deletesample',
         '*.*.bulkcreatesample.*'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
 
@@ -46,21 +48,24 @@ module Lims::BridgeApp
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
             s2_resource = s2_resource(payload)
 
-            if metadata.routing_key =~ /sample\.create/
-              sample_create_message_handler(metadata, s2_resource)       
-            elsif metadata.routing_key =~ /bulkcreatesample/
-              bulk_create_sample_message_handler(metadata, s2_resource)
-            end
+            message_handler = case metadata.routing_key
+                              when /sample\.create/ then {:method => :sample_message_handler, :action => "create"}
+                              when /sample\.updatesample/ then {:method => :sample_message_handler, :action => "udpate"}
+                              when /sample\.deletesample/ then {:method => :sample_message_handler, :action => "delete"}
+                              when /bulkcreatesample/ then {:method => :bulk_create_sample_message_handler, :action => nil}
+                              else {}
+                              end
+            send(message_handler[:method], metadata, s2_resource, message_handler[:action])
           else
             metadata.reject
-            log.debug("Message rejected: plate creator not interested with the message (routing key: #{metadata.routing_key})")
+            log.debug("Message rejected: unused message (routing key: #{metadata.routing_key})")
           end
         end
       end
 
-      def sample_create_message_handler(metadata, s2_resource)
+      def sample_message_handler(metadata, s2_resource, action)
         begin
-          dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid])
+          dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], action)
         rescue Sequel::Rollback => e
           metadata.reject(:requeue => true)
           log.error("Error saving sample in Sequencescape: #{e}")
