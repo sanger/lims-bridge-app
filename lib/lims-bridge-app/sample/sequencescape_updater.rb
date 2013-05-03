@@ -68,7 +68,7 @@ module Lims::BridgeApp
           map.each do |s_attribute, s2_attribute|
             if component && s2_attribute =~ /__component__/
               next unless sample.send(component)
-              h[s_attribute] = sample.send(component).send(s2_attributes.scan(/__component__(.*)/).last.first) 
+              h[s_attribute] = sample.send(component).send(s2_attribute.to_s.scan(/__component__(.*)/).last.first) 
             else
               h[s_attribute] = sample.send(s2_attribute) if s2_attribute && sample.respond_to?(s2_attribute) 
             end
