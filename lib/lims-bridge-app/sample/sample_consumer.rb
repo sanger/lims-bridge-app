@@ -77,10 +77,10 @@ module Lims::BridgeApp
         begin
           if s2_resource[:samples]
             s2_resource[:samples].each do |h|
-              dispatch_s2_sample_in_sequencescape(h[:sample], h[:uuid], action)
+              dispatch_s2_sample_in_sequencescape(h[:sample], h[:uuid], h[:date], action)
             end
           else
-            dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], action)
+            dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], s2_resource[:date], action)
           end
         end
       rescue Sequel::Rollback => e
