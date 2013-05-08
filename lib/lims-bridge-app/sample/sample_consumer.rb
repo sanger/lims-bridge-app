@@ -15,10 +15,8 @@ module Lims::BridgeApp
       attribute :log, Object, :required => false, :writer => :private
 
       EXPECTED_ROUTING_KEYS_PATTERNS = [
-        '*.*.sample.create',
-        '*.*.sample.updatesample',
-        '*.*.sample.deletesample',
-        '*.*.bulkcreatesample.*'
+        '*.*.sample.create', '*.*.sample.updatesample', '*.*.sample.deletesample',
+        '*.*.bulkcreatesample.*', '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
 
       def initialize(amqp_settings, mysql_settings)
@@ -48,9 +46,9 @@ module Lims::BridgeApp
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
             s2_resource = s2_resource(payload)
             action = case metadata.routing_key
-                     when /sample\.create/ || /bulkcreatesample/ then "create"
-                     when /sample\.updatesample/ then "udpate"
-                     when /sample\.deletesample/ then "delete"
+                     when /sample\.create|bulkcreatesample/ then "create"
+                     when /sample\.updatesample|bulkupdatesample/ then "update"
+                     when /sample\.deletesample|bulkdeletesample/ then "delete"
                      end
 
             sample_message_handler(metadata, s2_resource, action)
