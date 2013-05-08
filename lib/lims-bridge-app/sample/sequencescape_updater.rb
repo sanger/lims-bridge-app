@@ -1,8 +1,6 @@
 require 'lims-bridge-app/sample/sequencescape_mapper'
 require 'sequel'
 require 'sequel/adapters/mysql'
-require 'rubygems'
-require 'ruby-debug/debugger'
 
 module Lims::BridgeApp
   module SampleManagement
