@@ -21,7 +21,7 @@ GIT
 
 GIT
   remote: https://github.com/llh1/lims-management-app.git
-  revision: dcb576cdf68ccd764813cf1b2b64bd311471ec7c
+  revision: 90815e7fe4d4cad5f821fb7bdb6eaafc6ad7d7ce
   branch: development
   specs:
     lims-management-app (0.1.0)
