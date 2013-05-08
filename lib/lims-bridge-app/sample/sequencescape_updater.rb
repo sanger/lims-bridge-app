@@ -31,38 +31,23 @@ module Lims::BridgeApp
 
       def dispatch_s2_sample_in_sequencescape(sample, sample_uuid, method)
         db.transaction do
-          components = [:dna, :rna].keep_if { |c| sample.send(c) }
-          if components.empty?
-            case method
-            when "create" then
-              sample_id = create_sample_record(sample)
-              create_uuid_record(sample_id, sample_uuid)
-            when "update" then
-              update_sample_record(sample, sample_uuid)
-            when "delete" then
-              delete_sample_record(sample_uuid)
-            end
-          else
-            components.each do |c|
-              case method
-              when "create" then
-                sample_id = create_sample_record(sample, c)
-                create_uuid_record(sample_id, sample_uuid)
-              when "update" then
-                update_sample_record(sample, sample_uuid, c)
-              when "delete" then
-                delete_sample_record(sample_uuid)
-              end
-            end
+          case method
+          when "create" then
+            sample_id = create_sample_record(sample)
+            create_uuid_record(sample_id, sample_uuid)
+          when "update" then
+            update_sample_record(sample, sample_uuid)
+          when "delete" then
+            delete_sample_record(sample_uuid)
           end
         end
       end
 
-      def create_sample_record(sample, component = nil)
+      def create_sample_record(sample)
         sample_values = prepare_data(sample, :samples)
         sample_id = db[:samples].insert(sample_values)
 
-        sample_metadata_values = prepare_data(sample, :sample_metadata, component)
+        sample_metadata_values = prepare_data(sample, :sample_metadata)
         sample_metadata_values.merge!({:sample_id => sample_id})
         db[:sample_metadata].insert(sample_metadata_values)
         sample_id
@@ -76,13 +61,13 @@ module Lims::BridgeApp
         })
       end
 
-      def update_sample_record(sample, sample_uuid, component)
+      def update_sample_record(sample, sample_uuid)
         sample_id = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first[:resource_id] 
 
         updated_attributes = prepare_data(sample, :samples) 
         db[:samples].where(:id => sample_id).update(updated_attributes)
 
-        updated_attributes = prepare_data(sample, :sample_metadata, component)
+        updated_attributes = prepare_data(sample, :sample_metadata)
         db[:sample_metadata].where(:sample_id => sample_id).update(updated_attributes)
 
         sample_id
@@ -96,13 +81,15 @@ module Lims::BridgeApp
         sample_id
       end
 
-      def prepare_data(sample, table, component = nil)
+      def prepare_data(sample, table)
         map = MAPPING[table]
         {}.tap do |h|
           map.each do |s_attribute, s2_attribute|
-            if component && s2_attribute =~ /__component__/
-              next unless sample.send(component)
-              h[s_attribute] = sample.send(component).send(s2_attribute.to_s.scan(/__component__(.*)/).last.first) 
+            #if component && s2_attribute =~ /__component__/
+            #  next unless sample.send(component)
+            #  h[s_attribute] = sample.send(component).send(s2_attribute.to_s.scan(/__component__(.*)/).last.first) 
+            if s2_attribute =~ /__(\w*)__(.*)/
+              h[s_attribute] = sample.send($1).send($2) if sample.respond_to?($1)
             else
               h[s_attribute] = sample.send(s2_attribute) if s2_attribute && sample.respond_to?(s2_attribute) 
             end
