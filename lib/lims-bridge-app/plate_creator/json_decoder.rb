@@ -18,7 +18,7 @@ module Lims::BridgeApp
         # {:plate => Lims::Core::Laboratory::Plate, 
         #  :uuid => "plate_uuid", 
         #  :sample_uuids => {"A1" => ["sample_uuid"]}}
-        def self.call(json)
+        def self.call(json, options)
           plate_hash = json["plate"]
           plate = Lims::Core::Laboratory::Plate.new({:number_of_rows => plate_hash["number_of_rows"],
                                                      :number_of_columns => plate_hash["number_of_columns"]})   
@@ -60,7 +60,7 @@ module Lims::BridgeApp
         # we map below a tuberack to a s2 plate.
         # Basically, in a tuberack, a tube is mapped to a well,
         # the content of the tube is mapped to the content of a well.
-        def self.call(json)
+        def self.call(json, options)
           tuberack_hash = json["tube_rack"]
           plate = Lims::Core::Laboratory::Plate.new({:number_of_rows => tuberack_hash["number_of_rows"],
                                                      :number_of_columns => tuberack_hash["number_of_columns"]})
@@ -96,7 +96,7 @@ module Lims::BridgeApp
 
 
       module OrderJsonDecoder
-        def self.call(json)
+        def self.call(json, options)
           order_h = json["order"]
           order = Lims::Core::Organization::Order.new
           order_h["items"].each do |role, settings|
@@ -115,7 +115,7 @@ module Lims::BridgeApp
 
 
       module PlateTransferJsonDecoder
-        def self.call(json)
+        def self.call(json, options)
           transfer_h = json["plate_transfer"]
           PlateJsonDecoder.call(transfer_h["result"])         
         end
