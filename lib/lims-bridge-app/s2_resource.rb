@@ -8,8 +8,14 @@ module Lims::BridgeApp
     # {:plate => Lims::Core::Laboratory::Plate, :uuid => xxxx}
     def s2_resource(message)
       body = JSON.parse(message)
+      
+      action = body.delete("action")
+      date = body.delete("date")
+      user = body.delete("user")
+      options = {:action => action, :date => date, :user => user}
+
       model = body.keys.first
-      json_decoder_for(model).call(body)
+      json_decoder_for(model).call(body, options)
     end
   end
 end
