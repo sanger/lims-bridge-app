@@ -29,6 +29,9 @@ module Lims::BridgeApp
                              :database => mysql_settings['database'])
       end 
 
+      # @param [Lims::ManagementApp::Sample] sample
+      # @param [String] sample_uuid
+      # @param [String] method
       def dispatch_s2_sample_in_sequencescape(sample, sample_uuid, method)
         db.transaction do
           case method
@@ -43,6 +46,7 @@ module Lims::BridgeApp
         end
       end
 
+      # @param [Lims::ManagementApp::Sample] sample
       def create_sample_record(sample)
         sample_values = prepare_data(sample, :samples)
         sample_id = db[:samples].insert(sample_values)
@@ -53,6 +57,8 @@ module Lims::BridgeApp
         sample_id
       end
 
+      # @param [Fixnum] sample_id
+      # @param [String] sample_uuid
       def create_uuid_record(sample_id, sample_uuid)
         db[:uuids].insert({
           :resource_type => 'Sample',
@@ -61,6 +67,8 @@ module Lims::BridgeApp
         })
       end
 
+      # @param [Lims::ManagementApp::Sample] sample
+      # @param [String] sample_uuid
       def update_sample_record(sample, sample_uuid)
         sample_id = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first[:resource_id] 
 
@@ -73,6 +81,7 @@ module Lims::BridgeApp
         sample_id
       end
 
+      # @param [String] sample_uuid
       def delete_sample_record(sample_uuid)
         sample_id = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first[:resource_id] 
         db[:uuids].where(:external_id => sample_uuid).delete
@@ -81,6 +90,11 @@ module Lims::BridgeApp
         sample_id
       end
 
+      # @param [Lims::ManagementApp::Sample] sample
+      # @param [Symbol] table
+      # @return [Hash]
+      # Make the translation between sequencescape attribute names
+      # and s2 attribute names.
       def prepare_data(sample, table)
         map = MAPPING[table]
         {}.tap do |h|

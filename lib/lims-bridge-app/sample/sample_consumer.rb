@@ -19,6 +19,8 @@ module Lims::BridgeApp
         '*.*.bulkcreatesample.*', '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
 
+      # @param [Hash] amqp_settings
+      # @param [Hash] mysql_settings
       def initialize(amqp_settings, mysql_settings)
         @queue_name = amqp_settings.delete("queue_name")
         consumer_setup(amqp_settings)
@@ -26,12 +28,15 @@ module Lims::BridgeApp
         set_queue
       end
 
+      # @param [Object] logger
       def set_logger(logger)
         @log = logger
       end
 
       private
 
+      # @param [String] routing_key
+      # @return [Boolean]
       def expected_message?(routing_key)
         EXPECTED_ROUTING_KEYS_PATTERNS.each do |pattern|
           return true if routing_key.match(pattern)
@@ -39,9 +44,13 @@ module Lims::BridgeApp
         false
       end
 
+      # If the message is an expected message, we get the 
+      # corresponding s2 resource from the message json, then
+      # pass it to the sample message handler for processing.
       def set_queue
         self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
+
           if expected_message?(metadata.routing_key)
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
             s2_resource = s2_resource(payload)
@@ -54,11 +63,16 @@ module Lims::BridgeApp
             sample_message_handler(metadata, s2_resource, action)
           else
             metadata.reject
-            log.debug("Message rejected: unused message (routing key: #{metadata.routing_key})")
+            log.debug("Message rejected: unexpected message (routing key: #{metadata.routing_key})")
           end
         end
       end
 
+      # @param [AMQP::Header] metadata
+      # @param [Hash] s2_resource
+      # @param [String] action
+      # If the message is about a bulk action, each sample needs
+      # to be processed by the dispatch_s2_sample_in_sequencescape method.
       def sample_message_handler(metadata, s2_resource, action)
         begin
           if s2_resource[:samples]

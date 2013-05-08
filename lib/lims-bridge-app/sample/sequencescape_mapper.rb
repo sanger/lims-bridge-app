@@ -2,6 +2,12 @@ module Lims::BridgeApp
   module SampleManagement
     module SequencescapeMapper
 
+      # Mapping sequencescape attributes to s2 attributes
+      # Some s2 attributes are prefixed with __smthg__ 
+      # which means that given a sample "s", to access the
+      # attribute value in s2, we need to do s.smthg.attribute.
+      # The level 1 keys in the following hash are the name of the
+      # tables in sequencescape database.
       MAPPING = { 
         :samples => {
           :sanger_sample_id => :sanger_sample_id,
