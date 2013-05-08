@@ -29,15 +29,16 @@ module Lims::BridgeApp
 
       # @param [Lims::ManagementApp::Sample] sample
       # @param [String] sample_uuid
+      # @param [String] date
       # @param [String] method
-      def dispatch_s2_sample_in_sequencescape(sample, sample_uuid, method)
+      def dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)
         db.transaction do
           case method
           when "create" then
-            sample_id = create_sample_record(sample)
+            sample_id = create_sample_record(sample, date)
             create_uuid_record(sample_id, sample_uuid)
           when "update" then
-            update_sample_record(sample, sample_uuid)
+            update_sample_record(sample, date, sample_uuid)
           when "delete" then
             delete_sample_record(sample_uuid)
           end
@@ -45,12 +46,16 @@ module Lims::BridgeApp
       end
 
       # @param [Lims::ManagementApp::Sample] sample
-      def create_sample_record(sample)
+      # @param [String] date
+      def create_sample_record(sample, date)
         sample_values = prepare_data(sample, :samples)
         sample_id = db[:samples].insert(sample_values)
 
         sample_metadata_values = prepare_data(sample, :sample_metadata)
-        sample_metadata_values.merge!({:sample_id => sample_id})
+        sample_metadata_values.merge!({
+          :sample_id => sample_id,
+          :created_at => date
+        })
         db[:sample_metadata].insert(sample_metadata_values)
         sample_id
       end
@@ -66,14 +71,16 @@ module Lims::BridgeApp
       end
 
       # @param [Lims::ManagementApp::Sample] sample
+      # @param [String] date
       # @param [String] sample_uuid
-      def update_sample_record(sample, sample_uuid)
+      def update_sample_record(sample, date, sample_uuid)
         sample_id = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first[:resource_id] 
 
         updated_attributes = prepare_data(sample, :samples) 
         db[:samples].where(:id => sample_id).update(updated_attributes)
 
         updated_attributes = prepare_data(sample, :sample_metadata)
+        updated_attributes.merge!(:updated_at => date)
         db[:sample_metadata].where(:sample_id => sample_id).update(updated_attributes)
 
         sample_id
