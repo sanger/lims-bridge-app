@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Loic Le Henaff"]
   s.email       = ["llh1@sanger.ac.uk"]
   s.homepage    = ""
-  s.summary     = %q{Tools allowing to link S2 with Sequencescape using bus messages}
+  s.summary     = %q{Tools allowing to link S2 with Sequencescape using the message bus}
   s.description = %q{}
 
   s.rubyforge_project = "lims-bridge-app"
