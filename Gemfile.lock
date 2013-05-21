@@ -14,6 +14,13 @@ GIT
       virtus (= 0.2.0)
 
 GIT
+  remote: http://github.com/sanger/lims-laboratory-app.git
+  revision: d5d942da85966afe5cd6c82824ee7de4e0a0e797
+  branch: master
+  specs:
+    lims-laboratory-app (1.0.3)
+
+GIT
   remote: http://github.com/sanger/psd_logger.git
   revision: dd2d634114df75b1d8535715c169a7fc99521389
   specs:
@@ -116,6 +123,7 @@ DEPENDENCIES
   lims-bridge-app!
   lims-busclient (~> 0.1.0)!
   lims-core (~> 2.0)!
+  lims-laboratory-app (~> 1.0)!
   lims-management-app (~> 1.0.0)!
   psd_logger!
   rake
