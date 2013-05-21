@@ -1,5 +1,6 @@
-require 'lims-core/laboratory'
-require 'lims-core/organization'
+require 'lims-laboratory-app/laboratory/plate'
+require 'lims-laboratory-app/laboratory/aliquot'
+require 'lims-laboratory-app/organization/order'
 require 'lims-bridge-app/base_json_decoder'
 require 'json'
 
@@ -20,12 +21,12 @@ module Lims::BridgeApp
         #  :sample_uuids => {"A1" => ["sample_uuid"]}}
         def self.call(json, options)
           plate_hash = json["plate"]
-          plate = Lims::Core::Laboratory::Plate.new({:number_of_rows => plate_hash["number_of_rows"],
-                                                     :number_of_columns => plate_hash["number_of_columns"]})   
+          plate = Lims::LaboratoryApp::Laboratory::Plate.new({:number_of_rows => plate_hash["number_of_rows"],
+                                                              :number_of_columns => plate_hash["number_of_columns"]})   
           plate_hash["wells"].each do |location, aliquots|
             unless aliquots.empty?
               aliquots.each do |aliquot|
-                plate[location] << Lims::Core::Laboratory::Aliquot.new
+                plate[location] << Lims::LaboratoryApp::Laboratory::Aliquot.new
               end
             end
           end
@@ -62,11 +63,11 @@ module Lims::BridgeApp
         # the content of the tube is mapped to the content of a well.
         def self.call(json, options)
           tuberack_hash = json["tube_rack"]
-          plate = Lims::Core::Laboratory::Plate.new({:number_of_rows => tuberack_hash["number_of_rows"],
+          plate = Lims::LaboratoryApp::Laboratory::Plate.new({:number_of_rows => tuberack_hash["number_of_rows"],
                                                      :number_of_columns => tuberack_hash["number_of_columns"]})
           tuberack_hash["tubes"].each do |location, tube|
             tube["aliquots"].each do |aliquot|
-              plate[location] << Lims::Core::Laboratory::Aliquot.new
+              plate[location] << Lims::LaboratoryApp::Laboratory::Aliquot.new
             end
           end
 
@@ -98,11 +99,11 @@ module Lims::BridgeApp
       module OrderJsonDecoder
         def self.call(json, options)
           order_h = json["order"]
-          order = Lims::Core::Organization::Order.new
+          order = Lims::LaboratoryApp::Organization::Order.new
           order_h["items"].each do |role, settings|
             settings.each do |s|
               items = order.fetch(role) { |_| order[role] = [] }
-              items << Lims::Core::Organization::Order::Item.new({
+              items << Lims::LaboratoryApp::Organization::Order::Item.new({
                 :uuid => s["uuid"],
                 :status => s["status"]
               })
