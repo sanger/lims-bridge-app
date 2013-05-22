@@ -22,7 +22,7 @@ module Lims::BridgeApp
       # @param [Hash] amqp_settings
       # @param [Hash] mysql_settings
       def initialize(amqp_settings, mysql_settings)
-        @queue_name = amqp_settings.delete("queue_name")
+        @queue_name = amqp_settings.delete("sample_queue_name")
         consumer_setup(amqp_settings)
         sequencescape_db_setup(mysql_settings)
         set_queue
