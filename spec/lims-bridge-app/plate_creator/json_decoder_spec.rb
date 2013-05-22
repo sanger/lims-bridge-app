@@ -25,6 +25,12 @@ module Lims::BridgeApp::PlateCreator
       it "gets the right decoder for a plate transfer message" do
         @decoder.json_decoder_for("plate_transfer").should == JsonDecoder::PlateTransferJsonDecoder
       end
+
+      it "raises an exception if for a unknown decoder" do
+        expect do
+          @decoder.json_decoder_for("dummy")
+        end.to raise_error(JsonDecoder::UndefinedDecoder)
+      end
     end
   end
 end

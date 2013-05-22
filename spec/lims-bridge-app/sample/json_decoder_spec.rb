@@ -25,6 +25,12 @@ module Lims::BridgeApp::SampleManagement
       it "gets the right decoder for a bulk delete sample message" do
         @decoder.json_decoder_for("bulk_delete_sample").should == JsonDecoder::BulkDeleteSampleJsonDecoder
       end
+
+      it "raises an exception if for a unknown decoder" do
+        expect do
+          @decoder.json_decoder_for("dummy")
+        end.to raise_error(JsonDecoder::UndefinedDecoder)
+      end
     end
   end
 end
