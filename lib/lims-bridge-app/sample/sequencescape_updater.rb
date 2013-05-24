@@ -5,6 +5,9 @@ require 'sequel/adapters/mysql'
 
 module Lims::BridgeApp
   module SampleManagement
+
+    UnknownSample = Class.new(StandardError)
+
     module SequencescapeUpdater
       include SequencescapeMapper
 
@@ -75,7 +78,9 @@ module Lims::BridgeApp
       # @param [String] date
       # @param [String] sample_uuid
       def update_sample_record(sample, date, sample_uuid)
-        sample_id = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first[:resource_id] 
+        sample_uuid_record = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first
+        raise UnknownSample unless sample_uuid_record
+        sample_id = sample_uuid_record[:resource_id] 
 
         updated_attributes = prepare_data(sample, :samples) 
         db[:samples].where(:id => sample_id).update(updated_attributes)
@@ -89,7 +94,10 @@ module Lims::BridgeApp
 
       # @param [String] sample_uuid
       def delete_sample_record(sample_uuid)
-        sample_id = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first[:resource_id] 
+        sample_uuid_record = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first
+        raise UnknownSample unless sample_uuid_record 
+        sample_id = sample_uuid_record[:resource_id] 
+
         db[:uuids].where(:external_id => sample_uuid).delete
         db[:sample_metadata].where(:sample_id => sample_id).delete
         db[:samples].where(:id => sample_id).delete
