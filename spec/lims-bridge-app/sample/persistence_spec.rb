@@ -77,24 +77,43 @@ module Lims::BridgeApp::SampleManagement
 
    context "update sample" do
      let(:method) { "update" }
-     before do
-       updater.dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, "create")
+
+     context "valid update" do
+       before { updater.dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, "create") } 
+       it_behaves_like "updating table", :samples, 0
+       it_behaves_like "updating table", :sample_metadata, 0
+       it_behaves_like "updating table", :uuids, 0
      end
 
-     it_behaves_like "updating table", :samples, 0
-     it_behaves_like "updating table", :sample_metadata, 0
-     it_behaves_like "updating table", :uuids, 0
+     context "invalid update" do
+       it "raises an error if the update fails" do
+         expect do
+           updater.dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)   
+         end.to raise_error(UnknownSample)
+       end
+     end
    end
 
    context "delete sample" do
      let(:method) { "delete" }
-     before(:each) do
-       updater.dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, "create")
+
+     context "valid delete" do
+       before(:each) do
+         updater.dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, "create")
+       end
+
+       it_behaves_like "updating table", :samples, -1
+       it_behaves_like "updating table", :sample_metadata, -1
+       it_behaves_like "updating table", :uuids, -1
      end
 
-     it_behaves_like "updating table", :samples, -1
-     it_behaves_like "updating table", :sample_metadata, -1
-     it_behaves_like "updating table", :uuids, -1
+     context "invalid delete" do
+       it "raises an error if the delete fails" do
+         expect do
+           updater.dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)   
+         end.to raise_error(UnknownSample)
+       end
+     end
    end
   end
 end
