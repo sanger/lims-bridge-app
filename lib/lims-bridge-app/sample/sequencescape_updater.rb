@@ -1,3 +1,4 @@
+require 'lims-management-app/sample/sample'
 require 'lims-bridge-app/sample/sequencescape_mapper'
 require 'sequel'
 require 'sequel/adapters/mysql'
