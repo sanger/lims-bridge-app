@@ -73,6 +73,9 @@ module Lims::BridgeApp
       # @param [String] action
       # If the message is about a bulk action, each sample needs
       # to be processed by the dispatch_s2_sample_in_sequencescape method.
+      # If an update or delete message arrives before a sample is created,
+      # an exception UnknownSample is raised and the message are requeue
+      # waiting the message to create the sample arrives.
       def sample_message_handler(metadata, s2_resource, action)
         begin
           if s2_resource[:samples]
