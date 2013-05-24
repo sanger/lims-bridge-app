@@ -82,13 +82,13 @@ module Lims::BridgeApp
           else
             dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], s2_resource[:date], action)
           end
+        rescue Sequel::Rollback, UnknownSample => e
+          metadata.reject(:requeue => true)
+          log.error("Error saving sample in Sequencescape: #{e}")
+        else
+          metadata.ack
+          log.info("Sample message processed and acknowledged")
         end
-      rescue Sequel::Rollback => e
-        metadata.reject(:requeue => true)
-        log.error("Error saving sample in Sequencescape: #{e}")
-      else
-        metadata.ack
-        log.info("Sample message processed and acknowledged")
       end
     end
   end
