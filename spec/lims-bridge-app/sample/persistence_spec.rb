@@ -86,7 +86,7 @@ module Lims::BridgeApp::SampleManagement
      end
 
      context "invalid update" do
-       it "raises an error if the update fails" do
+       it "raises an error if the sample to update cannot be found" do
          expect do
            updater.dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)   
          end.to raise_error(UnknownSample)
@@ -108,7 +108,7 @@ module Lims::BridgeApp::SampleManagement
      end
 
      context "invalid delete" do
-       it "raises an error if the delete fails" do
+       it "raises an error if the sample to delete cannot be found" do
          expect do
            updater.dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)   
          end.to raise_error(UnknownSample)
