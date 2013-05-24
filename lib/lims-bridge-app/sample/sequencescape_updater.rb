@@ -36,7 +36,7 @@ module Lims::BridgeApp
       # @param [String] date
       # @param [String] method
       def dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)
-        db.transaction do
+        db.transaction(:rollback => :reraise) do
           case method
           when "create" then
             sample_id = create_sample_record(sample, date)
