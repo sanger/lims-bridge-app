@@ -13,26 +13,6 @@ module Lims::BridgeApp::SampleManagement
       end
     end
 
-    def update_parameters(parameters)
-      parameters.mash do |k,v|
-        case v
-        when DateTime then [k, DateTime.now.to_s]
-        when TrueClass then [k, false]
-        when FalseClass then [k, true]
-        when Fixnum then k.to_s == "taxon_id" ? [k, v] : [k, v+1]
-        when Hash then [k, update_parameters(v)]
-        else 
-          case k
-          when :gender then [k, "Hermaphrodite"]
-          when :sample_type then [k, "Blood"]
-          when :common_name then [k, v]
-          when :scientific_name then [k, v]
-          else [k, "new #{v}"]
-          end
-        end
-      end
-    end
-
     let(:db_settings) { YAML.load_file(File.join('config', 'database.yml'))['test'] }
     let!(:updater) do
       Class.new { include SequencescapeUpdater }.new.tap do |o|
