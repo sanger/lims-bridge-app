@@ -6,7 +6,7 @@ module Lims::BridgeApp::SampleManagement
     include_context "test database"
 
     shared_examples_for "updating table" do |table, quantity|
-      it "update the table #{table} by #{quantity} record" do
+      it "updates the table #{table} by #{quantity} record" do
         expect do
           updater.dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)
         end.to change { db[table.to_sym].count }.by(quantity)
