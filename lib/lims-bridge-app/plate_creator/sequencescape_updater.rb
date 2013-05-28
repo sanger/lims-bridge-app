@@ -51,7 +51,7 @@ module Lims::BridgeApp
       # @param [String] plate uuid
       # @param [Hash] sample uuids
       def create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
-        @db.transaction do
+        @db.transaction(:rollback => :reraise) do
           # Save plate and plate uuid
           plate_id = db[:assets].insert(
             :sti_type => PLATE, 
@@ -108,13 +108,14 @@ module Lims::BridgeApp
       # with the right plate_purpose_id for a stock plate.
       # @param [String] plate uuid
       def update_plate_purpose_in_sequencescape(plate_uuid)
-        @db.transaction do
-          plate_id = db[:uuids].select(:resource_id).where(
+        @db.transaction(:rollback => :reraise) do
+          plate_uuid_data = db[:uuids].select(:resource_id).where(
             :external_id => plate_uuid
-          ).first[:resource_id]
+          ).first
 
-          raise PlateNotFoundInSequencescape if plate_id.nil?
+          raise PlateNotFoundInSequencescape if plate_uuid_data.nil?
 
+          plate_id = plate_uuid_data[:resource_id]
           db[:assets].where(:id => plate_id).update(
             :plate_purpose_id => STOCK_PLATE_PURPOSE_ID
           ) 
@@ -127,37 +128,34 @@ module Lims::BridgeApp
       # @param [Hash] non stock plates
       def delete_unassigned_plates_in_sequencescape(s2_items)
         s2_items.flatten.each do |item|
-          begin
-            @db.transaction do
-              plate = db[:assets].select(:assets__id).join(
-                :uuids, 
-                :resource_id => :id
-              ).where(:external_id => item.uuid).first
+          @db.transaction do
+            plate = db[:assets].select(:assets__id).join(
+              :uuids,
+              :resource_id => :id
+            ).where(:external_id => item.uuid).first
 
-              unless plate.nil?
-                # Delete wells in assets
-                well_ids = db[:container_associations].select(:assets__id).join(
-                  :assets, 
-                  :id => :content_id
-                ).where(:container_id => plate[:id]).all.inject([]) do |m,e| 
-                  m << e[:id]
-                end
-                db[:assets].where(:id => well_ids).delete
-
-                # Delete aliquots
-                db[:aliquots].where(:receptacle_id => well_ids).delete
-
-                # Delete container_associations
-                db[:container_associations].where(:content_id => well_ids).delete
-
-                # Delete plate in assets
-                db[:assets].where(:id => plate[:id]).delete
-
-                # Delete plate uuid
-                db[:uuids].where(:external_id => item.uuid).delete
+            unless plate.nil?
+              # Delete wells in assets
+              well_ids = db[:container_associations].select(:assets__id).join(
+                :assets,
+                :id => :content_id
+              ).where(:container_id => plate[:id]).all.inject([]) do |m,e|
+                m << e[:id]
               end
+              db[:assets].where(:id => well_ids).delete
+
+              # Delete aliquots
+              db[:aliquots].where(:receptacle_id => well_ids).delete
+
+              # Delete container_associations
+              db[:container_associations].where(:content_id => well_ids).delete
+
+              # Delete plate in assets
+              db[:assets].where(:id => plate[:id]).delete
+
+              # Delete plate uuid
+              db[:uuids].where(:external_id => item.uuid).delete
             end
-          rescue Sequel::Rollback => e
           end
         end
       end
@@ -167,38 +165,40 @@ module Lims::BridgeApp
       # @param [String] plate uuid
       # @param [Hash] sample uuids
       def update_aliquots_in_sequencescape(plate, plate_uuid, sample_uuids)
-        plate_id = db[:uuids].select(:resource_id).where(
-          :external_id => plate_uuid
-        ).first[:resource_id]
+        @db.transaction(:rollback => :reraise) do
+          plate_id = db[:uuids].select(:resource_id).where(
+            :external_id => plate_uuid
+          ).first[:resource_id]
 
-        if plate_id
-          wells = db[:container_associations].select(
-            :assets__id, 
-            :maps__description
-          ).join(
-            :assets, 
-            :id => :content_id
-          ).join(
-            :maps, 
-            :id => :map_id
-          ).where(:container_id => plate_id).all.inject({}) do |m,e|
-            m.merge({e[:description] => e[:id]})
-          end
+          if plate_id
+            wells = db[:container_associations].select(
+              :assets__id, 
+              :maps__description
+            ).join(
+              :assets, 
+              :id => :content_id
+            ).join(
+              :maps, 
+              :id => :map_id
+            ).where(:container_id => plate_id).all.inject({}) do |m,e|
+              m.merge({e[:description] => e[:id]})
+            end
 
-          db[:aliquots].where(:receptacle_id => wells.values).delete
+            db[:aliquots].where(:receptacle_id => wells.values).delete
 
-          plate.keys.each do |location|
-            if sample_uuids.has_key?(location)
-              sample_uuids[location].each do |sample_uuid|
-                sample_id = db[:uuids].select(:resource_id).where(
-                  :resource_type => SAMPLE, 
-                  :external_id => sample_uuid
-                ).first[:resource_id]
+            plate.keys.each do |location|
+              if sample_uuids.has_key?(location)
+                sample_uuids[location].each do |sample_uuid|
+                  sample_id = db[:uuids].select(:resource_id).where(
+                    :resource_type => SAMPLE,
+                    :external_id => sample_uuid
+                  ).first[:resource_id]
 
-                db[:aliquots].insert(
-                  :receptacle_id => wells[location], 
-                  :sample_id => sample_id
-                )
+                  db[:aliquots].insert(
+                    :receptacle_id => wells[location],
+                    :sample_id => sample_id
+                  )
+                end
               end
             end
           end
