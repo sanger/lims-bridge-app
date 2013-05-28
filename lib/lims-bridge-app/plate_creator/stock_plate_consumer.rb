@@ -86,7 +86,7 @@ module Lims::BridgeApp
             end
           else
             metadata.reject
-            log.debug("Message rejected: plate creator not interested with the message (routing key: #{metadata.routing_key})")
+            log.debug("Message rejected: unexpected message (routing key: #{metadata.routing_key})")
           end
         end
       end
