@@ -16,10 +16,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 4e0d1b1a4986879c4ce33a1103d5e8505ea981df
+  revision: 77229b0865f59963836e0acdb38ee4796203a1a7
   branch: development
   specs:
-    lims-laboratory-app (1.0.4)
+    lims-laboratory-app (1.2.0)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -40,10 +40,10 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: 8520827909ab568c5ebe778c5dc1e5049ed079dc
+  revision: 057514091deb00a69a8ec8e2cfe192f6af23b6ce
   branch: development
   specs:
-    lims-management-app (1.0.1)
+    lims-management-app (1.2.1)
       bunny (= 0.9.0.pre10)
       json
 
@@ -130,8 +130,8 @@ DEPENDENCIES
   lims-bridge-app!
   lims-busclient (~> 0.1.0)!
   lims-core (~> 2.1)!
-  lims-laboratory-app (~> 1.0)!
-  lims-management-app (~> 1.0.1)!
+  lims-laboratory-app (~> 1.2)!
+  lims-management-app (~> 1.2)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
