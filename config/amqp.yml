@@ -1,0 +1,16 @@
+defaults: &defaults
+  url: "amqp://localhost:5672"
+  exchange_name: "psd.s2"
+  sample_queue_name: "psd.s2.bridge"
+  plate_creator_queue_name: "psd.s2.plate"
+  durable: true
+  empty_queue_disconnect_interval: 0
+
+test:
+  <<: *defaults
+
+development:
+  <<: *defaults
+
+production:
+  <<: *defaults
