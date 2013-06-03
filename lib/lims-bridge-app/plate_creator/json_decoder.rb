@@ -121,6 +121,18 @@ module Lims::BridgeApp
           PlateJsonDecoder.call(transfer_h["result"])         
         end
       end
+
+
+      module TransferPlatesToPlatesJsonDecoder
+        def self.call(json, options)
+          plates = []
+          json["transfer_plates_to_plates"]["result"]["targets"].each do |plate|
+            plates << PlateJsonDecoder.call(plate)
+          end
+
+          {:plates => plates}
+        end
+      end
     end
   end
 end
