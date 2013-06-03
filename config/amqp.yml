@@ -1,6 +1,8 @@
 defaults: &defaults
   url: "amqp://localhost:5672"
-  exchange_name: "S2.exchange"
+  exchange_name: "psd.s2"
+  sample_queue_name: "psd.s2.bridge"
+  plate_creator_queue_name: "psd.s2.plate"
   durable: true
   empty_queue_disconnect_interval: 0
 
@@ -9,16 +11,6 @@ test:
 
 development:
   <<: *defaults
-  queue_name: "warehousebuilder_queue"
-  routing_keys:
-    - '*.*.plate.create'
-    - '*.*.tuberack.create'
-    - '*.*.order.create'
-    - '*.*.order.updateorder'
-    - '*.*.platetransfer.platetransfer'
 
 production:
   <<: *defaults
-  url: "url"
-  exchange_name: "psd.s2"
-  queue_name: "psd.s2.platecreator"

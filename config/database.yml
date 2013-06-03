@@ -9,6 +9,10 @@ development:
   <<: *MYSQL
   database: sequencescape_development
 
+test:
+  adapter: sqlite
+  database: test.db
+
 production:
   <<: *MYSQL
-  database: sequencescape_production
+  database: sequencescape_development

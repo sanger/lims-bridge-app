@@ -1,6 +1,7 @@
 require 'lims-busclient'
 require 'lims-bridge-app/plate_creator/json_decoder'
 require 'lims-bridge-app/plate_creator/sequencescape_updater'
+require 'lims-bridge-app/s2_resource'
 
 module Lims::BridgeApp
   module PlateCreator
@@ -23,6 +24,7 @@ module Lims::BridgeApp
       include Lims::BusClient::Consumer
       include JsonDecoder
       include SequencescapeUpdater
+      include S2Resource
 
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
@@ -33,14 +35,15 @@ module Lims::BridgeApp
         '*.*.tuberack.create',
         '*.*.order.create',
         '*.*.order.updateorder',
-        '*.*.platetransfer.platetransfer'
+        '*.*.platetransfer.platetransfer',
+        '*.*.transferplatestoplates.transferplatestoplates'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
 
       # Initilize the SequencescapePlateCreator class
       # @param [String] queue name
       # @param [Hash] AMQP settings
       def initialize(amqp_settings, mysql_settings)
-        @queue_name = amqp_settings.delete("queue_name") 
+        @queue_name = amqp_settings.delete("plate_creator_queue_name") 
         @routing_keys = amqp_settings.delete("routing_keys")
         consumer_setup(amqp_settings)
         sequencescape_db_setup(mysql_settings)
@@ -79,26 +82,14 @@ module Lims::BridgeApp
             elsif metadata.routing_key =~ /order\.create|updateorder/
               order_message_handler(metadata, s2_resource)
               # On reception of a plate transfer message
-            elsif metadata.routing_key =~ /platetransfer/
+            elsif metadata.routing_key =~ /platetransfer|transferplatestoplates/
               platetransfer_message_handler(metadata, s2_resource)
             end
           else
             metadata.reject
-            log.debug("Message rejected: plate creator not interested with the message (routing key: #{metadata.routing_key})")
+            log.debug("Message rejected: unexpected message (routing key: #{metadata.routing_key})")
           end
         end
-      end
-
-      # Decode the json message and return a S2 core resource
-      # and additional informations like its uuid in S2.
-      # @param [String] message
-      # @return [Hash] S2 core resource and uuid
-      # @example
-      # {:plate => Lims::Core::Laboratory::Plate, :uuid => xxxx}
-      def s2_resource(message)
-        body = JSON.parse(message)
-        model = body.keys.first
-        json_decoder_for(model).call(body)
       end
 
       # When a plate creation message is received, 
@@ -186,9 +177,13 @@ module Lims::BridgeApp
       # @param [Hash] s2 resource
       def platetransfer_message_handler(metadata, s2_resource)
         begin
-          update_aliquots_in_sequencescape(s2_resource[:plate], 
-                                           s2_resource[:uuid], 
-                                           s2_resource[:sample_uuids])
+          if s2_resource.has_key?(:plates)
+            s2_resource[:plates].each do |plate|
+              update_aliquots_in_sequencescape(plate[:plate], plate[:uuid], plate[:sample_uuids])
+            end
+          else
+            update_aliquots_in_sequencescape(s2_resource[:plate], s2_resource[:uuid], s2_resource[:sample_uuids])
+          end
         rescue Sequel::Rollback => e
           metadata.reject(:requeue => true)
           log.error("Error updating plate aliquots in Sequencescape: #{e}")
