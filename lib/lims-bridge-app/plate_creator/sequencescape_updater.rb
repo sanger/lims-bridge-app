@@ -113,7 +113,7 @@ module Lims::BridgeApp
             :external_id => plate_uuid
           ).first
 
-          raise PlateNotFoundInSequencescape if plate_uuid_data.nil?
+          raise PlateNotFoundInSequencescape unless plate_uuid_data
 
           plate_id = plate_uuid_data[:resource_id]
           db[:assets].where(:id => plate_id).update(
@@ -166,44 +166,49 @@ module Lims::BridgeApp
       # @param [Hash] sample uuids
       def update_aliquots_in_sequencescape(plate, plate_uuid, sample_uuids)
         @db.transaction(:rollback => :reraise) do
-          plate_id = db[:uuids].select(:resource_id).where(
+          plate_uuid_data = db[:uuids].select(:resource_id).where(
             :external_id => plate_uuid
-          ).first[:resource_id]
+          ).first
 
-          if plate_id
-            wells = db[:container_associations].select(
-              :assets__id, 
-              :maps__description
-            ).join(
-              :assets, 
-              :id => :content_id
-            ).join(
-              :maps, 
-              :id => :map_id
-            ).where(:container_id => plate_id).all.inject({}) do |m,e|
-              m.merge({e[:description] => e[:id]})
-            end
+          raise PlateNotFoundInSequencescape unless plate_uuid_data 
 
-            db[:aliquots].where(:receptacle_id => wells.values).delete
+          plate_id = plate_uuid_data[:resource_id]
+          # wells is a hash associating a location to a well id
+          wells = db[:container_associations].select(
+            :assets__id, 
+            :maps__description
+          ).join(
+            :assets, 
+            :id => :content_id
+          ).join(
+            :maps, 
+            :id => :map_id
+          ).where(:container_id => plate_id).all.inject({}) do |m,e|
+            m.merge({e[:description] => e[:id]})
+          end
 
-            plate.keys.each do |location|
-              if sample_uuids.has_key?(location)
-                sample_uuids[location].each do |sample_uuid|
-                  sample_id = db[:uuids].select(:resource_id).where(
-                    :resource_type => SAMPLE,
-                    :external_id => sample_uuid
-                  ).first[:resource_id]
+          # Delete all the aliquots associated to the plate 
+          # wells.values returns all the plate well id in assets
+          db[:aliquots].where(:receptacle_id => wells.values).delete
 
-                  db[:aliquots].insert(
-                    :receptacle_id => wells[location],
-                    :sample_id => sample_id
-                  )
-                end
+          # We save the plate wells data from the transfer
+          plate.keys.each do |location|
+            if sample_uuids.has_key?(location)
+              sample_uuids[location].each do |sample_uuid|
+                sample_id = db[:uuids].select(:resource_id).where(
+                  :resource_type => SAMPLE,
+                  :external_id => sample_uuid
+                ).first[:resource_id]
+
+                db[:aliquots].insert(
+                  :receptacle_id => wells[location],
+                  :sample_id => sample_id
+                )
               end
             end
           end
         end
       end
     end
-  end 
-end
+  end
+end 
