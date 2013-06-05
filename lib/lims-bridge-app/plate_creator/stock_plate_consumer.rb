@@ -33,6 +33,7 @@ module Lims::BridgeApp
       EXPECTED_ROUTING_KEYS_PATTERNS = [
         '*.*.plate.create',
         '*.*.tuberack.create',
+        '*.*.tuberack.updatetuberack',
         '*.*.order.create',
         '*.*.order.updateorder',
         '*.*.platetransfer.platetransfer',
@@ -73,22 +74,27 @@ module Lims::BridgeApp
           if expected_message?(metadata.routing_key)
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
             s2_resource = s2_resource(payload)
-
-            # On reception of a plate creation message
-            # Plate and tuberack are stored in the same place in sequencescape
-            if metadata.routing_key =~ /plate|tuberack\.create/
-              plate_message_handler(metadata, s2_resource)       
-              # On reception of an order creation/update message
-            elsif metadata.routing_key =~ /order\.create|updateorder/
-              order_message_handler(metadata, s2_resource)
-              # On reception of a plate transfer message
-            elsif metadata.routing_key =~ /platetransfer|transferplatestoplates/
-              platetransfer_message_handler(metadata, s2_resource)
-            end
+            routing_message(metadata, s2_resource)
           else
             metadata.reject
             log.debug("Message rejected: unexpected message (routing key: #{metadata.routing_key})")
           end
+        end
+      end
+
+      # @paran [AMQP::Header] metadata
+      # @param [Hash] s2_resource
+      # Route the message to the correct handler method
+      def routing_message(metadata, s2_resource)
+        # Plate and tuberack are stored in the same place in sequencescape
+        if metadata.routing_key =~ /(plate|tuberack)\.create/
+          plate_message_handler(metadata, s2_resource)       
+          # On reception of an order creation/update message
+        elsif metadata.routing_key =~ /order\.(create|updateorder)/
+          order_message_handler(metadata, s2_resource)
+          # On reception of a plate transfer message
+        elsif metadata.routing_key =~ /platetransfer|transferplatestoplates|updatetuberack/
+          update_like_message_handler(metadata, s2_resource)
         end
       end
 
@@ -171,11 +177,12 @@ module Lims::BridgeApp
       end
 
       # When a plate transfer message is received,
+      # or an update message,
       # we update the target plate in sequencescape 
       # setting the transfered aliquots.
       # @param [AMQP::Header] metadata
       # @param [Hash] s2 resource
-      def platetransfer_message_handler(metadata, s2_resource)
+      def update_like_message_handler(metadata, s2_resource)
         begin
           if s2_resource.has_key?(:plates)
             s2_resource[:plates].each do |plate|
