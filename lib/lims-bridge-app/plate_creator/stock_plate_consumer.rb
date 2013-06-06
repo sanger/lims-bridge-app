@@ -1,7 +1,11 @@
 require 'lims-busclient'
 require 'lims-bridge-app/plate_creator/json_decoder'
 require 'lims-bridge-app/plate_creator/sequencescape_updater'
+require 'lims-bridge-app/plate_creator/message_handlers/all'
 require 'lims-bridge-app/s2_resource'
+
+require 'rubygems'
+require 'ruby-debug/debugger'
 
 module Lims::BridgeApp
   module PlateCreator
@@ -23,12 +27,14 @@ module Lims::BridgeApp
     class StockPlateConsumer
       include Lims::BusClient::Consumer
       include JsonDecoder
-      include SequencescapeUpdater
       include S2Resource
+      include Virtus
+      include Aequitas
 
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
       attribute :routing_keys, Array, :required => false, :writer => :private
+      attribute :db, Sequel::MySQL::Database, :required => true, :writer => :private, :reader => :private
 
       EXPECTED_ROUTING_KEYS_PATTERNS = [
         '*.*.plate.create',
@@ -37,7 +43,9 @@ module Lims::BridgeApp
         '*.*.order.create',
         '*.*.order.updateorder',
         '*.*.platetransfer.platetransfer',
-        '*.*.transferplatestoplates.transferplatestoplates'
+        '*.*.transferplatestoplates.transferplatestoplates',
+        '*.*.tuberacktransfer.tuberacktransfer',
+        '*.*.tuberackmove.tuberackmove'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
 
       # Initilize the SequencescapePlateCreator class
@@ -58,6 +66,20 @@ module Lims::BridgeApp
 
       private
 
+      # Setup the Sequencescape database connection
+      # @param [Hash] MySQL settings
+      def sequencescape_db_setup(settings = {})
+        unless settings.empty?
+          @db = Sequel.connect(:adapter => settings['adapter'],
+                               :host => settings['host'],
+                               :user => settings['user'],
+                               :password => settings['password'],
+                               :database => settings['database'])
+        end
+      end 
+
+      # @param [String] routing_key
+      # @return [Bool]
       def expected_message?(routing_key)
         EXPECTED_ROUTING_KEYS_PATTERNS.each do |pattern|
           return true if routing_key.match(pattern)
@@ -82,121 +104,25 @@ module Lims::BridgeApp
         end
       end
 
-      # @paran [AMQP::Header] metadata
+      # @param [AMQP::Header] metadata
       # @param [Hash] s2_resource
       # Route the message to the correct handler method
       def routing_message(metadata, s2_resource)
+        handler_for = lambda do |type|
+          klass = "#{type.to_s.capitalize.gsub(/_./) {|p| p[1].upcase}}Handler"         
+          handler_class = PlateCreator::MessageHandler.const_get(klass)  
+          handler_class.new(db, log, metadata, s2_resource)
+        end
+
+        case metadata.routing_key
         # Plate and tuberack are stored in the same place in sequencescape
-        if metadata.routing_key =~ /(plate|tuberack)\.create/
-          plate_message_handler(metadata, s2_resource)       
+        when /(plate|tuberack)\.create/ then handler_for[:plate].call
           # On reception of an order creation/update message
-        elsif metadata.routing_key =~ /order\.(create|updateorder)/
-          order_message_handler(metadata, s2_resource)
+        when /order\.(create|updateorder)/ then handler_for[:order].call
           # On reception of a plate transfer message
-        elsif metadata.routing_key =~ /platetransfer|transferplatestoplates|updatetuberack/
-          update_like_message_handler(metadata, s2_resource)
-        end
-      end
-
-      # When a plate creation message is received, 
-      # the plate is created in Sequencescape database.
-      # If everything goes right, the message is acknowledged.
-      # @param [AMQP::Header] metadata
-      # @param [Hash] s2 resource 
-      # @example
-      # {:plate => Lims::Core::Laboratory::Plate, :uuid => xxxx}
-      def plate_message_handler(metadata, s2_resource)
-        begin 
-          create_plate_in_sequencescape(s2_resource[:plate], 
-                                        s2_resource[:uuid], 
-                                        s2_resource[:sample_uuids])
-        rescue Sequel::Rollback => e
-          metadata.reject(:requeue => true)
-          log.error("Error saving plate in Sequencescape: #{e}")
-        else
-          metadata.ack
-          log.info("Plate message processed and acknowledged")
-        end
-      end
-
-      # When an order message is received,
-      # we check if it contains an item which is a stock plate 
-      # with a done status. Otherwise, we just ignore the message
-      # and delete the plates which could have been saved in sequencescape
-      # but aren't stock plate.
-      # We try to update the stock plate on Sequencescape, if the plate
-      # is not found in Sequencescape, the message is requeued.
-      # @param [AMQP::Header] metadata
-      # @param [Hash] s2 resource 
-      def order_message_handler(metadata, s2_resource)
-        order = s2_resource[:order]
-        order_uuid = s2_resource[:uuid]
-
-        stock_plate_items = stock_plate_items(order)
-        other_items = order.keys.delete_if {|k| STOCK_PLATES.include?(k)}.map {|k| order[k]}
-        delete_unassigned_plates_in_sequencescape(other_items)
-
-        unless stock_plate_items.empty?
-          success = true
-          stock_plate_items.flatten.each do |item|
-            if item.status == ITEM_DONE_STATUS
-              begin
-                update_plate_purpose_in_sequencescape(item.uuid)
-              rescue PlateNotFoundInSequencescape => e
-                success = false
-                log.error("Plate not found in Sequencescape: #{e}")
-              rescue Sequel::Rollback => e
-                success = false
-                log.error("Error updating plate in Sequencescape: #{e}")
-              else
-                success = success && true
-              end
-            end
-          end
-          if success
-            metadata.ack
-            log.info("Order message processed and acknowledged")
-          else
-            metadata.reject(:requeue => true)
-          end
-        else
-          metadata.ack
-          log.info("Order message processed and acknowledged")
-        end
-      end
-
-      # Get all the stock plate items from an order
-      # @param [Lims::Core::Organization::Order] order
-      # @return [Array] stock plate items
-      def stock_plate_items(order)
-        [].tap do |items|
-          STOCK_PLATES.each do |role|
-            items << order[role] if order[role]
-          end
-        end
-      end
-
-      # When a plate transfer message is received,
-      # or an update message,
-      # we update the target plate in sequencescape 
-      # setting the transfered aliquots.
-      # @param [AMQP::Header] metadata
-      # @param [Hash] s2 resource
-      def update_like_message_handler(metadata, s2_resource)
-        begin
-          if s2_resource.has_key?(:plates)
-            s2_resource[:plates].each do |plate|
-              update_aliquots_in_sequencescape(plate[:plate], plate[:uuid], plate[:sample_uuids])
-            end
-          else
-            update_aliquots_in_sequencescape(s2_resource[:plate], s2_resource[:uuid], s2_resource[:sample_uuids])
-          end
-        rescue Sequel::Rollback => e
-          metadata.reject(:requeue => true)
-          log.error("Error updating plate aliquots in Sequencescape: #{e}")
-        else
-          metadata.ack
-          log.info("Plate transfer message processed and acknowledged")
+        when /platetransfer|transferplatestoplates|updatetuberack|tuberacktransfer/ then handler_for[:update_aliquots].call
+          # Tube rack move messages have a custom handler as it needs to delete aliquots in the source racks.
+        when /tuberackmove/ then handler_for[:tube_rack_move].call
         end
       end
     end
