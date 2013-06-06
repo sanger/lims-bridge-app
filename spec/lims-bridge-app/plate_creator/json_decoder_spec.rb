@@ -6,7 +6,7 @@ module Lims::BridgeApp::PlateCreator
     let(:decoder) do
       Class.new do
         include JsonDecoder
-      end
+      end.new
     end
 
     context "plate creator decoders" do
@@ -44,7 +44,6 @@ module Lims::BridgeApp::PlateCreator
         end.to raise_error(JsonDecoder::UndefinedDecoder)
       end
     end
-
 
     context "decode tube rack" do
       pending
