@@ -55,7 +55,6 @@ PATH
       amqp
       facets
       mysql
-      rake
       sequel
       virtus
 
@@ -134,6 +133,7 @@ DEPENDENCIES
   lims-laboratory-app (~> 1.2)!
   lims-management-app (~> 1.2)!
   psd_logger!
+  rake
   rspec (~> 2.8.0)
   shotgun
   sqlite3
