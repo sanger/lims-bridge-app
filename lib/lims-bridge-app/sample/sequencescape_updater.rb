@@ -1,7 +1,7 @@
 require 'lims-management-app/sample/sample'
 require 'lims-bridge-app/sample/sequencescape_mapper'
 require 'sequel'
-require 'sequel/adapters/mysql2'
+require 'sequel/adapters/mysql'
 
 module Lims::BridgeApp
   module SampleManagement
@@ -16,7 +16,7 @@ module Lims::BridgeApp
           include Virtus
           include Aequitas
           attribute :mysql_settings, Hash, :required => true, :writer => :private, :reader => :private
-          attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
+          attribute :db, Sequel::MySQL::Database, :required => true, :writer => :private, :reader => :private
         end
       end
 
