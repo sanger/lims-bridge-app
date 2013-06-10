@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency('virtus')
   s.add_dependency('aequitas')
   s.add_dependency('amqp')
-  s.add_dependency('mysql')
+  s.add_dependency('mysql2')
   s.add_dependency('sequel')
 
   #development
