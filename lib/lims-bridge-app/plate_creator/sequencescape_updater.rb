@@ -1,5 +1,5 @@
 require 'sequel'
-require 'sequel/adapters/mysql'
+require 'sequel/adapters/mysql2'
 
 module Lims::BridgeApp
   module PlateCreator
