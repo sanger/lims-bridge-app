@@ -32,6 +32,7 @@ module Lims::BridgeApp
       # @param [String] date
       # @param [String] method
       def dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)
+        date = Time.parse(date)
         db.transaction(:rollback => :reraise) do
           case method
           when "create" then
@@ -113,7 +114,8 @@ module Lims::BridgeApp
             #  next unless sample.send(component)
             #  h[s_attribute] = sample.send(component).send(s2_attribute.to_s.scan(/__component__(.*)/).last.first) 
             if s2_attribute =~ /__(\w*)__(.*)/
-              h[s_attribute] = sample.send($1).send($2) if sample.respond_to?($1)
+              value = sample.send($1) if sample.respond_to?($1)
+              h[s_attribute] = value.send($2) unless value.nil?
             else
               h[s_attribute] = sample.send(s2_attribute) if s2_attribute && sample.respond_to?(s2_attribute) 
             end

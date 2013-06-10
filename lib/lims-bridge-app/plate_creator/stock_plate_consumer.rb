@@ -30,7 +30,7 @@ module Lims::BridgeApp
 
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
-      attribute :db, Sequel::MySQL::Database, :required => true, :writer => :private, :reader => :private
+      attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
 
       EXPECTED_ROUTING_KEYS_PATTERNS = [
         '*.*.plate.create',
@@ -64,13 +64,7 @@ module Lims::BridgeApp
       # Setup the Sequencescape database connection
       # @param [Hash] MySQL settings
       def sequencescape_db_setup(settings = {})
-        unless settings.empty?
-          @db = Sequel.connect(:adapter => settings['adapter'],
-                               :host => settings['host'],
-                               :user => settings['user'],
-                               :password => settings['password'],
-                               :database => settings['database'])
-        end
+        @db = Sequel.connect(settings) unless settings.empty?
       end 
 
       # @param [String] routing_key
