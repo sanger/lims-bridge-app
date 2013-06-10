@@ -1,5 +1,5 @@
 require 'sequel'
-require 'sequel/adapters/mysql'
+require 'sequel/adapters/mysql2'
 
 module Lims::BridgeApp
   module PlateCreator
@@ -24,7 +24,7 @@ module Lims::BridgeApp
           include Virtus
           include Aequitas
           attribute :mysql_settings, Hash, :required => true, :writer => :private, :reader => :private
-          attribute :db, Sequel::MySQL::Database, :required => true, :writer => :private, :reader => :private
+          attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
         end
       end
       
@@ -32,11 +32,7 @@ module Lims::BridgeApp
       # @param [Hash] MySQL settings
       def sequencescape_db_setup(settings = {})
         @mysql_settings = settings
-        @db = Sequel.connect(:adapter => mysql_settings['adapter'],
-                             :host => mysql_settings['host'],
-                             :user => mysql_settings['user'],
-                             :password => mysql_settings['password'],
-                             :database => mysql_settings['database'])
+        @db = Sequel.connect(mysql_settings)
       end 
 
       # Create a plate in Sequencescape database.
