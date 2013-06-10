@@ -4,9 +4,6 @@ require 'lims-bridge-app/plate_creator/sequencescape_updater'
 require 'lims-bridge-app/plate_creator/message_handlers/all'
 require 'lims-bridge-app/s2_resource'
 
-require 'rubygems'
-require 'ruby-debug/debugger'
-
 module Lims::BridgeApp
   module PlateCreator
     # When a stock plate is created on S2, it must be created in
@@ -33,7 +30,6 @@ module Lims::BridgeApp
 
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
-      attribute :routing_keys, Array, :required => false, :writer => :private
       attribute :db, Sequel::MySQL::Database, :required => true, :writer => :private, :reader => :private
 
       EXPECTED_ROUTING_KEYS_PATTERNS = [
@@ -46,14 +42,13 @@ module Lims::BridgeApp
         '*.*.transferplatestoplates.transferplatestoplates',
         '*.*.tuberacktransfer.tuberacktransfer',
         '*.*.tuberackmove.tuberackmove'
-      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
+      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
 
       # Initilize the SequencescapePlateCreator class
       # @param [String] queue name
       # @param [Hash] AMQP settings
       def initialize(amqp_settings, mysql_settings)
         @queue_name = amqp_settings.delete("plate_creator_queue_name") 
-        @routing_keys = amqp_settings.delete("routing_keys")
         consumer_setup(amqp_settings)
         sequencescape_db_setup(mysql_settings)
         set_queue
@@ -91,7 +86,7 @@ module Lims::BridgeApp
       # 3 different behaviours depending on the routing key
       # of the message (plate/plate_transfer/order). 
       def set_queue
-        self.add_queue(queue_name, routing_keys) do |metadata, payload|
+        self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
           if expected_message?(metadata.routing_key)
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
