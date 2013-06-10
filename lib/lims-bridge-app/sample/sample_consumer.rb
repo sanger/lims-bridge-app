@@ -17,7 +17,7 @@ module Lims::BridgeApp
       EXPECTED_ROUTING_KEYS_PATTERNS = [
         '*.*.sample.create', '*.*.sample.updatesample', '*.*.sample.deletesample',
         '*.*.bulkcreatesample.*', '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*'
-      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
+      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
 
       # @param [Hash] amqp_settings
       # @param [Hash] mysql_settings

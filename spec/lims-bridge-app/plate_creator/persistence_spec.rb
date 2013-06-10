@@ -87,12 +87,16 @@ module Lims::BridgeApp::PlateCreator
       end
     end
 
+
+
+
     context "create a plate" do
      it_behaves_like "updating table for plate creation", :assets, 97
      it_behaves_like "updating table for plate creation", :container_associations, 96
      it_behaves_like "updating table for plate creation", :aliquots, 4
      it_behaves_like "updating table for plate creation", :uuids, 1
     end
+
 
     context "update the plate purpose" do
       before do
@@ -111,6 +115,20 @@ module Lims::BridgeApp::PlateCreator
       end
     end
 
+
+    context "delete aliquots in sequencescape" do
+      before do
+        updater.create_plate_in_sequencescape(plate, dummy_plate_uuid, sample_uuids)
+      end
+
+      it "raises an exception if the plate to update cannot be found" do
+        expect do
+          updater.delete_aliquots_in_sequencescape(transfered_plate, dummy_plate_uuid, transfered_sample_uuids) 
+        end.to raise_error(SequencescapeUpdater::PlateNotFoundInSequencescape)
+      end
+    end
+
+
     context "delete non stock plate" do
       before do
         updater.create_plate_in_sequencescape(plate, dummy_plate_uuid, sample_uuids)
@@ -122,6 +140,7 @@ module Lims::BridgeApp::PlateCreator
       it_behaves_like "deleting data for non stock plate", :container_associations, -96
       it_behaves_like "deleting data for non stock plate", :uuids, -1
     end
+
 
     context "update aliquots in sequencescape" do
       before do

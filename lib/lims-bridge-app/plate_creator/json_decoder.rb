@@ -118,7 +118,7 @@ module Lims::BridgeApp
       module PlateTransferJsonDecoder
         def self.call(json, options)
           transfer_h = json["plate_transfer"]
-          PlateJsonDecoder.call(transfer_h["result"])         
+          PlateJsonDecoder.call(transfer_h["result"], options)         
         end
       end
 
@@ -126,11 +126,40 @@ module Lims::BridgeApp
       module TransferPlatesToPlatesJsonDecoder
         def self.call(json, options)
           plates = []
-          json["transfer_plates_to_plates"]["result"]["targets"].each do |plate|
-            plates << PlateJsonDecoder.call(plate)
+          json["transfer_plates_to_plates"]["result"]["targets"].each do |target|
+            plates << case target.first
+            when "plate" then PlateJsonDecoder.call(target, options) 
+            when "tube_rack" then TubeRackJsonDecoder.call(target, options)
+            end
           end
 
           {:plates => plates}
+        end
+      end
+
+
+      module TubeRackTransferJsonDecoder
+        def self.call(json, options)
+          TubeRackJsonDecoder.call(json["tube_rack_transfer"]["result"], options) 
+        end
+      end
+
+
+      module TubeRackMoveJsonDecoder
+        def self.call(json, options)
+          plates = []
+          json["tube_rack_move"]["result"].each do |tube_rack|
+            plates << TubeRackJsonDecoder.call(tube_rack, options) 
+          end
+
+          source_locations = {}
+          json["tube_rack_move"]["moves"].each do |move|
+            source_uuid = move["source_uuid"]
+            source_locations[source_uuid] ||= []
+            source_locations[source_uuid] << move["source_location"]
+          end
+
+          {:plates => plates, :source_locations => source_locations}
         end
       end
     end
