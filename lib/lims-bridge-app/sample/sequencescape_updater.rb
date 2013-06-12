@@ -113,11 +113,8 @@ module Lims::BridgeApp
         map = MAPPING[table]
         {}.tap do |h|
           map.each do |s_attribute, s2_attribute|
-            #if component && s2_attribute =~ /__component__/
-            #  next unless sample.send(component)
-            #  h[s_attribute] = sample.send(component).send(s2_attribute.to_s.scan(/__component__(.*)/).last.first) 
             if s2_attribute =~ /__(\w*)__(.*)/
-              h[s_attribute] = sample.send($1).send($2) if sample.respond_to?($1)
+              h[s_attribute] = sample.send($1).send($2) if sample.respond_to?($1) && sample.send($1)
             else
               h[s_attribute] = sample.send(s2_attribute) if s2_attribute && sample.respond_to?(s2_attribute) 
             end
