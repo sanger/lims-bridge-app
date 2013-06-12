@@ -1,7 +1,7 @@
 require 'lims-management-app/sample/sample'
 require 'lims-bridge-app/sample/sequencescape_mapper'
 require 'sequel'
-require 'sequel/adapters/mysql'
+require 'sequel/adapters/mysql2'
 
 module Lims::BridgeApp
   module SampleManagement
@@ -16,7 +16,7 @@ module Lims::BridgeApp
           include Virtus
           include Aequitas
           attribute :mysql_settings, Hash, :required => true, :writer => :private, :reader => :private
-          attribute :db, Sequel::MySQL::Database, :required => true, :writer => :private, :reader => :private
+          attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
         end
       end
 
@@ -24,11 +24,7 @@ module Lims::BridgeApp
       # @param [Hash] MySQL settings
       def sequencescape_db_setup(settings = {})
         @mysql_settings = settings
-        @db = Sequel.connect(:adapter => mysql_settings['adapter'],
-                             :host => mysql_settings['host'],
-                             :user => mysql_settings['user'],
-                             :password => mysql_settings['password'],
-                             :database => mysql_settings['database'])
+        @db = Sequel.connect(mysql_settings)
       end 
 
       # @param [Lims::ManagementApp::Sample] sample
@@ -36,6 +32,7 @@ module Lims::BridgeApp
       # @param [String] date
       # @param [String] method
       def dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)
+        date = Time.parse(date)
         db.transaction(:rollback => :reraise) do
           case method
           when "create" then
@@ -114,7 +111,8 @@ module Lims::BridgeApp
         {}.tap do |h|
           map.each do |s_attribute, s2_attribute|
             if s2_attribute =~ /__(\w*)__(.*)/
-              h[s_attribute] = sample.send($1).send($2) if sample.respond_to?($1) && sample.send($1)
+              value = sample.send($1) if sample.respond_to?($1)
+              h[s_attribute] = value.send($2) unless value.nil?
             else
               h[s_attribute] = sample.send(s2_attribute) if s2_attribute && sample.respond_to?(s2_attribute) 
             end

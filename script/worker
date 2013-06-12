@@ -4,37 +4,35 @@
 # Examples: 
 # worker sample production.1 start
 # worker plate production.1 start
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+APPDIR="$( dirname ${DIR} )"
 
 function worker_start() {
-cd `pwd`
-[ -z "$WORKER_PIDS_PATH" ] && { echo "WORKER_PIDS_PATH needs to be set"; exit 1; }
-if [ ! -f $WORKER_PIDS_PATH/worker.${1}.${2}.pid ]
-then
-  echo "Starting Amqp worker"
-  case "$1" in
-    'sample')
-      nohup bundle exec ruby script/start_sample_management.rb &
-      echo $! > $WORKER_PIDS_PATH/worker.${1}.${2}.pid
-      ;;
-    'plate')
-      nohup bundle exec ruby script/start_plate_creator.rb &
-      echo $! > $WORKER_PIDS_PATH/worker.${1}.${2}.pid
-      ;;
-  esac
-else
-  echo "Worker already running with pid:"
-  echo `cat $WORKER_PIDS_PATH/worker.${1}.${2}.pid`
-fi
+  cd ${APPDIR}
+  [ -z "$WORKER_PIDS_PATH" ] && { echo "WORKER_PIDS_PATH needs to be set"; exit 1; }
+  if [ ! -f $WORKER_PIDS_PATH/worker.${1}.${2}.pid ]
+  then
+    echo "Starting Amqp worker"
+    nohup bundle exec ruby script/start_${1}_management.rb &
+    echo $! > $WORKER_PIDS_PATH/worker.${1}.${2}.pid
+  else
+    echo "Worker already running with pid:"
+    echo `cat $WORKER_PIDS_PATH/worker.${1}.${2}.pid`
+  fi
 }
 
 function worker_stop() {
-  cd `pwd`
+  cd ${APPDIR}
   [ -z "$WORKER_PIDS_PATH" ] && { echo "WORKER_PIDS_PATH needs to be set"; exit 1; }
   kill -9 `cat $WORKER_PIDS_PATH/worker.${1}.${2}.pid`
   if [ -f $WORKER_PIDS_PATH/worker.${1}.${2}.pid ]; then rm $WORKER_PIDS_PATH/worker.${1}.${2}.pid; fi
 }
 
 function worker_restart() {
+  worker_stop
+  worker_start
+}
+function worker_reboot() {
   worker_stop
   worker_start
 }
