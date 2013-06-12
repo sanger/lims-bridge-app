@@ -1,5 +1,5 @@
 mysql: &MYSQL
-  adapter: mysql
+  adapter: mysql2
   user: 'root'
   password: 'root'
   host: localhost

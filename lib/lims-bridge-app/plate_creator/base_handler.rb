@@ -1,5 +1,6 @@
 require 'lims-bridge-app/plate_creator/sequencescape_updater'
 require 'common'
+require 'sequel/adapters/mysql2'
 
 module Lims::BridgeApp::PlateCreator
   module MessageHandler
@@ -12,7 +13,7 @@ module Lims::BridgeApp::PlateCreator
         klass.class_eval do
           include Virtus
           include Aequitas
-          attribute :db, Sequel::MySQL::Database, :required => true, :writer => :private, :reader => :private
+          attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
           attribute :metadata, AMQP::Header, :required => true, :writer => :private, :reader => :private
           attribute :s2_resource, Hash, :required => true, :writer => :private, :reader => :private
           attribute :log, Object, :required => true, :writer => :private, :reader => :private 
