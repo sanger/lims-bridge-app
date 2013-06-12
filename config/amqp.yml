@@ -4,6 +4,7 @@ defaults: &defaults
   plate_creator_queue_name: "psd.s2.plates"
   durable: true
   empty_queue_disconnect_interval: 0
+  message_timeout: 120
 
 test:
   <<: *defaults
