@@ -45,6 +45,7 @@ module Lims::BridgeApp::PlateCreator
             log.info("Order message processed and acknowledged")
           else
             metadata.reject(:requeue => true)
+            raise Sequel::Rollback # Rollback the transaction
           end
         else
           metadata.ack
