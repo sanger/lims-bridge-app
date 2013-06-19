@@ -12,15 +12,17 @@ module Lims::BridgeApp
       UNASSIGNED_PLATE_PURPOSE_ID = 100
       STOCK_PLATES = ["Stock RNA", "Stock DNA"]
       ITEM_DONE_STATUS = "done"
+      SANGER_BARCODE_TYPE = "sanger-barcode"
 
       # Exception raised after an unsuccessful lookup for a plate 
       # in Sequencescape database.
       PlateNotFoundInSequencescape = Class.new(StandardError)
+      UnknownSample = Class.new(StandardError)
 
       # Ensure that all the requests for a message are made in a
       # transaction.
       def call
-        db.transaction(:rollback => :reraise) do
+        db.transaction do
           _call_in_transaction
         end
       end
@@ -72,10 +74,13 @@ module Lims::BridgeApp
           # Save well aliquots
           if sample_uuids.has_key?(location)
             sample_uuids[location].each do |sample_uuid|
-              sample_id = db[:uuids].select(:resource_id).where(
+              sample_resource_uuid = db[:uuids].select(:resource_id).where(
                 :resource_type => SAMPLE, 
                 :external_id => sample_uuid
-              ).first[:resource_id] 
+              ).first
+
+              raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
+              sample_id = sample_resource_uuid[:resource_id]
 
               db[:aliquots].insert(
                 :receptacle_id => well_id, 
@@ -175,10 +180,13 @@ module Lims::BridgeApp
         plate.keys.each do |location|
           if sample_uuids.has_key?(location)
             sample_uuids[location].each do |sample_uuid|
-              sample_id = db[:uuids].select(:resource_id).where(
+              sample_resource_uuid = db[:uuids].select(:resource_id).where(
                 :resource_type => SAMPLE,
                 :external_id => sample_uuid
-              ).first[:resource_id]
+              ).first
+
+              raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
+              sample_id = sample_resource_uuid[:resource_id]
 
               db[:aliquots].insert(
                 :receptacle_id => wells[location],
@@ -211,6 +219,44 @@ module Lims::BridgeApp
           db[:aliquots].where(:receptacle_id => well_ids).delete
         end
       end
+
+      # @param [Lims::LaboratoryApp::Labels::Labellable] labellable
+      def set_barcode_to_a_plate(labellable)
+        plate_id = plate_id_by_uuid(labellable.name)
+        barcode = sanger_barcode(labellable)
+        barcode_prefix_id = barcode_prefix_id(barcode[:prefix])
+
+        db[:assets].where(:id => plate_id).update({
+          :barcode => barcode[:number], 
+          :barcode_prefix_id => barcode_prefix_id 
+        })
+      end
+
+      # @param [String] prefix
+      # @return [Integer]
+      # Return the prefix id. Create the prefix if
+      # it does not exist yet.
+      def barcode_prefix_id(prefix)
+        barcode_prefix = db[:barcode_prefixes].where(:prefix => prefix).first
+        return barcode_prefix[:id] if barcode_prefix
+
+        db[:barcode_prefixes].insert(:prefix => prefix)
+        return barcode_prefix_id(prefix)
+      end
+      private :barcode_prefix_id
+
+      # @param [Lims::LaboratoryApp::Labels::Labellable] labellable
+      # @return [Hash]
+      # Return the first sanger barcode found in the labellable
+      def sanger_barcode(labellable)
+        labellable.each do |position, label|
+          if label.type == SANGER_BARCODE_TYPE
+            label.value.match(/^(\w{2})([0-9]*)$/)
+            return {:prefix => $1, :number => $2} 
+          end
+        end
+      end
+      private :sanger_barcode
     end
   end
 end 

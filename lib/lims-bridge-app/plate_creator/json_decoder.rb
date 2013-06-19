@@ -1,6 +1,7 @@
 require 'lims-laboratory-app/laboratory/plate'
 require 'lims-laboratory-app/laboratory/aliquot'
 require 'lims-laboratory-app/organization/order'
+require 'lims-laboratory-app/labels/labellable'
 require 'lims-bridge-app/base_json_decoder'
 require 'json'
 
@@ -10,6 +11,37 @@ module Lims::BridgeApp
     # Lims Core Resource.
     module JsonDecoder
       include BaseJsonDecoder
+
+      module LabellableJsonDecoder
+        def self.call(json, options)
+          l_hash = json["labellable"]
+          labellable = Lims::LaboratoryApp::Labels::Labellable.new({
+            :name => l_hash["name"],
+            :type => l_hash["type"]
+          })
+          l_hash["labels"].each do |position, label_info|
+            label = Lims::LaboratoryApp::Labels::Labellable::Label.new({
+              :type => label_info["type"],
+              :value => label_info["value"]
+            })
+            labellable[position] = label
+          end
+
+          {:labellable => labellable}
+        end
+      end
+
+
+      module BulkCreateLabellableJsonDecoder
+        def self.call(json, options)
+          labellables = []
+          json["bulk_create_labellable"]["labellables"].each do |labellable|
+            labellables << LabellableJsonDecoder.call({"labellable" => labellable}, options)
+          end
+          {:labellables => labellables}
+        end
+      end
+
 
       module PlateJsonDecoder
         # Create a Core Laboratory Plate from the json

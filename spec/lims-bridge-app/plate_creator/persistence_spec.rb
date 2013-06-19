@@ -33,8 +33,11 @@ module Lims::BridgeApp::PlateCreator
 
     let(:db_settings) { YAML.load_file(File.join('config', 'database.yml'))['test'] }
     let!(:updater) do
-      Class.new { include SequencescapeUpdater }.new.tap do |o|
-        o.sequencescape_db_setup(db_settings)
+      Class.new do 
+        include SequencescapeUpdater 
+        attr_accessor :db
+      end.new.tap do |o|
+        o.db = Sequel.connect(db_settings)
       end
     end
 
@@ -88,6 +91,17 @@ module Lims::BridgeApp::PlateCreator
     end
 
 
+    # Labellable
+    let(:barcode_type) { "sanger-barcode" }
+    let(:barcode_value) { "WD123456" }
+    let(:labellable) do
+      Lims::LaboratoryApp::Labels::Labellable.new(:name => plate_uuid, :type => "resource").tap do |labellable|
+        labellable["position"] = Lims::LaboratoryApp::Labels::Labellable::Label.new({
+          :type => barcode_type,
+          :value => barcode_value
+        })
+      end
+    end
 
 
     context "create a plate" do
@@ -118,13 +132,17 @@ module Lims::BridgeApp::PlateCreator
 
     context "delete aliquots in sequencescape" do
       before do
-        updater.create_plate_in_sequencescape(plate, dummy_plate_uuid, sample_uuids)
+        updater.create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
       end
 
       it "raises an exception if the plate to update cannot be found" do
         expect do
-          updater.delete_aliquots_in_sequencescape(transfered_plate, dummy_plate_uuid, transfered_sample_uuids) 
+          updater.delete_aliquots_in_sequencescape({dummy_plate_uuid => []}) 
         end.to raise_error(SequencescapeUpdater::PlateNotFoundInSequencescape)
+      end
+
+      it "deletes the aliquots" do
+        pending
       end
     end
 
@@ -158,6 +176,47 @@ module Lims::BridgeApp::PlateCreator
       it_behaves_like "updating table for aliquots update", :uuids, 0
       it_behaves_like "updating table for aliquots update", :assets, 0
       it_behaves_like "updating table for aliquots update", :container_associations, 0
+    end
+
+    
+    context "set barcode to a plate" do
+      before do 
+        updater.create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
+      end
+
+      context "invalid" do
+        it "raises an exception if the plate to barcode cannot be found" do
+          expect do
+            updater.set_barcode_to_a_plate(labellable.class.new(:name => dummy_plate_uuid))
+          end.to raise_error(SequencescapeUpdater::PlateNotFoundInSequencescape)
+        end
+      end
+
+      let(:plate_row) do
+        db[:assets].join(:uuids, :resource_id => :assets__id).where(:uuids__external_id => plate_uuid).qualify.first
+      end
+
+      context "with a known prefix" do
+        before do
+          updater.set_barcode_to_a_plate(labellable)
+        end
+
+        it "set the barcode to the plate" do
+          plate_row[:barcode].should == "123456"
+          plate_row[:barcode_prefix_id].should == 1
+        end
+      end
+
+      context "with an unknown prefix" do
+        before do
+          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "AA123456"})
+        end
+
+        it "set the barcode to the plate" do
+          plate_row[:barcode].should == "123456"
+          plate_row[:barcode_prefix_id].should == 2
+        end
+      end
     end
   end
 end

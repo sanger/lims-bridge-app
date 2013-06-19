@@ -38,6 +38,16 @@ module Lims::BridgeApp::PlateCreator
         decoder.json_decoder_for("tube_rack_move").should == JsonDecoder::TubeRackMoveJsonDecoder
       end
 
+      it "gets the right decoder for a create labellable message" do
+        decoder.json_decoder_for("labellable").should == JsonDecoder::LabellableJsonDecoder
+      end
+
+
+      it "gets the right decoder for a move tube rack message" do
+        decoder.json_decoder_for("bulk_create_labellable").should == JsonDecoder::BulkCreateLabellableJsonDecoder
+      end
+
+
       it "raises an exception if for a unknown decoder" do
         expect do
           decoder.json_decoder_for("dummy")

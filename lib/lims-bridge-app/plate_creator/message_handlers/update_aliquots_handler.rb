@@ -24,6 +24,7 @@ module Lims::BridgeApp::PlateCreator
         rescue Sequel::Rollback => e
           metadata.reject(:requeue => true)
           log.error("Error updating plate aliquots in Sequencescape: #{e}")
+          raise Sequel::Rollback
         else
           metadata.ack
           log.info("Plate transfer message processed and acknowledged")

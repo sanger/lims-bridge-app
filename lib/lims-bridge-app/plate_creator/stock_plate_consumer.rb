@@ -41,7 +41,8 @@ module Lims::BridgeApp
         '*.*.platetransfer.platetransfer',
         '*.*.transferplatestoplates.transferplatestoplates',
         '*.*.tuberacktransfer.tuberacktransfer',
-        '*.*.tuberackmove.tuberackmove'
+        '*.*.tuberackmove.tuberackmove',
+        '*.*.labellable.create', '*.*.bulkcreatelabellable.*'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
 
       # Initilize the SequencescapePlateCreator class
@@ -112,6 +113,7 @@ module Lims::BridgeApp
         when /platetransfer|transferplatestoplates|updatetuberack|tuberacktransfer/ then handler_for[:update_aliquots].call
           # Tube rack move messages have a custom handler as it needs to delete aliquots in the source racks.
         when /tuberackmove/ then handler_for[:tube_rack_move].call
+        when /labellable/ then handler_for[:labellable].call
         end
       end
     end
