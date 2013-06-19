@@ -17,7 +17,7 @@ module Lims::BridgeApp::PlateCreator
           end
         rescue Sequel::Rollback, PlateNotFoundInSequencescape => e
           metadata.reject(:requeue => true)
-          log.error("Error saving plate in Sequencescape: #{e}")
+          log.error("Error updating barcode in Sequencescape: #{e}")
           # Need to reraise a rollback exception as we are still 
           # in a sequel transaction block.
           raise Sequel::Rollback
