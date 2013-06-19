@@ -16,11 +16,12 @@ module Lims::BridgeApp
       # Exception raised after an unsuccessful lookup for a plate 
       # in Sequencescape database.
       PlateNotFoundInSequencescape = Class.new(StandardError)
+      UnknownSample = Class.new(StandardError) 
 
       # Ensure that all the requests for a message are made in a
       # transaction.
       def call
-        db.transaction(:rollback => :reraise) do
+        db.transaction do
           _call_in_transaction
         end
       end
@@ -72,10 +73,13 @@ module Lims::BridgeApp
           # Save well aliquots
           if sample_uuids.has_key?(location)
             sample_uuids[location].each do |sample_uuid|
-              sample_id = db[:uuids].select(:resource_id).where(
+              sample_resource_uuid = db[:uuids].select(:resource_id).where(
                 :resource_type => SAMPLE, 
                 :external_id => sample_uuid
-              ).first[:resource_id] 
+              ).first 
+
+              raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
+              sample_id = sample_resource_uuid[:resource_id] 
 
               db[:aliquots].insert(
                 :receptacle_id => well_id, 
@@ -175,10 +179,13 @@ module Lims::BridgeApp
         plate.keys.each do |location|
           if sample_uuids.has_key?(location)
             sample_uuids[location].each do |sample_uuid|
-              sample_id = db[:uuids].select(:resource_id).where(
+              sample_resource_uuid = db[:uuids].select(:resource_id).where(
                 :resource_type => SAMPLE,
                 :external_id => sample_uuid
-              ).first[:resource_id]
+              ).first
+
+              raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
+              sample_id = sample_resource_uuid[:resource_id] 
 
               db[:aliquots].insert(
                 :receptacle_id => wells[location],
