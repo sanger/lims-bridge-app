@@ -76,7 +76,7 @@ module Lims::BridgeApp
       # @param [String] sample_uuid
       def update_sample_record(sample, date, sample_uuid)
         sample_uuid_record = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first
-        raise UnknownSample unless sample_uuid_record
+        raise UnknownSample, "The sample to update '#{sample_uuid}' cannot be found in Sequencescape" unless sample_uuid_record 
         sample_id = sample_uuid_record[:resource_id] 
 
         updated_attributes = prepare_data(sample, :samples) 
@@ -92,7 +92,7 @@ module Lims::BridgeApp
       # @param [String] sample_uuid
       def delete_sample_record(sample_uuid)
         sample_uuid_record = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first
-        raise UnknownSample unless sample_uuid_record 
+        raise UnknownSample, "The sample to delete '#{sample_uuid}' cannot be found in Sequencescape" unless sample_uuid_record 
         sample_id = sample_uuid_record[:resource_id] 
 
         db[:uuids].where(:external_id => sample_uuid).delete
@@ -110,9 +110,6 @@ module Lims::BridgeApp
         map = MAPPING[table]
         {}.tap do |h|
           map.each do |s_attribute, s2_attribute|
-            #if component && s2_attribute =~ /__component__/
-            #  next unless sample.send(component)
-            #  h[s_attribute] = sample.send(component).send(s2_attribute.to_s.scan(/__component__(.*)/).last.first) 
             if s2_attribute =~ /__(\w*)__(.*)/
               value = sample.send($1) if sample.respond_to?($1)
               h[s_attribute] = value.send($2) unless value.nil?
