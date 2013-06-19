@@ -37,20 +37,22 @@ module Lims::BridgeApp
       # @param [String] plate uuid
       # @param [Hash] sample uuids
       def create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
+        asset_size = plate.number_of_rows * plate.number_of_columns
+
         # Save plate and plate uuid
         plate_id = db[:assets].insert(
-          :sti_type => PLATE, 
-          :plate_purpose_id => UNASSIGNED_PLATE_PURPOSE_ID
+          :sti_type => PLATE,
+          :plate_purpose_id => UNASSIGNED_PLATE_PURPOSE_ID,
+          :size => asset_size
         ) 
 
         db[:uuids].insert(
-          :resource_type => ASSET, 
-          :resource_id => plate_id, 
+          :resource_type => ASSET,
+          :resource_id => plate_id,
           :external_id => plate_uuid
         ) 
 
         # Save wells and set the associations with the plate
-        asset_size = plate.number_of_rows * plate.number_of_columns
         plate.keys.each do |location|
           map_id = db[:maps].select(:id).where(
             :description => location, 
