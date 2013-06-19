@@ -131,7 +131,7 @@ DEPENDENCIES
   lims-busclient (~> 0.2.0)!
   lims-core (~> 2.1)!
   lims-laboratory-app (~> 1.4)!
-  lims-management-app (~> 1.4)!
+  lims-management-app (~> 1.5)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
