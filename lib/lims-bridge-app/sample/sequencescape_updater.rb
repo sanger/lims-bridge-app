@@ -49,7 +49,9 @@ module Lims::BridgeApp
       # @param [Lims::ManagementApp::Sample] sample
       # @param [String] date
       def create_sample_record(sample, date)
-        sample_values = prepare_data(sample, :samples)
+        sample_values = {
+          :created_at => date
+        }.merge(prepare_data(sample, :samples))
         sample_id = db[:samples].insert(sample_values)
 
         sample_metadata_values = prepare_data(sample, :sample_metadata)
