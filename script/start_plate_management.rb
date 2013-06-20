@@ -1,4 +1,4 @@
-ENV["LIMS_BRIDGE_ENV"] = "development" unless ENV["LIMS_BRIDGE_ENV"]
+env = ENV["LIMS_BRIDGE_APP_ENV"] or raise "LIMS_BRIDGE_APP_ENV is not set in the environment"
 
 require 'yaml'
 require 'lims-bridge-app'
@@ -6,7 +6,6 @@ require 'logging'
 
 module Lims
   module BridgeApp
-    env = ENV["LIMS_BRIDGE_ENV"]
     amqp_settings = YAML.load_file(File.join('config','amqp.yml'))[env]
     mysql_settings = YAML.load_file(File.join('config','database.yml'))[env]
 
