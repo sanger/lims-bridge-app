@@ -11,7 +11,7 @@ module Lims::BridgeApp
       MAPPING = { 
         :samples => {
           :sanger_sample_id => :sanger_sample_id,
-          :name => :common_name
+          :name => :sanger_sample_id
         },
         :sample_metadata => {
           :organism => nil,
