@@ -20,7 +20,9 @@ module Lims::BridgeApp::PlateCreator
         order_uuid = s2_resource[:uuid]
 
         stock_plate_items = stock_plate_items(order)
-        other_items = order.keys.delete_if {|k| STOCK_PLATES.include?(k)}.map {|k| order[k]}
+        other_items = order.keys.delete_if do |k|
+          STOCK_PLATES.each { |stock| k.match(stock) != nil }
+        end.map { |k| order[k] } 
         delete_unassigned_plates_in_sequencescape(other_items)
 
         unless stock_plate_items.empty?
@@ -58,8 +60,12 @@ module Lims::BridgeApp::PlateCreator
       # @return [Array] stock plate items
       def stock_plate_items(order)
         [].tap do |items|
-          STOCK_PLATES.each do |role|
-            items << order[role] if order[role]
+          STOCK_PLATES.each do |stock|
+            order.each do |role, _|
+              if role.match(stock)
+                items << order[role]
+              end
+            end
           end
         end
       end
