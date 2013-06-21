@@ -10,7 +10,7 @@ module Lims::BridgeApp
       SAMPLE = "Sample"
       STOCK_PLATE_PURPOSE_ID = 2
       UNASSIGNED_PLATE_PURPOSE_ID = 100
-      STOCK_PLATES = ["Stock RNA", "Stock DNA"]
+      STOCK_PLATES = ["stock"]
       ITEM_DONE_STATUS = "done"
       SANGER_BARCODE_TYPE = "sanger-barcode"
 
