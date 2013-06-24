@@ -4,7 +4,7 @@ gemspec
 
 gem 'lims-core', '~>2.1', :git => 'http://github.com/sanger/lims-core.git' , :branch => 'master'
 gem 'lims-laboratory-app', '~>1.4', :git => 'http://github.com/sanger/lims-laboratory-app.git' , :branch => 'master'
-gem 'lims-busclient', '~>0.2.0', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'master'
+gem 'lims-busclient', '~>0.3.0', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'master'
 gem 'lims-management-app', '~>1.5', :git => 'https://github.com/sanger/lims-management-app.git', :branch => 'master'
 
 group :development do
