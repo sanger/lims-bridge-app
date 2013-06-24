@@ -5,6 +5,8 @@ defaults: &defaults
   durable: true
   empty_queue_disconnect_interval: 0
   message_timeout: 120
+  sequencescape_exchange: "psd.sequencescape"
+  message_persistence: true
 
 test:
   <<: *defaults
