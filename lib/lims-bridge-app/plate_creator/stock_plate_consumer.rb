@@ -3,6 +3,7 @@ require 'lims-bridge-app/plate_creator/json_decoder'
 require 'lims-bridge-app/plate_creator/sequencescape_updater'
 require 'lims-bridge-app/plate_creator/message_handlers/all'
 require 'lims-bridge-app/s2_resource'
+require 'lims-bridge-app/message_bus'
 
 module Lims::BridgeApp
   module PlateCreator
@@ -31,6 +32,7 @@ module Lims::BridgeApp
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
       attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
+      attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
 
       EXPECTED_ROUTING_KEYS_PATTERNS = [
         '*.*.plate.create',
@@ -50,6 +52,7 @@ module Lims::BridgeApp
       # @param [Hash] AMQP settings
       def initialize(amqp_settings, mysql_settings)
         @queue_name = amqp_settings.delete("plate_creator_queue_name") 
+        @bus = MessageBus.new(amqp_settings.delete("sequencescape").first)
         consumer_setup(amqp_settings)
         sequencescape_db_setup(mysql_settings)
         set_queue
@@ -101,7 +104,7 @@ module Lims::BridgeApp
         handler_for = lambda do |type|
           klass = "#{type.to_s.capitalize.gsub(/_./) {|p| p[1].upcase}}Handler"         
           handler_class = PlateCreator::MessageHandler.const_get(klass)  
-          handler_class.new(db, log, metadata, s2_resource)
+          handler_class.new(db, bus, log, metadata, s2_resource)
         end
 
         case metadata.routing_key

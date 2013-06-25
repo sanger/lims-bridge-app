@@ -1,7 +1,8 @@
 require 'lims-busclient'
 require 'lims-bridge-app/sample/sequencescape_updater'
-require 'lims-bridge-app/s2_resource'
 require 'lims-bridge-app/sample/json_decoder'
+require 'lims-bridge-app/s2_resource'
+require 'lims-bridge-app/message_bus'
 
 module Lims::BridgeApp
   module SampleManagement
@@ -13,6 +14,7 @@ module Lims::BridgeApp
 
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
+      attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
 
       EXPECTED_ROUTING_KEYS_PATTERNS = [
         '*.*.sample.create', '*.*.sample.updatesample', '*.*.sample.deletesample',
@@ -23,6 +25,7 @@ module Lims::BridgeApp
       # @param [Hash] mysql_settings
       def initialize(amqp_settings, mysql_settings)
         @queue_name = amqp_settings.delete("sample_queue_name")
+        @bus = MessageBus.new(amqp_settings.delete("sequencescape").first)
         consumer_setup(amqp_settings)
         sequencescape_db_setup(mysql_settings)
         set_queue
@@ -80,10 +83,14 @@ module Lims::BridgeApp
         begin
           if s2_resource[:samples]
             s2_resource[:samples].each do |h|
-              dispatch_s2_sample_in_sequencescape(h[:sample], h[:uuid], h[:date], action)
+              sample_uuid = h[:uuid]
+              dispatch_s2_sample_in_sequencescape(h[:sample], sample_uuid, h[:date], action)
+              bus.publish(sample_uuid)
             end
           else
-            dispatch_s2_sample_in_sequencescape(s2_resource[:sample], s2_resource[:uuid], s2_resource[:date], action)
+            sample_uuid = s2_resource[:uuid]
+            dispatch_s2_sample_in_sequencescape(s2_resource[:sample], sample_uuid, s2_resource[:date], action)
+            bus.publish(sample_uuid)
           end
         rescue Sequel::Rollback, UnknownSample => e
           metadata.reject(:requeue => true)
