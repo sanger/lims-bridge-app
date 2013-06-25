@@ -1,5 +1,5 @@
 require 'lims-bridge-app/plate_creator/sequencescape_updater'
-require 'lims-core/persistence/message_bus'
+require 'lims-bridge-app/message_bus'
 require 'common'
 require 'sequel/adapters/mysql2'
 
@@ -18,7 +18,7 @@ module Lims::BridgeApp::PlateCreator
           attribute :metadata, AMQP::Header, :required => true, :writer => :private, :reader => :private
           attribute :s2_resource, Hash, :required => true, :writer => :private, :reader => :private
           attribute :log, Object, :required => true, :writer => :private, :reader => :private 
-          attribute :bus, Lims::Core::Persistence::MessageBus, :required => true, :writer => :private
+          attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
 
           # @param [Sequel::MySQL::Database] db
           # @param [Lims::Core::Persistence::MessageBus] bus
