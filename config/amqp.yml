@@ -5,8 +5,14 @@ defaults: &defaults
   durable: true
   empty_queue_disconnect_interval: 0
   message_timeout: 120
-  sequencescape_exchange: "psd.sequencescape"
-  message_persistence: true
+  sequencescape:
+    - exchange_name: "psd.sequencescape"
+      exchange_type: "direct"
+      routing_key: "sequencescape"
+      url: "amqp://localhost:5672"
+      durable: true
+      message_persistence: true
+      prefetch_number: 1
 
 test:
   <<: *defaults
