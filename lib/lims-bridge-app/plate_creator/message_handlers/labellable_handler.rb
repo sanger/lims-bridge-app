@@ -11,9 +11,13 @@ module Lims::BridgeApp::PlateCreator
           if s2_resource.has_key?(:labellables)
             s2_resource[:labellables].each do |labellable|
               set_barcode_to_a_plate(labellable[:labellable])
+              plate_uuid = labellable[:labellable].name
+              bus.publish(plate_uuid)
             end
           else
             set_barcode_to_a_plate(s2_resource[:labellable])
+            plate_uuid = s2_resource[:labellable].name
+            bus.publish(plate_uuid)
           end
         rescue Sequel::Rollback, PlateNotFoundInSequencescape => e
           metadata.reject(:requeue => true)

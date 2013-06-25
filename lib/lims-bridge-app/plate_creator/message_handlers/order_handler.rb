@@ -30,7 +30,9 @@ module Lims::BridgeApp::PlateCreator
           stock_plate_items.flatten.each do |item|
             if item.status == ITEM_DONE_STATUS
               begin
-                update_plate_purpose_in_sequencescape(item.uuid)
+                plate_uuid = item.uuid
+                update_plate_purpose_in_sequencescape(plate_uuid)
+                bus.publish(plate_uuid)
               rescue PlateNotFoundInSequencescape => e
                 success = false
                 log.error("Plate not found in Sequencescape: #{e}")
