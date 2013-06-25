@@ -80,7 +80,7 @@ module Lims::BridgeApp
       # @param [String] study_name
       def create_study_sample_record(sample_id, study_name)
         studies = db[:studies].where{ |s| {s.lower(:name) => s.lower(study_name)}}.all
-        raise UnknownStudy, "The study #{study_name} cannot be found in Sequencescape" unless studies 
+        raise UnknownStudy, "The study #{study_name} cannot be found in Sequencescape" if studies.empty?
 
         studies.each do |study|
           study_id = study[:id]
@@ -95,7 +95,7 @@ module Lims::BridgeApp
       # @param [String] sanger_sample_id
       # @return [String]
       def study_name(sanger_sample_id)
-        sanger_sample_id.match(/^(.*)-[0-9]*$/)[1] 
+        sanger_sample_id.match(/^(.*)-[0-9]+$/)[1] 
       end
 
       # @param [Lims::ManagementApp::Sample] sample
