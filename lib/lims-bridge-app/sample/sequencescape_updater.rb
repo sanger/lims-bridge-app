@@ -7,6 +7,7 @@ module Lims::BridgeApp
   module SampleManagement
 
     UnknownSample = Class.new(StandardError)
+    UnknownStudy = Class.new(StandardError)
 
     module SequencescapeUpdater
       include SequencescapeMapper
@@ -38,6 +39,8 @@ module Lims::BridgeApp
           when "create" then
             sample_id = create_sample_record(sample, date)
             create_uuid_record(sample_id, sample_uuid)
+            study_name = study_name(sample.sanger_sample_id)
+            create_study_sample_record(sample_id, study_name)
           when "update" then
             update_sample_record(sample, date, sample_uuid)
           when "delete" then
@@ -71,6 +74,28 @@ module Lims::BridgeApp
           :resource_id => sample_id,
           :external_id => sample_uuid
         })
+      end
+
+      # @param [Fixnum] sample_id
+      # @param [String] study_name
+      def create_study_sample_record(sample_id, study_name)
+        studies = db[:studies].where{ |s| {s.lower(:name) => s.lower(study_name)}}.all
+        raise UnknownStudy, "The study #{study_name} cannot be found in Sequencescape" unless studies 
+
+        studies.each do |study|
+          study_id = study[:id]
+          db[:study_samples].insert({
+            :study_id => study_id, 
+            :sample_id => sample_id,        
+            :created_at => Time.now.utc
+          })
+        end
+      end
+
+      # @param [String] sanger_sample_id
+      # @return [String]
+      def study_name(sanger_sample_id)
+        sanger_sample_id.match(/^(.*)-[0-9]*$/)[1] 
       end
 
       # @param [Lims::ManagementApp::Sample] sample

@@ -93,7 +93,7 @@ module Lims::BridgeApp::PlateCreator
 
     # Labellable
     let(:barcode_type) { "sanger-barcode" }
-    let(:barcode_value) { "WD123456" }
+    let(:barcode_value) { "WD12345A" }
     let(:labellable) do
       Lims::LaboratoryApp::Labels::Labellable.new(:name => plate_uuid, :type => "resource").tap do |labellable|
         labellable["position"] = Lims::LaboratoryApp::Labels::Labellable::Label.new({
@@ -202,18 +202,18 @@ module Lims::BridgeApp::PlateCreator
         end
 
         it "set the barcode to the plate" do
-          plate_row[:barcode].should == "123456"
+          plate_row[:barcode].should == "12345"
           plate_row[:barcode_prefix_id].should == 1
         end
       end
 
       context "with an unknown prefix" do
         before do
-          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "AA123456"})
+          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "AA12345A"})
         end
 
         it "set the barcode to the plate" do
-          plate_row[:barcode].should == "123456"
+          plate_row[:barcode].should == "12345"
           plate_row[:barcode_prefix_id].should == 2
         end
       end
