@@ -17,7 +17,6 @@ module Lims::BridgeApp::PlateCreator
         begin 
           plate_uuid = s2_resource[:uuid]
           create_plate_in_sequencescape(s2_resource[:plate], plate_uuid, s2_resource[:sample_uuids])
-          routing_key = "sequencescape.plate.create"
           bus.publish(plate_uuid) 
         rescue Sequel::Rollback, UnknownSample => e
           metadata.reject(:requeue => true)
