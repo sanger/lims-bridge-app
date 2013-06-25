@@ -45,14 +45,29 @@ module Lims::BridgeApp::SampleManagement
         :geographical_region => "Cambridgeshire",
         :ethnicity => "english"
       }
+      s.sanger_sample_id = "StudyX-1"
       s
     end
 
     context "create sample" do
       let(:method) { "create" }
-      it_behaves_like "updating table", :samples, 1
-      it_behaves_like "updating table", :sample_metadata, 1
-      it_behaves_like "updating table", :uuids, 1
+
+      context "valid creation" do
+        it_behaves_like "updating table", :samples, 1
+        it_behaves_like "updating table", :sample_metadata, 1
+        it_behaves_like "updating table", :uuids, 1
+        it_behaves_like "updating table", :study_samples, 2
+      end
+
+      context "invalid creation" do
+        let(:sample_with_unknown_study) { sample.tap { |s| s.sanger_sample_id = "dummy-1" } }
+
+        it "raises an error if no study can be found to link to the sample" do
+          expect do
+            updater.dispatch_s2_sample_in_sequencescape(sample_with_unknown_study, sample_uuid, date, method)   
+          end.to raise_error(UnknownStudy)
+        end
+      end
     end
 
    context "update sample" do
