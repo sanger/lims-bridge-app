@@ -12,7 +12,7 @@ module Lims::BridgeApp::PlateCreator
         delete_aliquots_in_sequencescape(source_locations)
         source_locations.each { |plate_uuid, _| bus.publish(plate_uuid) }
 
-        UpdateAliquotsHandler.new(db, log, metadata, s2_resource).call
+        UpdateAliquotsHandler.new(db, bus, log, metadata, s2_resource).call
       end 
     end
   end
