@@ -120,7 +120,7 @@ module Lims::BridgeApp
           :external_id => uuid
         ).first
 
-        raise PlateNotFoundInSequencescape unless plate_uuid_data
+        raise PlateNotFoundInSequencescape, "The plate #{uuid} cannot be found in Sequencescape" unless plate_uuid_data
         plate_uuid_data[:resource_id]
       end
 
