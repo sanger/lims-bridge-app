@@ -27,7 +27,7 @@ module Lims::BridgeApp
             labellable[position] = label
           end
 
-          {:labellable => labellable}
+          {:labellable => labellable, :date => options[:date]}
         end
       end
 
@@ -63,9 +63,12 @@ module Lims::BridgeApp
             end
           end
 
-          {:plate => plate, 
-           :uuid => plate_hash["uuid"], 
-           :sample_uuids => sample_uuids(plate_hash["wells"])}
+          {
+            :plate => plate, 
+            :uuid => plate_hash["uuid"], 
+            :sample_uuids => sample_uuids(plate_hash["wells"]),
+            :date => options[:date]
+          }
         end
 
         # Get the sample uuids in the plate
@@ -103,9 +106,12 @@ module Lims::BridgeApp
             end
           end
 
-          {:plate => plate,
-           :uuid => tuberack_hash["uuid"],
-           :sample_uuids => sample_uuids(tuberack_hash["tubes"])}
+          {
+            :plate => plate,
+            :uuid => tuberack_hash["uuid"],
+            :sample_uuids => sample_uuids(tuberack_hash["tubes"]),
+            :date => options[:date]
+          }
         end
 
         # Get the sample uuids in the tuberack
@@ -142,7 +148,7 @@ module Lims::BridgeApp
             end
           end
 
-          {:order => order, :uuid => order_h["uuid"]}
+          {:order => order, :uuid => order_h["uuid"], :date => options[:date]}
         end
       end
 
