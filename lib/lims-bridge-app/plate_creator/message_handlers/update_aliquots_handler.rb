@@ -17,15 +17,15 @@ module Lims::BridgeApp::PlateCreator
           if s2_resource.has_key?(:plates)
             s2_resource[:plates].each do |plate|
               plate_uuid = plate[:uuid]
-              update_aliquots_in_sequencescape(plate[:plate], plate_uuid, plate[:sample_uuids])
+              update_aliquots_in_sequencescape(plate[:plate], plate_uuid, plate[:date], plate[:sample_uuids])
               bus.publish(plate_uuid)
             end
           else
             plate_uuid = s2_resource[:uuid]
-            update_aliquots_in_sequencescape(s2_resource[:plate], plate_uuid, s2_resource[:sample_uuids])
+            update_aliquots_in_sequencescape(s2_resource[:plate], plate_uuid, s2_resource[:date], s2_resource[:sample_uuids])
             bus.publish(plate_uuid)
           end
-        rescue Sequel::Rollback => e
+        rescue Sequel::Rollback, PlateNotFoundInSequencescape => e
           metadata.reject(:requeue => true)
           log.error("Error updating plate aliquots in Sequencescape: #{e}")
           raise Sequel::Rollback
