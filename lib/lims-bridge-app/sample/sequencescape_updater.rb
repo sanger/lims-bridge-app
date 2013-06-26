@@ -77,13 +77,13 @@ module Lims::BridgeApp
       end
 
       # @param [Fixnum] sample_id
-      # @param [String] study_name
-      def create_study_sample_record(sample_id, study_name)
-        studies = db[:studies].where{ |s| {s.lower(:name) => s.lower(study_name)}}.all
-        raise UnknownStudy, "The study #{study_name} cannot be found in Sequencescape" if studies.empty?
+      # @param [String] study_abbreviation
+      def create_study_sample_record(sample_id, study_abbreviation)
+        studies = db[:study_metadata].where{ |s| {s.lower(:study_name_abbreviation) => s.lower(study_abbreviation)}}.all
+        raise UnknownStudy, "The study #{study_abbreviation} cannot be found in Sequencescape" if studies.empty?
 
         studies.each do |study|
-          study_id = study[:id]
+          study_id = study[:study_id]
           db[:study_samples].insert({
             :study_id => study_id, 
             :sample_id => sample_id,        
