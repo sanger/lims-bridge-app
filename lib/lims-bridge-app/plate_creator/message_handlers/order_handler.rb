@@ -18,6 +18,7 @@ module Lims::BridgeApp::PlateCreator
       def _call_in_transaction
         order = s2_resource[:order]
         order_uuid = s2_resource[:uuid]
+        date = s2_resource[:date]
 
         stock_plate_items = stock_plate_items(order)
         other_items = order.keys.delete_if do |k|
@@ -31,12 +32,9 @@ module Lims::BridgeApp::PlateCreator
             if item.status == ITEM_DONE_STATUS
               begin
                 plate_uuid = item.uuid
-                update_plate_purpose_in_sequencescape(plate_uuid)
+                update_plate_purpose_in_sequencescape(plate_uuid, date)
                 bus.publish(plate_uuid)
-              rescue PlateNotFoundInSequencescape => e
-                success = false
-                log.error("Plate not found in Sequencescape: #{e}")
-              rescue Sequel::Rollback => e
+              rescue PlateNotFoundInSequencescape, Sequel::Rollback => e
                 success = false
                 log.error("Error updating plate in Sequencescape: #{e}")
               else
@@ -44,6 +42,7 @@ module Lims::BridgeApp::PlateCreator
               end
             end
           end
+
           if success
             metadata.ack
             log.info("Order message processed and acknowledged")
