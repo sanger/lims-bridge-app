@@ -53,14 +53,16 @@ module Lims::BridgeApp
       # @param [String] date
       def create_sample_record(sample, date)
         sample_values = {
-          :created_at => date
+          :created_at => date,
+          :updated_at => date
         }.merge(prepare_data(sample, :samples))
         sample_id = db[:samples].insert(sample_values)
 
         sample_metadata_values = prepare_data(sample, :sample_metadata)
         sample_metadata_values.merge!({
           :sample_id => sample_id,
-          :created_at => date
+          :created_at => date,
+          :updated_at => date
         })
         db[:sample_metadata].insert(sample_metadata_values)
         sample_id
@@ -84,10 +86,12 @@ module Lims::BridgeApp
 
         studies.each do |study|
           study_id = study[:study_id]
+          date = Time.now.utc
           db[:study_samples].insert({
             :study_id => study_id, 
             :sample_id => sample_id,        
-            :created_at => Time.now.utc
+            :created_at => date,
+            :updated_at => date
           })
         end
       end
@@ -107,6 +111,7 @@ module Lims::BridgeApp
         sample_id = sample_uuid_record[:resource_id] 
 
         updated_attributes = prepare_data(sample, :samples) 
+        updated_attributes.merge!({:updated_at => date})
         db[:samples].where(:id => sample_id).update(updated_attributes)
 
         updated_attributes = prepare_data(sample, :sample_metadata)
