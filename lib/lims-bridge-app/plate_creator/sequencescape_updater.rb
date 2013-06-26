@@ -38,14 +38,16 @@ module Lims::BridgeApp
       # @param [Lims::Core::Laboratory::Plate] plate
       # @param [String] plate uuid
       # @param [Hash] sample uuids
-      def create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
+      def create_plate_in_sequencescape(plate, plate_uuid, date, sample_uuids)
         asset_size = plate.number_of_rows * plate.number_of_columns
 
         # Save plate and plate uuid
         plate_id = db[:assets].insert(
           :sti_type => PLATE,
           :plate_purpose_id => UNASSIGNED_PLATE_PURPOSE_ID,
-          :size => asset_size
+          :size => asset_size,
+          :created_at => date,
+          :updated_at => date
         ) 
 
         db[:uuids].insert(
@@ -63,7 +65,9 @@ module Lims::BridgeApp
 
           well_id = db[:assets].insert(
             :sti_type => WELL, 
-            :map_id => map_id
+            :map_id => map_id,
+            :created_at => date,
+            :updated_at => date
           ) 
 
           db[:container_associations].insert(
@@ -84,7 +88,9 @@ module Lims::BridgeApp
 
               db[:aliquots].insert(
                 :receptacle_id => well_id, 
-                :sample_id => sample_id
+                :sample_id => sample_id,
+                :created_at => date,
+                :updated_at => date
               )
             end
           end 
@@ -98,10 +104,12 @@ module Lims::BridgeApp
       # is raised in that case. Otherwise, the plate is updated 
       # with the right plate_purpose_id for a stock plate.
       # @param [String] plate uuid
-      def update_plate_purpose_in_sequencescape(plate_uuid)
+      # @param [DateTime] date 
+      def update_plate_purpose_in_sequencescape(plate_uuid, date)
         plate_id = plate_id_by_uuid(plate_uuid)
         db[:assets].where(:id => plate_id).update(
-          :plate_purpose_id => STOCK_PLATE_PURPOSE_ID
+          :plate_purpose_id => STOCK_PLATE_PURPOSE_ID,
+          :updated_at => date
         ) 
       end
 
@@ -156,7 +164,7 @@ module Lims::BridgeApp
       # @param [Lims::Core::Laboratory::Plate] plate
       # @param [String] plate uuid
       # @param [Hash] sample uuids
-      def update_aliquots_in_sequencescape(plate, plate_uuid, sample_uuids)
+      def update_aliquots_in_sequencescape(plate, plate_uuid, date, sample_uuids)
         plate_id = plate_id_by_uuid(plate_uuid)
         # wells is a hash associating a location to a well id
         wells = db[:container_associations].select(
@@ -190,7 +198,9 @@ module Lims::BridgeApp
 
               db[:aliquots].insert(
                 :receptacle_id => wells[location],
-                :sample_id => sample_id
+                :sample_id => sample_id,
+                :created_at => date,
+                :updated_at => date
               )
             end
           end
@@ -221,14 +231,16 @@ module Lims::BridgeApp
       end
 
       # @param [Lims::LaboratoryApp::Labels::Labellable] labellable
-      def set_barcode_to_a_plate(labellable)
+      # @param [DateTime] date
+      def set_barcode_to_a_plate(labellable, date)
         plate_id = plate_id_by_uuid(labellable.name)
         barcode = sanger_barcode(labellable)
         barcode_prefix_id = barcode_prefix_id(barcode[:prefix])
 
         db[:assets].where(:id => plate_id).update({
           :barcode => barcode[:number], 
-          :barcode_prefix_id => barcode_prefix_id 
+          :barcode_prefix_id => barcode_prefix_id,
+          :updated_at => date
         })
       end
 
