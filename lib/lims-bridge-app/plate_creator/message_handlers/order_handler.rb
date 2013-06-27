@@ -36,7 +36,7 @@ module Lims::BridgeApp::PlateCreator
                 bus.publish(plate_uuid)
               rescue PlateNotFoundInSequencescape, Sequel::Rollback => e
                 success = false
-                log.error("Error updating plate in Sequencescape: #{e}")
+                log.info("Error updating plate in Sequencescape: #{e}")
               else
                 success = success && true
               end

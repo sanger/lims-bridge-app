@@ -27,7 +27,7 @@ module Lims::BridgeApp::PlateCreator
           end
         rescue Sequel::Rollback, PlateNotFoundInSequencescape => e
           metadata.reject(:requeue => true)
-          log.error("Error updating plate aliquots in Sequencescape: #{e}")
+          log.info("Error updating plate aliquots in Sequencescape: #{e}")
           raise Sequel::Rollback
         else
           metadata.ack

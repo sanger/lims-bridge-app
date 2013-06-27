@@ -94,7 +94,7 @@ module Lims::BridgeApp
           end
         rescue Sequel::Rollback, UnknownSample => e
           metadata.reject(:requeue => true)
-          log.error("Error saving sample in Sequencescape: #{e}")
+          log.info("Error saving sample in Sequencescape: #{e}")
         rescue UnknownStudy => e
           metadata.reject
           log.error("Error saving sample in Sequencescape: #{e}")

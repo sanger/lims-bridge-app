@@ -16,7 +16,7 @@ module Lims::BridgeApp::PlateCreator
           UpdateAliquotsHandler.new(db, bus, log, metadata, s2_resource).call
         rescue PlateNotFoundInSequencescape => e
           metadata.reject(:requeue => true)
-          log.error("Error updating plate aliquots in Sequencescape: #{e}")
+          log.info("Error updating plate aliquots in Sequencescape: #{e}")
         end
       end 
     end
