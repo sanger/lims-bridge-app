@@ -10,7 +10,7 @@ module Lims::BridgeApp::PlateCreator
     shared_examples_for "updating table for plate creation" do |table, quantity|
       it "updates the table #{table} by #{quantity} records" do
         expect do
-          updater.create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
+          updater.create_plate_in_sequencescape(plate, plate_uuid, Time.now, sample_uuids)
         end.to change { db[table.to_sym].count }.by(quantity)
       end
     end
@@ -26,7 +26,7 @@ module Lims::BridgeApp::PlateCreator
     shared_examples_for "updating table for aliquots update" do |table, quantity|
       it "updates the table #{table} by #{quantity} records" do
         expect do
-          updater.update_aliquots_in_sequencescape(transfered_plate, plate_uuid, transfered_sample_uuids)
+          updater.update_aliquots_in_sequencescape(transfered_plate, plate_uuid, Time.now, transfered_sample_uuids)
         end.to change { db[table.to_sym].count }.by(quantity)
       end
     end
@@ -114,17 +114,17 @@ module Lims::BridgeApp::PlateCreator
 
     context "update the plate purpose" do
       before do
-        updater.create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
+        updater.create_plate_in_sequencescape(plate, plate_uuid, Time.now, sample_uuids)
       end
 
       it "raises an exception if the plate to update cannot be found" do
         expect do
-          updater.update_plate_purpose_in_sequencescape(dummy_plate_uuid)
+          updater.update_plate_purpose_in_sequencescape(dummy_plate_uuid, Time.now)
         end.to raise_error(SequencescapeUpdater::PlateNotFoundInSequencescape)
       end
 
       it "updates the plate purpose of the plate" do
-        updater.update_plate_purpose_in_sequencescape(plate_uuid)
+        updater.update_plate_purpose_in_sequencescape(plate_uuid, Time.now)
         db[:assets].select(:assets__plate_purpose_id).join(:uuids, :resource_id => :assets__id).where(:external_id => plate_uuid).first[:plate_purpose_id].should == SequencescapeUpdater::STOCK_PLATE_PURPOSE_ID 
       end
     end
@@ -132,7 +132,7 @@ module Lims::BridgeApp::PlateCreator
 
     context "delete aliquots in sequencescape" do
       before do
-        updater.create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
+        updater.create_plate_in_sequencescape(plate, plate_uuid, Time.now, sample_uuids)
       end
 
       it "raises an exception if the plate to update cannot be found" do
@@ -149,7 +149,7 @@ module Lims::BridgeApp::PlateCreator
 
     context "delete non stock plate" do
       before do
-        updater.create_plate_in_sequencescape(plate, dummy_plate_uuid, sample_uuids)
+        updater.create_plate_in_sequencescape(plate, dummy_plate_uuid, Time.now, sample_uuids)
       end
       let(:s2_items) { order[dummy_role] }
 
@@ -162,12 +162,12 @@ module Lims::BridgeApp::PlateCreator
 
     context "update aliquots in sequencescape" do
       before do
-        updater.create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
+        updater.create_plate_in_sequencescape(plate, plate_uuid, Time.now, sample_uuids)
       end
 
       it "raises an exception if the plate to update cannot be found" do
         expect do
-          updater.update_aliquots_in_sequencescape(transfered_plate, dummy_plate_uuid, transfered_sample_uuids) 
+          updater.update_aliquots_in_sequencescape(transfered_plate, dummy_plate_uuid, Time.now, transfered_sample_uuids) 
         end.to raise_error(SequencescapeUpdater::PlateNotFoundInSequencescape)
       end
       
@@ -181,13 +181,13 @@ module Lims::BridgeApp::PlateCreator
     
     context "set barcode to a plate" do
       before do 
-        updater.create_plate_in_sequencescape(plate, plate_uuid, sample_uuids)
+        updater.create_plate_in_sequencescape(plate, plate_uuid, Time.now, sample_uuids)
       end
 
       context "invalid" do
         it "raises an exception if the plate to barcode cannot be found" do
           expect do
-            updater.set_barcode_to_a_plate(labellable.class.new(:name => dummy_plate_uuid))
+            updater.set_barcode_to_a_plate(labellable.class.new(:name => dummy_plate_uuid), Time.now)
           end.to raise_error(SequencescapeUpdater::PlateNotFoundInSequencescape)
         end
       end
@@ -198,7 +198,7 @@ module Lims::BridgeApp::PlateCreator
 
       context "with a known prefix" do
         before do
-          updater.set_barcode_to_a_plate(labellable)
+          updater.set_barcode_to_a_plate(labellable, Time.now)
         end
 
         it "set the barcode to the plate" do
@@ -209,7 +209,7 @@ module Lims::BridgeApp::PlateCreator
 
       context "with an unknown prefix" do
         before do
-          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "AA12345A"})
+          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "AA12345A"}, Time.now)
         end
 
         it "set the barcode to the plate" do

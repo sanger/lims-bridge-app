@@ -86,16 +86,35 @@ module Lims::BridgeApp
               raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
               sample_id = sample_resource_uuid[:resource_id]
 
+              tag_id = get_tag_id(sample_id)
+
               db[:aliquots].insert(
                 :receptacle_id => well_id, 
                 :sample_id => sample_id,
                 :created_at => date,
-                :updated_at => date
+                :updated_at => date,
+                :tag_id => tag_id
               )
             end
           end 
         end
-      end 
+      end
+
+      # Returns a the tag_id based on the type of the sample
+      def get_tag_id(sample_id)
+        tag_id = nil
+
+        sample_type = db[:sample_metadata].select(:sample_type).where(
+          :sample_id => sample_id).first
+
+        if sample_type == 'DNA'
+          tag_id = -100
+        elsif sample_type == 'RNA'
+          tag_id = -101
+        end
+        tag_id
+      end
+      private :get_tag_id
 
       # Update plate purpose in Sequencescape.
       # If the plate_uuid is not found in the database,
@@ -196,11 +215,14 @@ module Lims::BridgeApp
               raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
               sample_id = sample_resource_uuid[:resource_id]
 
+              tag_id = get_tag_id(sample_id)
+
               db[:aliquots].insert(
                 :receptacle_id => wells[location],
                 :sample_id => sample_id,
                 :created_at => date,
-                :updated_at => date
+                :updated_at => date,
+                :tag_id => tag_id
               )
             end
           end
