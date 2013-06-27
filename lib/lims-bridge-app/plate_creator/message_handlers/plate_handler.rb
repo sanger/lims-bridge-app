@@ -16,7 +16,7 @@ module Lims::BridgeApp::PlateCreator
       def _call_in_transaction
         begin 
           plate_uuid = s2_resource[:uuid]
-          create_plate_in_sequencescape(s2_resource[:plate], plate_uuid, s2_resource[:sample_uuids])
+          create_plate_in_sequencescape(s2_resource[:plate], plate_uuid, s2_resource[:date], s2_resource[:sample_uuids])
           bus.publish(plate_uuid) 
         rescue Sequel::Rollback, UnknownSample => e
           metadata.reject(:requeue => true)

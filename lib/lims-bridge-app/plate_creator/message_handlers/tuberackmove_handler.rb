@@ -9,10 +9,15 @@ module Lims::BridgeApp::PlateCreator
 
       def _call_in_transaction
         source_locations = s2_resource.delete(:source_locations)
-        delete_aliquots_in_sequencescape(source_locations)
-        source_locations.each { |plate_uuid, _| bus.publish(plate_uuid) }
 
-        UpdateAliquotsHandler.new(db, bus, log, metadata, s2_resource).call
+        begin
+          delete_aliquots_in_sequencescape(source_locations)
+          source_locations.each { |plate_uuid, _| bus.publish(plate_uuid) }
+          UpdateAliquotsHandler.new(db, bus, log, metadata, s2_resource).call
+        rescue PlateNotFoundInSequencescape => e
+          metadata.reject(:requeue => true)
+          log.error("Error updating plate aliquots in Sequencescape: #{e}")
+        end
       end 
     end
   end
