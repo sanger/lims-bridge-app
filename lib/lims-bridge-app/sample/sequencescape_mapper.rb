@@ -28,7 +28,7 @@ module Lims::BridgeApp
           :father => :father,
           :replicate => nil,
           :sample_public_name => :public_name,
-          :sample_common_name => :common_name,
+          :sample_common_name => :scientific_name,
           :sample_strain_att => nil,
           :sample_taxon_id => :taxon_id,
           :sample_ebi_accession_number => :ebi_accession_number,
