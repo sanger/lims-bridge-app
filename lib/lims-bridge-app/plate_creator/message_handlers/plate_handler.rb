@@ -20,7 +20,7 @@ module Lims::BridgeApp::PlateCreator
           bus.publish(plate_uuid) 
         rescue Sequel::Rollback, UnknownSample => e
           metadata.reject(:requeue => true)
-          log.error("Error saving plate in Sequencescape: #{e}")
+          log.info("Error saving plate in Sequencescape: #{e}")
           # Need to reraise a rollback exception as we are still 
           # in a sequel transaction block.
           raise Sequel::Rollback
