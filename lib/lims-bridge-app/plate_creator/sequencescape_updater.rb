@@ -295,11 +295,14 @@ module Lims::BridgeApp
       # @param [Lims::LaboratoryApp::Labels::Labellable] labellable
       # @return [Hash]
       # Return the first sanger barcode found in the labellable
+      # The preceeding zeroes from the barcode are stripped for sequencescape.
       def sanger_barcode(labellable)
         labellable.each do |position, label|
           if label.type == SANGER_BARCODE_TYPE
             label.value.match(/^(\w{2})([0-9]*)\w$/)
-            return {:prefix => $1, :number => $2} 
+            prefix = $1
+            number = $2.to_i.to_s
+            return {:prefix => prefix, :number => number} 
           end
         end
       end
