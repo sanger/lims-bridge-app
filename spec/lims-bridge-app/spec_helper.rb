@@ -4,7 +4,7 @@ require 'sequel'
 shared_context "test database" do
   let(:db) { Sequel.sqlite 'test.db' }
   after(:each) do
-    seed_tables = ["maps", "uuids", "barcode_prefixes", "studies", "study_metadata"]
+    seed_tables = ["maps", "uuids", "barcode_prefixes", "studies", "study_metadata", "locations"]
     db.tables.each do |table|
       db[table.to_sym].delete unless seed_tables.include?(table.to_s)
     end

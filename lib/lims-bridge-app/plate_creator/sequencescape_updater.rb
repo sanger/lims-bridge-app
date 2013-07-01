@@ -13,11 +13,13 @@ module Lims::BridgeApp
       STOCK_PLATES = ["stock"]
       ITEM_DONE_STATUS = "done"
       SANGER_BARCODE_TYPE = "sanger-barcode"
+      PLATE_LOCATION = "Sample logistics freezer"
 
       # Exception raised after an unsuccessful lookup for a plate 
       # in Sequencescape database.
       PlateNotFoundInSequencescape = Class.new(StandardError)
       UnknownSample = Class.new(StandardError)
+      UnknownLocation = Class.new(StandardError)
 
       # Ensure that all the requests for a message are made in a
       # transaction.
@@ -55,6 +57,8 @@ module Lims::BridgeApp
           :resource_id => plate_id,
           :external_id => plate_uuid
         ) 
+
+        set_plate_location(plate_id)
 
         # Save wells and set the associations with the plate
         plate.keys.each do |location|
@@ -98,6 +102,15 @@ module Lims::BridgeApp
             end
           end 
         end
+      end
+
+      # @param [Integer] plate_id
+      def set_plate_location(plate_id)
+        location = db[:locations].where(:name => PLATE_LOCATION).first
+        raise UnknownLocation, "The location #{PLATE_LOCATION} cannot be found in Sequencescape" unless location
+
+        location_id = location[:id]
+        db[:location_associations].insert(:locatable_id => plate_id, :location_id => location_id)
       end
 
       # Returns a the tag_id based on the type of the sample
