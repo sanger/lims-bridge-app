@@ -93,7 +93,7 @@ module Lims::BridgeApp::PlateCreator
 
     # Labellable
     let(:barcode_type) { "sanger-barcode" }
-    let(:barcode_value) { "WD12345A" }
+    let(:barcode_value) { "WD0012345A" }
     let(:labellable) do
       Lims::LaboratoryApp::Labels::Labellable.new(:name => plate_uuid, :type => "resource").tap do |labellable|
         labellable["position"] = Lims::LaboratoryApp::Labels::Labellable::Label.new({
