@@ -44,7 +44,7 @@ module Lims::BridgeApp
         # Save plate and plate uuid
         plate_id = db[:assets].insert(
           :sti_type => PLATE,
-          :plate_purpose_id => STOCK_PLATE_PURPOSE_ID,
+          :plate_purpose_id => UNASSIGNED_PLATE_PURPOSE_ID,
           :size => asset_size,
           :created_at => date,
           :updated_at => date
