@@ -120,10 +120,14 @@ module Lims::BridgeApp
         sample_type = db[:sample_metadata].select(:sample_type).where(
           :sample_id => sample_id).first
 
-        if sample_type == 'DNA'
-          tag_id = -100
-        elsif sample_type == 'RNA'
-          tag_id = -101
+        if sample_type
+          sample_type_value = sample_type[:sample_type]
+
+          if sample_type_value.match(/\bDNA\b/)
+            tag_id = -100
+          elsif sample_type_value.match(/\bRNA\b/)
+            tag_id = -101
+          end
         end
         tag_id
       end
