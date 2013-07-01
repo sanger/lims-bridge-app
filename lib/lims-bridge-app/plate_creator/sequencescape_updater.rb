@@ -123,9 +123,9 @@ module Lims::BridgeApp
         if sample_type
           sample_type_value = sample_type[:sample_type]
 
-          if sample_type_value.match(/DNA/)
+          if sample_type_value.match(/\bDNA\b/)
             tag_id = -100
-          elsif sample_type_value.match(/RNA/)
+          elsif sample_type_value.match(/\bRNA\b/)
             tag_id = -101
           end
         end
