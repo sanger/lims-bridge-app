@@ -109,6 +109,7 @@ module Lims::BridgeApp::PlateCreator
      it_behaves_like "updating table for plate creation", :container_associations, 96
      it_behaves_like "updating table for plate creation", :aliquots, 4
      it_behaves_like "updating table for plate creation", :uuids, 1
+     it_behaves_like "updating table for plate creation", :location_associations, 1
     end
 
 

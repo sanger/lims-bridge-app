@@ -194,6 +194,17 @@ CREATE TABLE "study_samples" (
   "updated_at" datetime DEFAULT NULL
 );
 
+CREATE TABLE "locations" (
+  "id" INTEGER PRIMARY KEY,
+  "name" varchar(255) NOT NULL
+);
+
+CREATE TABLE "location_associations" (
+  "id" INTEGER PRIMARY KEY,
+  "locatable_id" int(11) NOT NULL,
+  "location_id" int(11) NOT NULL
+);
+
 /* Common */
 
 CREATE TABLE "uuids" (
@@ -209,3 +220,4 @@ INSERT INTO `uuids` VALUES (1, 'Sample', 1, '11111111-0000-0000-0000-11111111111
 INSERT INTO `barcode_prefixes` VALUES (1, 'WD');
 INSERT INTO `studies` VALUES (1, 'study x');
 INSERT INTO `study_metadata` VALUES (1, 1, 'StudyX'), (2, 1, 'studyx');
+INSERT INTO `locations` VALUES (1, 'Sample logistics freezer');
