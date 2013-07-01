@@ -15,14 +15,7 @@ module Lims::BridgeApp::PlateCreator
       # is not found in Sequencescape, the message is requeued.
       # @param [AMQP::Header] metadata
       # @param [Hash] s2 resource 
-      # NOTE: as we always associate the stock plate purpose id for any
-      # created plates, we actually don't need to handle order message anymore.
-      # To be removed?
       def _call_in_transaction
-        metadata.reject
-        log.info("Order message unneeded and rejected.")
-        return
-
         order = s2_resource[:order]
         order_uuid = s2_resource[:uuid]
         date = s2_resource[:date]

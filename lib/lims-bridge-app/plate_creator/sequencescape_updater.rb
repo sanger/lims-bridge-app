@@ -9,8 +9,7 @@ module Lims::BridgeApp
       ASSET = "Asset"
       SAMPLE = "Sample"
       STOCK_PLATE_PURPOSE_ID = 2
-      # NOTE: Unused currently
-      UNASSIGNED_PLATE_PURPOSE_ID = 100
+      UNASSIGNED_PLATE_PURPOSE_ID = 2
       STOCK_PLATES = ["stock"]
       ITEM_DONE_STATUS = "done"
       SANGER_BARCODE_TYPE = "sanger-barcode"
@@ -125,7 +124,6 @@ module Lims::BridgeApp
       # with the right plate_purpose_id for a stock plate.
       # @param [String] plate uuid
       # @param [DateTime] date 
-      # NOTE: Unused currently. All the plates are stock plates.
       def update_plate_purpose_in_sequencescape(plate_uuid, date)
         plate_id = plate_id_by_uuid(plate_uuid)
         db[:assets].where(:id => plate_id).update(
