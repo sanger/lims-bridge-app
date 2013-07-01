@@ -288,7 +288,7 @@ module Lims::BridgeApp
           if label.type == SANGER_BARCODE_TYPE
             label.value.match(/^(\w{2})([0-9]*)\w$/)
             prefix = $1
-            number = $2.scan(/^0*(.*)$/).first.first
+            number = $2.to_i.to_s
             return {:prefix => prefix, :number => number} 
           end
         end
