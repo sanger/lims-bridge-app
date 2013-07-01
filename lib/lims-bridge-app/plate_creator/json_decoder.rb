@@ -200,6 +200,13 @@ module Lims::BridgeApp
           {:plates => plates, :source_locations => source_locations}
         end
       end
+
+
+      module SwapSamplesJsonDecoder
+        def self.call(json, options)
+
+        end
+      end
     end
   end
 end
