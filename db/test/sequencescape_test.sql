@@ -205,6 +205,18 @@ CREATE TABLE "location_associations" (
   "location_id" int(11) NOT NULL
 );
 
+CREATE TABLE "requests" (
+  "id" INTEGER PRIMARY KEY,
+  "asset_id" int(11) NOT NULL,
+  "initial_study_id" int(11) NOT NULL,
+  "sti_type" varchar(255) NOT NULL,
+  "state" varchar(255) NOT NULL,
+  "request_type_id" int(11) DEFAULT NULL,
+  "created_at" datetime DEFAULT NULL,
+  "updated_at" datetime DEFAULT NULL
+);
+
+
 /* Common */
 
 CREATE TABLE "uuids" (
