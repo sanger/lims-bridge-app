@@ -91,6 +91,7 @@ module Lims::BridgeApp
               sample_id = sample_resource_uuid[:resource_id]
 
               tag_id = get_tag_id(sample_id)
+              set_request(well_id, sample_id)
 
               db[:aliquots].insert(
                 :receptacle_id => well_id, 
@@ -111,6 +112,23 @@ module Lims::BridgeApp
 
         location_id = location[:id]
         db[:location_associations].insert(:locatable_id => plate_id, :location_id => location_id)
+      end
+
+      # @param [Integer] well_id
+      # @param [Integer] sample_id
+      def set_request(well_id, sample_id)
+        study = db[:study_samples].where(:sample_id => sample_id).order(:created_at).first 
+        study_id = study[:id]
+
+        db[:requests].insert({
+          :asset_id => well_id,
+          :initial_study_id => study_id,
+          :sti_type => "CreateAssetRequest",
+          :state => "passed",
+          :request_type_id => 11,
+          :created_at => Time.now.utc,
+          :updated_at => Time.now.utc
+        })
       end
 
       # Returns a the tag_id based on the type of the sample
