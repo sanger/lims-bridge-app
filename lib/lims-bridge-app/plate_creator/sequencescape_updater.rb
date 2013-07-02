@@ -9,7 +9,7 @@ module Lims::BridgeApp
       ASSET = "Asset"
       SAMPLE = "Sample"
       STOCK_PLATE_PURPOSE_ID = 2
-      UNASSIGNED_PLATE_PURPOSE_ID = 100
+      UNASSIGNED_PLATE_PURPOSE_ID = 2
       STOCK_PLATES = ["stock"]
       ITEM_DONE_STATUS = "done"
       SANGER_BARCODE_TYPE = "sanger-barcode"
@@ -120,10 +120,14 @@ module Lims::BridgeApp
         sample_type = db[:sample_metadata].select(:sample_type).where(
           :sample_id => sample_id).first
 
-        if sample_type == 'DNA'
-          tag_id = -100
-        elsif sample_type == 'RNA'
-          tag_id = -101
+        if sample_type
+          sample_type_value = sample_type[:sample_type]
+
+          if sample_type_value.match(/\bDNA\b/)
+            tag_id = -100
+          elsif sample_type_value.match(/\bRNA\b/)
+            tag_id = -101
+          end
         end
         tag_id
       end
@@ -295,11 +299,14 @@ module Lims::BridgeApp
       # @param [Lims::LaboratoryApp::Labels::Labellable] labellable
       # @return [Hash]
       # Return the first sanger barcode found in the labellable
+      # The preceeding zeroes from the barcode are stripped for sequencescape.
       def sanger_barcode(labellable)
         labellable.each do |position, label|
           if label.type == SANGER_BARCODE_TYPE
             label.value.match(/^(\w{2})([0-9]*)\w$/)
-            return {:prefix => $1, :number => $2} 
+            prefix = $1
+            number = $2.to_i.to_s
+            return {:prefix => prefix, :number => number} 
           end
         end
       end
