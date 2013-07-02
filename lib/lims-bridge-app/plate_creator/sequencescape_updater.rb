@@ -15,6 +15,10 @@ module Lims::BridgeApp
       SANGER_BARCODE_TYPE = "sanger-barcode"
       PLATE_LOCATION = "Sample logistics freezer"
 
+      REQUEST_STI_TYPE = "CreateAssetRequest"
+      REQUEST_TYPE_ID = 11
+      REQUEST_STATE = "passed"
+
       # Exception raised after an unsuccessful lookup for a plate 
       # in Sequencescape database.
       PlateNotFoundInSequencescape = Class.new(StandardError)
@@ -123,9 +127,9 @@ module Lims::BridgeApp
         db[:requests].insert({
           :asset_id => well_id,
           :initial_study_id => study_id,
-          :sti_type => "CreateAssetRequest",
-          :state => "passed",
-          :request_type_id => 11,
+          :sti_type => REQUEST_STI_TYPE,
+          :state => REQUEST_STATE,
+          :request_type_id => REQUEST_TYPE_ID,
           :created_at => Time.now.utc,
           :updated_at => Time.now.utc
         })
@@ -176,42 +180,6 @@ module Lims::BridgeApp
 
         raise PlateNotFoundInSequencescape, "The plate #{uuid} cannot be found in Sequencescape" unless plate_uuid_data
         plate_uuid_data[:resource_id]
-      end
-
-      # Delete plates and their informations in Sequencescape
-      # database if the plate appears in item order and is not
-      # a stock plate.
-      # @param [Hash] non stock plates
-      def delete_unassigned_plates_in_sequencescape(s2_items)
-        s2_items.flatten.each do |item|
-          plate = db[:assets].select(:assets__id).join(
-            :uuids,
-            :resource_id => :id
-          ).where(:external_id => item.uuid).first
-
-          unless plate.nil?
-            # Delete wells in assets
-            well_ids = db[:container_associations].select(:assets__id).join(
-              :assets,
-              :id => :content_id
-            ).where(:container_id => plate[:id]).all.inject([]) do |m,e|
-              m << e[:id]
-            end
-            db[:assets].where(:id => well_ids).delete
-
-            # Delete aliquots
-            db[:aliquots].where(:receptacle_id => well_ids).delete
-
-            # Delete container_associations
-            db[:container_associations].where(:content_id => well_ids).delete
-
-            # Delete plate in assets
-            db[:assets].where(:id => plate[:id]).delete
-
-            # Delete plate uuid
-            db[:uuids].where(:external_id => item.uuid).delete
-          end
-        end
       end
 
       # Update the aliquots of a plate after a plate transfer
@@ -279,7 +247,7 @@ module Lims::BridgeApp
           ).join(
             :maps, 
             :id => :map_id
-          ).where(:container_id => plate_id).where(:description => locations).all.inject([]) do |m,e|
+          ).where(:container_id => plate_id, :description => locations.map { |l| l.to_s }).all.inject([]) do |m,e|
             m << e[:id]
           end
 
