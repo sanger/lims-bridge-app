@@ -43,6 +43,7 @@ module Lims::BridgeApp
       # the transaction rollbacks.
       # @param [Lims::Core::Laboratory::Plate] plate
       # @param [String] plate uuid
+      # @param [Time] date
       # @param [Hash] sample uuids
       def create_plate_in_sequencescape(plate, plate_uuid, date, sample_uuids)
         asset_size = plate.number_of_rows * plate.number_of_columns
@@ -122,7 +123,7 @@ module Lims::BridgeApp
 
       # @param [Integer] well_id
       # @param [Integer] study_id
-      # @param [String] date
+      # @param [Time] date
       # Add a row in request unless it already exists for the well
       def set_request!(well_id, study_id, date)
         request = db[:requests].where({
@@ -177,7 +178,7 @@ module Lims::BridgeApp
       # is raised in that case. Otherwise, the plate is updated 
       # with the right plate_purpose_id for a stock plate.
       # @param [String] plate uuid
-      # @param [DateTime] date 
+      # @param [Time] date 
       def update_plate_purpose_in_sequencescape(plate_uuid, date)
         plate_id = plate_id_by_uuid(plate_uuid)
         db[:assets].where(:id => plate_id).update(
@@ -278,7 +279,7 @@ module Lims::BridgeApp
       end
 
       # @param [Lims::LaboratoryApp::Labels::Labellable] labellable
-      # @param [DateTime] date
+      # @param [Time] date
       def set_barcode_to_a_plate(labellable, date)
         plate_id = plate_id_by_uuid(labellable.name)
         barcode = sanger_barcode(labellable)
