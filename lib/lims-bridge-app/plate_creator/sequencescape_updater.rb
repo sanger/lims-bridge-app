@@ -95,10 +95,12 @@ module Lims::BridgeApp
               sample_id = sample_resource_uuid[:resource_id]
 
               tag_id = get_tag_id(sample_id)
-              set_request(well_id, sample_id)
+              study_id = study_id(sample_id)
+              set_request!(well_id, study_id, date)
 
               db[:aliquots].insert(
                 :receptacle_id => well_id, 
+                :study_id => study_id,
                 :sample_id => sample_id,
                 :created_at => date,
                 :updated_at => date,
@@ -119,20 +121,33 @@ module Lims::BridgeApp
       end
 
       # @param [Integer] well_id
-      # @param [Integer] sample_id
-      def set_request(well_id, sample_id)
-        study = db[:study_samples].where(:sample_id => sample_id).order(:created_at).first 
-        study_id = study[:id]
-
-        db[:requests].insert({
+      # @param [Integer] study_id
+      # @param [String] date
+      # Add a row in request unless it already exists for the well
+      def set_request!(well_id, study_id, date)
+        request = db[:requests].where({
           :asset_id => well_id,
-          :initial_study_id => study_id,
-          :sti_type => REQUEST_STI_TYPE,
-          :state => REQUEST_STATE,
-          :request_type_id => REQUEST_TYPE_ID,
-          :created_at => Time.now.utc,
-          :updated_at => Time.now.utc
-        })
+          :initial_study_id => study_id
+        }).first
+
+        unless request
+          db[:requests].insert({
+            :asset_id => well_id,
+            :initial_study_id => study_id,
+            :sti_type => REQUEST_STI_TYPE,
+            :state => REQUEST_STATE,
+            :request_type_id => REQUEST_TYPE_ID,
+            :created_at => date,
+            :updated_at => date 
+          })
+        end
+      end
+
+      # @param [Integer] sample_id
+      # @return [Integer]
+      def study_id(sample_id)
+        study = db[:study_samples].where(:sample_id => sample_id).order(:created_at).first 
+        study[:study_id]
       end
 
       # Returns a the tag_id based on the type of the sample
@@ -188,23 +203,17 @@ module Lims::BridgeApp
       # @param [Hash] sample uuids
       def update_aliquots_in_sequencescape(plate, plate_uuid, date, sample_uuids)
         plate_id = plate_id_by_uuid(plate_uuid)
+
         # wells is a hash associating a location to a well id
         wells = db[:container_associations].select(
-          :assets__id, 
-          :maps__description
+          :assets__id, :maps__description
         ).join(
-          :assets, 
-          :id => :content_id
+          :assets, :id => :content_id
         ).join(
-          :maps, 
-          :id => :map_id
+          :maps, :id => :map_id
         ).where(:container_id => plate_id).all.inject({}) do |m,e|
           m.merge({e[:description] => e[:id]})
         end
-
-        # Delete all the aliquots associated to the plate 
-        # wells.values returns all the plate well id in assets
-        # db[:aliquots].where(:receptacle_id => wells.values).delete
 
         # We save the plate wells data from the transfer
         plate.keys.each do |location|
@@ -217,9 +226,9 @@ module Lims::BridgeApp
 
               raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
               sample_id = sample_resource_uuid[:resource_id]
-
               tag_id = get_tag_id(sample_id)
               receptacle_id = wells[location]
+              study_id = study_id(sample_id)
 
               aliquot = db[:aliquots].where({
                 :receptacle_id => receptacle_id, 
@@ -229,9 +238,12 @@ module Lims::BridgeApp
 
               # The aliquot is added only if it doesn't exist yet
               unless aliquot
+                set_request!(receptacle_id, study_id, date) 
+
                 db[:aliquots].insert(
-                  :receptacle_id => wells[location],
+                  :receptacle_id => receptacle_id,
                   :sample_id => sample_id,
+                  :study_id => study_id,
                   :created_at => date,
                   :updated_at => date,
                   :tag_id => tag_id
