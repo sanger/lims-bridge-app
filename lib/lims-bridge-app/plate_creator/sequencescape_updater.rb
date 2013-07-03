@@ -137,7 +137,7 @@ module Lims::BridgeApp
 
       # Returns a the tag_id based on the type of the sample
       def get_tag_id(sample_id)
-        tag_id = nil
+        tag_id = -1
 
         sample_type = db[:sample_metadata].select(:sample_type).where(
           :sample_id => sample_id).first
@@ -204,7 +204,7 @@ module Lims::BridgeApp
 
         # Delete all the aliquots associated to the plate 
         # wells.values returns all the plate well id in assets
-        db[:aliquots].where(:receptacle_id => wells.values).delete
+        # db[:aliquots].where(:receptacle_id => wells.values).delete
 
         # We save the plate wells data from the transfer
         plate.keys.each do |location|
@@ -219,14 +219,24 @@ module Lims::BridgeApp
               sample_id = sample_resource_uuid[:resource_id]
 
               tag_id = get_tag_id(sample_id)
+              receptacle_id = wells[location]
 
-              db[:aliquots].insert(
-                :receptacle_id => wells[location],
-                :sample_id => sample_id,
-                :created_at => date,
-                :updated_at => date,
+              aliquot = db[:aliquots].where({
+                :receptacle_id => receptacle_id, 
+                :sample_id => sample_id, 
                 :tag_id => tag_id
-              )
+              }).first 
+
+              # The aliquot is added only if it doesn't exist yet
+              unless aliquot
+                db[:aliquots].insert(
+                  :receptacle_id => wells[location],
+                  :sample_id => sample_id,
+                  :created_at => date,
+                  :updated_at => date,
+                  :tag_id => tag_id
+                )
+              end
             end
           end
         end
