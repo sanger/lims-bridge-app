@@ -30,10 +30,9 @@ module Lims::BridgeApp
 
       # @param [Lims::ManagementApp::Sample] sample
       # @param [String] sample_uuid
-      # @param [String] date
+      # @param [Time] date
       # @param [String] method
       def dispatch_s2_sample_in_sequencescape(sample, sample_uuid, date, method)
-        date = Time.parse(date)
         db.transaction(:rollback => :reraise) do
           case method
           when "create" then
@@ -50,7 +49,7 @@ module Lims::BridgeApp
       end
 
       # @param [Lims::ManagementApp::Sample] sample
-      # @param [String] date
+      # @param [Time] date
       def create_sample_record(sample, date)
         sample_values = {
           :created_at => date,
@@ -103,7 +102,7 @@ module Lims::BridgeApp
       end
 
       # @param [Lims::ManagementApp::Sample] sample
-      # @param [String] date
+      # @param [Time] date
       # @param [String] sample_uuid
       def update_sample_record(sample, date, sample_uuid)
         sample_uuid_record = db[:uuids].select(:resource_id).where(:external_id => sample_uuid).first
