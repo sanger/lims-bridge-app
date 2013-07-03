@@ -21,7 +21,7 @@ module Lims::BridgeApp::PlateCreator
       it "deletes the aliquots" do
         expect do
           updater.delete_aliquots_in_sequencescape(plate_uuid => [:A1, :E5]) 
-        end.to change { db[:aliquots].count }.by(-4)
+        end.to change { db[:aliquots].count }.by(-2)
       end
     end
   end
