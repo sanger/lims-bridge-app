@@ -28,7 +28,7 @@ module Lims::BridgeApp::SampleManagement
 
       it "returns the date" do
         result[:date].should_not be_nil
-        result[:date].should be_a(String)
+        result[:date].should be_a(Time)
       end
     end
 
