@@ -27,11 +27,12 @@ module Lims::BridgeApp::PlateCreator
         end.to raise_error(SequencescapeUpdater::PlateNotFoundInSequencescape)
       end
 
-      # 2 new samples are registered in the transfered plate
+      # 2 new aliquots
       it_behaves_like "updating table for aliquots update", :aliquots, 2
       it_behaves_like "updating table for aliquots update", :uuids, 0
       it_behaves_like "updating table for aliquots update", :assets, 0
       it_behaves_like "updating table for aliquots update", :container_associations, 0
+      it_behaves_like "updating table for aliquots update", :requests, 2
     end
   end
 end

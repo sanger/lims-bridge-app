@@ -18,10 +18,10 @@ module Lims::BridgeApp::PlateCreator
     context "create a plate" do
       it_behaves_like "updating table for plate creation", :assets, 97
       it_behaves_like "updating table for plate creation", :container_associations, 96
-      it_behaves_like "updating table for plate creation", :aliquots, 4
+      it_behaves_like "updating table for plate creation", :aliquots, 2
       it_behaves_like "updating table for plate creation", :uuids, 1
       it_behaves_like "updating table for plate creation", :location_associations, 1
-      it_behaves_like "updating table for plate creation", :requests, 4
+      it_behaves_like "updating table for plate creation", :requests, 2
     end
   end
 end
