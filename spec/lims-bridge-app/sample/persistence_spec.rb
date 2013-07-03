@@ -3,7 +3,7 @@ require 'lims-bridge-app/sample/sequencescape_updater'
 
 module Lims::BridgeApp::SampleManagement
   describe "Persistence on Sequencescape database" do
-    include_context "test database"
+    include_context "prepare database"
 
     shared_examples_for "updating table" do |table, quantity|
       it "updates the table #{table} by #{quantity} record" do

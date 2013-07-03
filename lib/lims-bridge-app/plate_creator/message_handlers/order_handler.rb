@@ -21,11 +21,6 @@ module Lims::BridgeApp::PlateCreator
         date = s2_resource[:date]
 
         stock_plate_items = stock_plate_items(order)
-        other_items = order.keys.delete_if do |k|
-          STOCK_PLATES.inject(true) { |m,stock| m &= k.match(stock) }
-        end.map { |k| order[k] }
-        #delete_unassigned_plates_in_sequencescape(other_items)
-
         unless stock_plate_items.empty?
           success = true
           stock_plate_items.flatten.each do |item|
