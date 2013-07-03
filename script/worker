@@ -13,7 +13,7 @@ function worker_start() {
   if [ ! -f $WORKER_PIDS_PATH/worker.${1}.${2}.pid ]
   then
     echo "Starting Amqp worker"
-    nohup bundle exec ruby script/start_${1}_management.rb &
+    nohup bundle exec ruby script/start_${1}_management.rb > nohup.${1}.${2}.log &
     echo $! > $WORKER_PIDS_PATH/worker.${1}.${2}.pid
   else
     echo "Worker already running with pid:"
