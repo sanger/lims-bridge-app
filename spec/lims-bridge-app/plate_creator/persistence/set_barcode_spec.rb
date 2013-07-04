@@ -31,6 +31,7 @@ module Lims::BridgeApp::PlateCreator
         end
 
         it "set the barcode to the plate" do
+          plate_row[:name].should == "Plate 12345"
           plate_row[:barcode].should == "12345"
           plate_row[:barcode_prefix_id].should == 1
         end
@@ -42,6 +43,7 @@ module Lims::BridgeApp::PlateCreator
         end
 
         it "set the barcode to the plate" do
+          plate_row[:name].should == "Plate 12345"
           plate_row[:barcode].should == "12345"
           plate_row[:barcode_prefix_id].should == 2
         end
