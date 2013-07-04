@@ -338,10 +338,13 @@ module Lims::BridgeApp
         location_wells = location_wells(plate_id)
 
         location_wells.each do |location, well_id|
-          sample_uuid = location_samples[location]
-          old_sample_uuid = swaps.inverse[sample_uuid]
+          sample_uuids = location_samples[location]
+          next unless sample_uuids
 
-          if sample_uuid && old_sample_uuid
+          sample_uuids.each do |sample_uuid|
+            old_sample_uuid = swaps.inverse[sample_uuid]
+            next unless old_sample_uuid
+
             sample_resource_uuid = db[:uuids].where(:resource_type => SAMPLE, :external_id => sample_uuid).first 
             raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
             sample_id = sample_resource_uuid[:resource_id]
