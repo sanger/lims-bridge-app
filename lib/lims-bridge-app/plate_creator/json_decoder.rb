@@ -204,7 +204,17 @@ module Lims::BridgeApp
 
       module SwapSamplesJsonDecoder
         def self.call(json, options)
+          resources = [].tap do |r|
+            json["swap_samples"]["result"].each do |resource|
+              model = resource.keys.first
+              content = resource[model]
+              r << json_decoder_for(model).call(content, options) rescue nil
+            end
+          end
 
+          swaps = json["swap_samples"]["parameters"]
+
+          {:resources => resources, :swaps => swaps, :date => options[:date]}
         end
       end
     end
