@@ -1,4 +1,5 @@
 require 'sequel'
+require 'facets'
 
 module Lims::BridgeApp
   module PlateCreator
@@ -198,15 +199,11 @@ module Lims::BridgeApp
         plate_uuid_data[:resource_id]
       end
 
-      # Update the aliquots of a plate after a plate transfer
-      # @param [Lims::Core::Laboratory::Plate] plate
-      # @param [String] plate uuid
-      # @param [Hash] sample uuids
-      def update_aliquots_in_sequencescape(plate, plate_uuid, date, sample_uuids)
-        plate_id = plate_id_by_uuid(plate_uuid)
-
-        # wells is a hash associating a location to a well id
-        wells = db[:container_associations].select(
+      # @param [Integer] plate_id
+      # @return [Hash]
+      # @example {"A1" => 1548, "A2" => 1549...}
+      def location_wells(plate_id)
+        db[:container_associations].select(
           :assets__id, :maps__description
         ).join(
           :assets, :id => :content_id
@@ -215,6 +212,17 @@ module Lims::BridgeApp
         ).where(:container_id => plate_id).all.inject({}) do |m,e|
           m.merge({e[:description] => e[:id]})
         end
+      end
+
+      # Update the aliquots of a plate after a plate transfer
+      # @param [Lims::Core::Laboratory::Plate] plate
+      # @param [String] plate uuid
+      # @param [Hash] sample uuids
+      def update_aliquots_in_sequencescape(plate, plate_uuid, date, sample_uuids)
+        plate_id = plate_id_by_uuid(plate_uuid)
+
+        # wells is a hash associating a location to a well id
+        wells = location_wells(plate_id) 
 
         # We save the plate wells data from the transfer
         plate.keys.each do |location|
@@ -320,6 +328,34 @@ module Lims::BridgeApp
         end
       end
       private :sanger_barcode
+
+      # @param [String] plate_uuid
+      # @param [Hash] location_samples
+      # @param [Hash] swaps
+      # @param [Time] date
+      def swap_samples(plate_uuid, location_samples, swaps, date)
+        plate_id = plate_id_by_uuid(plate_uuid)
+        location_wells = location_wells(plate_id)
+
+        location_wells.each do |location, well_id|
+          sample_uuid = location_samples[location]
+          old_sample_uuid = swaps.inverse[sample_uuid]
+
+          if sample_uuid && old_sample_uuid
+            sample_resource_uuid = db[:uuids].where(:resource_type => SAMPLE, :external_id => sample_uuid).first 
+            raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
+            sample_id = sample_resource_uuid[:resource_id]
+
+            old_sample_resource_uuid = db[:uuids].where(:resource_type => SAMPLE, :external_id => old_sample_uuid).first 
+            raise UnknownSample, "The sample #{old_sample_uuid} cannot be found in Sequencescape" unless old_sample_resource_uuid
+            old_sample_id = old_sample_resource_uuid[:resource_id]
+
+            db[:aliquots].where(
+              :receptacle_id => well_id, :sample_id => old_sample_id
+            ).update(:sample_id => sample_id, :updated_at => date) 
+          end
+        end
+      end
     end
-  end
-end 
+  end 
+end
