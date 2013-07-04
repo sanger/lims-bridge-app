@@ -32,5 +32,6 @@ module Lims::BridgeApp::PlateCreator
     it_behaves_like "routing message", "*.*.tuberackmove.tuberackmove", MessageHandler::TubeRackMoveHandler 
     it_behaves_like "routing message", "*.*.labellable.create", MessageHandler::LabellableHandler 
     it_behaves_like "routing message", "*.*.bulkcreatelabellable.*", MessageHandler::LabellableHandler 
+    it_behaves_like "routing message", "*.*.swapsamples.*", MessageHandler::SwapSamplesHandler 
   end
 end
