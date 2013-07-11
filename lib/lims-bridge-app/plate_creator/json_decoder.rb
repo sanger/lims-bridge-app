@@ -200,6 +200,25 @@ module Lims::BridgeApp
           {:plates => plates, :source_locations => source_locations}
         end
       end
+
+
+      module SwapSamplesJsonDecoder
+        def self.call(json, options)
+          resources = [].tap do |r|
+            json["swap_samples"]["result"].each do |resource|
+              model = resource.keys.first
+              decoder = case model
+                        when "tube_rack" then TubeRackJsonDecoder
+                        when "plate" then PlateJsonDecoder
+                        end
+              r << decoder.call(resource, options) if decoder 
+            end
+          end
+          swaps = json["swap_samples"]["parameters"]
+
+          {:resources => resources, :swaps => swaps, :date => options[:date]}
+        end
+      end
     end
   end
 end
