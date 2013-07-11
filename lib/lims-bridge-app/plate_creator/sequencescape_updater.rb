@@ -292,8 +292,10 @@ module Lims::BridgeApp
         plate_id = plate_id_by_uuid(labellable.name)
         barcode = sanger_barcode(labellable)
         barcode_prefix_id = barcode_prefix_id(barcode[:prefix])
+        plate_name = "Plate #{barcode[:number]}"
 
         db[:assets].where(:id => plate_id).update({
+          :name => plate_name,
           :barcode => barcode[:number], 
           :barcode_prefix_id => barcode_prefix_id,
           :updated_at => date
