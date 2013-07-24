@@ -50,7 +50,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-bridge-app (0.8.1)
+    lims-bridge-app (0.9.0)
       aequitas
       amqp
       facets
@@ -97,7 +97,7 @@ GEM
     json (1.8.0)
     macaddr (1.6.1)
       systemu (~> 2.5.0)
-    mysql2 (0.3.11)
+    mysql2 (0.3.13)
     rack (1.5.2)
     rake (10.0.4)
     rspec (2.8.0)
