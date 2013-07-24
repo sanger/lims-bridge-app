@@ -38,6 +38,7 @@ module Lims::BridgeApp
         '*.*.plate.create',
         '*.*.tuberack.create',
         '*.*.tuberack.updatetuberack',
+        '*.*.tuberack.deletetuberack',
         '*.*.order.create',
         '*.*.order.updateorder',
         '*.*.platetransfer.platetransfer',
@@ -117,6 +118,7 @@ module Lims::BridgeApp
         when /platetransfer|transferplatestoplates|updatetuberack|tuberacktransfer/ then handler_for[:update_aliquots].call
           # Tube rack move messages have a custom handler as it needs to delete aliquots in the source racks.
         when /tuberackmove/ then handler_for[:tube_rack_move].call
+        when /deletetuberack/ then handler_for[:plate_delete].call
         when /labellable/ then handler_for[:labellable].call
         when /swapsamples/ then handler_for[:swap_samples].call
         end
