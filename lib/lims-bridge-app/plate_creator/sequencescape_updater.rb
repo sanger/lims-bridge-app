@@ -263,6 +263,20 @@ module Lims::BridgeApp
         end
       end
 
+      # @param [String] plate_uuid
+      # Delete the plate and all its references (wells, aliquots...)
+      def delete_plate(plate_uuid)
+        plate_id = plate_id_by_uuid(plate_uuid)
+        well_ids = db[:container_associations].where(:container_id => plate_id).all.inject([]) do |m,e|
+          m << e[:content_id]
+        end
+
+        db[:container_associations].where(:container_id => plate_id, :content_id => well_ids).delete
+        db[:assets].where(:id => (well_ids + [plate_id])).delete
+        db[:uuids].where(:external_id => plate_uuid).delete
+        db[:aliquots].where(:receptacle_id => well_ids).delete
+      end
+
       # @param [Hash] aliquot_locations
       # @example: {plate_uuid => [:A1, :B4]}
       # Delete all the aliquots in the location specified
