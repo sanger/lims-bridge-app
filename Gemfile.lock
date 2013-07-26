@@ -50,7 +50,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-bridge-app (0.9.0)
+    lims-bridge-app (1.0.0)
       aequitas
       amqp
       facets
