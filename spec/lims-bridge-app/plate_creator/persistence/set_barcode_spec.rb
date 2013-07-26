@@ -37,15 +37,23 @@ module Lims::BridgeApp::PlateCreator
         end
       end
 
-      context "with an unknown prefix" do
+      context "with an unknown valid prefix" do
         before do
-          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "AA12345A"}, Time.now)
+          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "NR12345A"}, Time.now)
         end
 
         it "set the barcode to the plate" do
           plate_row[:name].should == "Plate 12345"
           plate_row[:barcode].should == "12345"
           plate_row[:barcode_prefix_id].should == 2
+        end
+      end
+
+      context "with an invalid prefix" do
+        it "raises an InvalidBarcode error" do
+          expect do
+          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "AA12345A"}, Time.now)
+          end.to raise_error(SequencescapeUpdater::InvalidBarcode)
         end
       end
     end
