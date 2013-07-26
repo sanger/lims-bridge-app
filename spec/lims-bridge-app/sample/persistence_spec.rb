@@ -14,9 +14,14 @@ module Lims::BridgeApp::SampleManagement
     end
 
     let(:db_settings) { YAML.load_file(File.join('config', 'database.yml'))['test'] }
+    let(:bus) { mock(:bus).tap { |n| n.stub(:publish) }}
     let!(:updater) do
-      Class.new { include SequencescapeUpdater }.new.tap do |o|
+      Class.new do
+        include SequencescapeUpdater
+        attr_accessor :bus
+      end.new.tap do |o|
         o.sequencescape_db_setup(db_settings)
+        o.bus = bus 
       end
     end
 
@@ -55,7 +60,7 @@ module Lims::BridgeApp::SampleManagement
       context "valid creation" do
         it_behaves_like "updating table", :samples, 1
         it_behaves_like "updating table", :sample_metadata, 1
-        it_behaves_like "updating table", :uuids, 1
+        it_behaves_like "updating table", :uuids, 3
         it_behaves_like "updating table", :study_samples, 2
       end
 
