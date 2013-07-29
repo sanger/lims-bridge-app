@@ -20,11 +20,14 @@ module Lims::BridgeApp
       REQUEST_TYPE_ID = 11
       REQUEST_STATE = "passed"
 
+      BARCODE_PREFIXES = ["ND", "NR"]
+
       # Exception raised after an unsuccessful lookup for a plate 
       # in Sequencescape database.
       PlateNotFoundInSequencescape = Class.new(StandardError)
       UnknownSample = Class.new(StandardError)
       UnknownLocation = Class.new(StandardError)
+      InvalidBarcode = Class.new(StandardError)
 
       # Ensure that all the requests for a message are made in a
       # transaction.
@@ -305,6 +308,11 @@ module Lims::BridgeApp
       def set_barcode_to_a_plate(labellable, date)
         plate_id = plate_id_by_uuid(labellable.name)
         barcode = sanger_barcode(labellable)
+
+        unless BARCODE_PREFIXES.map { |p| p.downcase }.include?(barcode[:prefix].downcase)
+          raise InvalidBarcode, "#{barcode[:prefix]} is not a valid barcode prefix"
+        end
+
         barcode_prefix_id = barcode_prefix_id(barcode[:prefix])
         plate_name = "Plate #{barcode[:number]}"
 

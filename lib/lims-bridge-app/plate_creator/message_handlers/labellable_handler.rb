@@ -25,6 +25,10 @@ module Lims::BridgeApp::PlateCreator
           # Need to reraise a rollback exception as we are still 
           # in a sequel transaction block.
           raise Sequel::Rollback
+        rescue InvalidBarcode => e
+          metadata.reject
+          log.info("Error updating barcode in Sequencescape: #{e}")
+          raise Sequel::Rollback
         else
           metadata.ack
           log.info("Labellable message processed and acknowledged")
