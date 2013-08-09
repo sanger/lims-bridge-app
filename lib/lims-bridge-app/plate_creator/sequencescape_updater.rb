@@ -217,6 +217,60 @@ module Lims::BridgeApp
         end
       end
 
+      # Move wells from a plate to a plate
+      # @param [Lims::Core::Laboratory::Plate] plate
+      # @param [String] plate uuid
+      # @param [Hash] sample uuids
+      def move_wells_in_sequencescape(move, date)
+        source_plate_id = plate_id_by_uuid(move["source_uuid"])
+        target_plate_id = plate_id_by_uuid(move["target_uuid"])
+        source_location = move["source_location"]
+        target_location = move["target_location"]
+
+        source_map_id = get_map_id(source_location, source_plate_id)
+        target_map_id = get_map_id(target_location, target_plate_id)
+
+        source_well_id = db[:assets].select(:id).where(
+          {:map_id  => source_map_id,
+           :id      => db[:container_associations].select(:content_id).where(
+            :container_id => source_plate_id)
+          }).first[:id]
+
+        container_association_id = db[:container_associations].select(
+          :container_associations__id
+          ).join(
+            :assets, :id => :content_id
+          ).where(
+            {:container_id => target_plate_id,
+             :assets__map_id => target_map_id}
+          ).first[:id]
+
+        # update the container association table with the new container of the well
+        db[:container_associations].where(
+          :id => container_association_id
+        ).update(
+          :content_id => source_well_id
+        )
+
+        # update the location of the well
+        db[:assets].where(:id => source_well_id).update(
+          {:map_id => target_map_id,
+           :updated_at => date})
+      end
+
+      # @param [String] the location string in the plate. For example: "A1"
+      # @param [String] plate uuid
+      # @return [String]
+      def get_map_id(location, plate_id)
+        map_id_data = db[:maps].select(:id).where(
+          {:description => location,
+          :asset_size   => db[:assets].select(:size).where(
+            :id => plate_id)}).first
+
+        raise UnknownLocation, "The location '#{location}' cannot be found in Sequencescape" unless map_id_data
+        map_id_data[:id]
+      end
+
       # Update the aliquots of a plate after a plate transfer
       # @param [Lims::Core::Laboratory::Plate] plate
       # @param [String] plate uuid
