@@ -233,3 +233,5 @@ INSERT INTO `barcode_prefixes` VALUES (1, 'ND');
 INSERT INTO `studies` VALUES (1, 'study x');
 INSERT INTO `study_metadata` VALUES (1, 1, 'StudyX'), (2, 1, 'studyx');
 INSERT INTO `locations` VALUES (1, 'Sample logistics freezer');
+INSERT INTO `samples` (name, created_at, updated_at) VALUES ('sample 1', date('now'), date('now'));
+INSERT INTO `study_samples` VALUES (1, 1, 1, date('now'), date('now'));

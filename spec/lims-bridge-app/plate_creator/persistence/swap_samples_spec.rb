@@ -1,5 +1,5 @@
 require 'lims-bridge-app/plate_creator/persistence/spec_helper'
-require 'lims-bridge-app/plate_creator/persistence/persistence_shared'
+require 'lims-laboratory-app/laboratory/plate'
 
 module Lims::BridgeApp::PlateCreator
   describe "Swapping samples" do
