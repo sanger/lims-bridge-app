@@ -226,32 +226,53 @@ module Lims::BridgeApp
         target_plate_id = plate_id_by_uuid(move["target_uuid"])
         source_location = move["source_location"]
         target_location = move["target_location"]
-
         source_map_id = get_map_id(source_location, source_plate_id)
         target_map_id = get_map_id(target_location, target_plate_id)
 
-        source_well_id = db[:assets].select(:id).where({
-          :map_id  => source_map_id,
-          :id      => db[:container_associations].select(:content_id).where(:container_id => source_plate_id)
-        }).first[:id]
+        well_id_for = lambda do |container_id, map_id|
+          db[:assets].select(:assets__id).join(:container_associations, :content_id => :assets__id).where({
+            :container_id => container_id,
+            :map_id => map_id
+          }).first[:id]
+        end
 
-        container_association_id = db[:container_associations].select(
-          :container_associations__id
-        ).join(
-          :assets, :id => :content_id
-        ).where({
-          :container_id => target_plate_id,
-          :assets__map_id => target_map_id
-        }).first[:id]
+        source_well_id = well_id_for.call(source_plate_id, source_map_id)
+        target_well_id = well_id_for.call(target_plate_id, target_map_id)
 
-        # update the container association table with the new container of the well
+        # Associate the well in the source location to the target tube rack
+        # We delete the couple (source_plate_id, source_well_id) from the table
+        # container_associations first as there is a unique constraint on content_id column.
+        # Then we add the couple (target_plate_id, source_well_id).
+        # Finally, we update the location of the well.
         db[:container_associations].where({
-          :id => container_association_id
-        }).update(:content_id => source_well_id)
+          :container_id => source_plate_id,
+          :content_id => source_well_id
+        }).delete
 
-        # update the location of the well
+        db[:container_associations].insert(
+          :container_id => target_plate_id,
+          :content_id => source_well_id
+        )
+
         db[:assets].where(:id => source_well_id).update({
           :map_id => target_map_id,
+          :updated_at => date
+        })
+
+        # We attach then the old well of the target tube rack to the source tube rack
+        # This well should normally be empty (no aliquots attached to it)
+        db[:container_associations].where({
+          :container_id => target_plate_id,
+          :content_id => target_well_id
+        }).delete
+
+        db[:container_associations].insert(
+          :container_id => source_plate_id,
+          :content_id => target_well_id
+        )
+
+        db[:assets].where(:id => target_well_id).update({
+          :map_id => source_map_id,
           :updated_at => date
         })
       end
