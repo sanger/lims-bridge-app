@@ -230,42 +230,40 @@ module Lims::BridgeApp
         source_map_id = get_map_id(source_location, source_plate_id)
         target_map_id = get_map_id(target_location, target_plate_id)
 
-        source_well_id = db[:assets].select(:id).where(
-          {:map_id  => source_map_id,
-           :id      => db[:container_associations].select(:content_id).where(
-            :container_id => source_plate_id)
-          }).first[:id]
+        source_well_id = db[:assets].select(:id).where({
+          :map_id  => source_map_id,
+          :id      => db[:container_associations].select(:content_id).where(:container_id => source_plate_id)
+        }).first[:id]
 
         container_association_id = db[:container_associations].select(
           :container_associations__id
-          ).join(
-            :assets, :id => :content_id
-          ).where(
-            {:container_id => target_plate_id,
-             :assets__map_id => target_map_id}
-          ).first[:id]
+        ).join(
+          :assets, :id => :content_id
+        ).where({
+          :container_id => target_plate_id,
+          :assets__map_id => target_map_id
+        }).first[:id]
 
         # update the container association table with the new container of the well
-        db[:container_associations].where(
+        db[:container_associations].where({
           :id => container_association_id
-        ).update(
-          :content_id => source_well_id
-        )
+        }).update(:content_id => source_well_id)
 
         # update the location of the well
-        db[:assets].where(:id => source_well_id).update(
-          {:map_id => target_map_id,
-           :updated_at => date})
+        db[:assets].where(:id => source_well_id).update({
+          :map_id => target_map_id,
+          :updated_at => date
+        })
       end
 
       # @param [String] the location string in the plate. For example: "A1"
       # @param [String] plate uuid
       # @return [String]
       def get_map_id(location, plate_id)
-        map_id_data = db[:maps].select(:id).where(
-          {:description => location,
-          :asset_size   => db[:assets].select(:size).where(
-            :id => plate_id)}).first
+        map_id_data = db[:maps].select(:id).where({
+          :description => location,
+          :asset_size => db[:assets].select(:size).where(:id => plate_id)
+        }).first
 
         raise UnknownLocation, "The location '#{location}' cannot be found in Sequencescape" unless map_id_data
         map_id_data[:id]
