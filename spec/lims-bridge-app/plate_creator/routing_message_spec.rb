@@ -1,12 +1,11 @@
 require 'lims-bridge-app/plate_creator/spec_helper'
 require 'lims-bridge-app/plate_creator/stock_plate_consumer'
 require 'lims-bridge-app/plate_creator/message_handlers/all'
-require 'ostruct'
 
 module Lims::BridgeApp::PlateCreator
   describe StockPlateConsumer do
     shared_examples_for "routing message" do |routing_key, object|
-      let(:consumer) { described_class.new({}, {}) }
+      let(:consumer) { described_class.new({"sequencescape" => [{:routing_key => nil}]}, {}) }
       let(:db) { mock(:db) }
       let(:log) { mock(:log) }
       let(:s2_resource) { mock(:s2_resource) }
@@ -16,6 +15,7 @@ module Lims::BridgeApp::PlateCreator
       }
 
       it "dispatches the message" do
+        Lims::BridgeApp::MessageBus.any_instance.stub(:message_bus_connection)
         object.any_instance.should_receive(:call)
         consumer.send(:routing_message, metadata, s2_resource)
       end
@@ -24,11 +24,15 @@ module Lims::BridgeApp::PlateCreator
     it_behaves_like "routing message", "*.*.plate.create", MessageHandler::PlateHandler
     it_behaves_like "routing message", "*.*.tuberack.create", MessageHandler::PlateHandler 
     it_behaves_like "routing message", "*.*.tuberack.updatetuberack", MessageHandler::UpdateAliquotsHandler 
+    it_behaves_like "routing message", "*.*.tuberack.deletetuberack", MessageHandler::PlateDeleteHandler 
     it_behaves_like "routing message", "*.*.order.create", MessageHandler::OrderHandler 
     it_behaves_like "routing message", "*.*.order.updateorder", MessageHandler::OrderHandler 
     it_behaves_like "routing message", "*.*.platetransfer.platetransfer", MessageHandler::UpdateAliquotsHandler 
     it_behaves_like "routing message", "*.*.transferplatestoplates.transferplatestoplates", MessageHandler::UpdateAliquotsHandler 
     it_behaves_like "routing message", "*.*.tuberacktransfer.tuberacktransfer", MessageHandler::UpdateAliquotsHandler 
     it_behaves_like "routing message", "*.*.tuberackmove.tuberackmove", MessageHandler::TubeRackMoveHandler 
+    it_behaves_like "routing message", "*.*.labellable.create", MessageHandler::LabellableHandler 
+    it_behaves_like "routing message", "*.*.bulkcreatelabellable.*", MessageHandler::LabellableHandler 
+    it_behaves_like "routing message", "*.*.swapsamples.*", MessageHandler::SwapSamplesHandler 
   end
 end

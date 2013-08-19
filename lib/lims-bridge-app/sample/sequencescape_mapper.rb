@@ -11,12 +11,13 @@ module Lims::BridgeApp
       MAPPING = { 
         :samples => {
           :sanger_sample_id => :sanger_sample_id,
-          :name => :common_name
+          :name => :sanger_sample_id,
+          :control => :is_sample_a_control
         },
         :sample_metadata => {
           :organism => nil,
           :gc_content => :gc_content,
-          :cohort => :cohort,
+          :cohort => :__cellular_material__donor_id,
           :gender => :gender,
           :country_of_origin => :__genotyping__country_of_origin,
           :geographical_region => :__genotyping__geographical_region,
@@ -28,7 +29,7 @@ module Lims::BridgeApp
           :father => :father,
           :replicate => nil,
           :sample_public_name => :public_name,
-          :sample_common_name => :common_name,
+          :sample_common_name => :scientific_name,
           :sample_strain_att => nil,
           :sample_taxon_id => :taxon_id,
           :sample_ebi_accession_number => :ebi_accession_number,

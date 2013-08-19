@@ -8,10 +8,23 @@ module Lims::BridgeApp::PlateCreator
       private
 
       def _call_in_transaction
-        source_locations = s2_resource.delete(:source_locations)
-        delete_aliquots_in_sequencescape(source_locations)
+        moves = s2_resource.delete(:moves)
+        date = s2_resource.delete(:date)
 
-        UpdateAliquotsHandler.new(db, log, metadata, s2_resource).call
+        begin
+          moves.each do |move|
+            move_wells_in_sequencescape(move, date)
+
+            bus.publish(move["source_uuid"])
+            bus.publish(move["target_uuid"])
+          end
+        rescue PlateNotFoundInSequencescape => e
+          metadata.reject(:requeue => true)
+          log.info("Error moving plates in Sequencescape: #{e}")
+        else
+          metadata.ack
+          log.info("Tube rack move message processed and acknowledged")
+        end
       end 
     end
   end

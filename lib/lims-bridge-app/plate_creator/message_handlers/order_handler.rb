@@ -18,28 +18,26 @@ module Lims::BridgeApp::PlateCreator
       def _call_in_transaction
         order = s2_resource[:order]
         order_uuid = s2_resource[:uuid]
+        date = s2_resource[:date]
 
         stock_plate_items = stock_plate_items(order)
-        other_items = order.keys.delete_if {|k| STOCK_PLATES.include?(k)}.map {|k| order[k]}
-        delete_unassigned_plates_in_sequencescape(other_items)
-
         unless stock_plate_items.empty?
           success = true
           stock_plate_items.flatten.each do |item|
             if item.status == ITEM_DONE_STATUS
               begin
-                update_plate_purpose_in_sequencescape(item.uuid)
-              rescue PlateNotFoundInSequencescape => e
+                plate_uuid = item.uuid
+                update_plate_purpose_in_sequencescape(plate_uuid, date)
+                bus.publish(plate_uuid)
+              rescue PlateNotFoundInSequencescape, Sequel::Rollback => e
                 success = false
-                log.error("Plate not found in Sequencescape: #{e}")
-              rescue Sequel::Rollback => e
-                success = false
-                log.error("Error updating plate in Sequencescape: #{e}")
+                log.info("Error updating plate in Sequencescape: #{e}")
               else
                 success = success && true
               end
             end
           end
+
           if success
             metadata.ack
             log.info("Order message processed and acknowledged")
@@ -58,8 +56,12 @@ module Lims::BridgeApp::PlateCreator
       # @return [Array] stock plate items
       def stock_plate_items(order)
         [].tap do |items|
-          STOCK_PLATES.each do |role|
-            items << order[role] if order[role]
+          STOCK_PLATES.each do |stock|
+            order.each do |role, _|
+              if role.match(stock)
+                items << order[role]
+              end
+            end
           end
         end
       end

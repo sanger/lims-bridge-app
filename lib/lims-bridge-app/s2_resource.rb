@@ -10,7 +10,7 @@ module Lims::BridgeApp
       body = JSON.parse(message)
       
       action = body.delete("action")
-      date = body.delete("date")
+      date = Time.parse(body.delete("date"))
       user = body.delete("user")
       options = {:action => action, :date => date, :user => user}
 

@@ -1,6 +1,7 @@
 require 'lims-laboratory-app/laboratory/plate'
 require 'lims-laboratory-app/laboratory/aliquot'
 require 'lims-laboratory-app/organization/order'
+require 'lims-laboratory-app/labels/labellable'
 require 'lims-bridge-app/base_json_decoder'
 require 'json'
 
@@ -10,6 +11,37 @@ module Lims::BridgeApp
     # Lims Core Resource.
     module JsonDecoder
       include BaseJsonDecoder
+
+      module LabellableJsonDecoder
+        def self.call(json, options)
+          l_hash = json["labellable"]
+          labellable = Lims::LaboratoryApp::Labels::Labellable.new({
+            :name => l_hash["name"],
+            :type => l_hash["type"]
+          })
+          l_hash["labels"].each do |position, label_info|
+            label = Lims::LaboratoryApp::Labels::Labellable::Label.new({
+              :type => label_info["type"],
+              :value => label_info["value"]
+            })
+            labellable[position] = label
+          end
+
+          {:labellable => labellable, :date => options[:date]}
+        end
+      end
+
+
+      module BulkCreateLabellableJsonDecoder
+        def self.call(json, options)
+          labellables = []
+          json["bulk_create_labellable"]["labellables"].each do |labellable|
+            labellables << LabellableJsonDecoder.call({"labellable" => labellable}, options)
+          end
+          {:labellables => labellables}
+        end
+      end
+
 
       module PlateJsonDecoder
         # Create a Core Laboratory Plate from the json
@@ -31,9 +63,12 @@ module Lims::BridgeApp
             end
           end
 
-          {:plate => plate, 
-           :uuid => plate_hash["uuid"], 
-           :sample_uuids => sample_uuids(plate_hash["wells"])}
+          {
+            :plate => plate, 
+            :uuid => plate_hash["uuid"], 
+            :sample_uuids => sample_uuids(plate_hash["wells"]),
+            :date => options[:date]
+          }
         end
 
         # Get the sample uuids in the plate
@@ -71,9 +106,12 @@ module Lims::BridgeApp
             end
           end
 
-          {:plate => plate,
-           :uuid => tuberack_hash["uuid"],
-           :sample_uuids => sample_uuids(tuberack_hash["tubes"])}
+          {
+            :plate => plate,
+            :uuid => tuberack_hash["uuid"],
+            :sample_uuids => sample_uuids(tuberack_hash["tubes"]),
+            :date => options[:date]
+          }
         end
 
         # Get the sample uuids in the tuberack
@@ -110,7 +148,7 @@ module Lims::BridgeApp
             end
           end
 
-          {:order => order, :uuid => order_h["uuid"]}
+          {:order => order, :uuid => order_h["uuid"], :date => options[:date]}
         end
       end
 
@@ -147,19 +185,28 @@ module Lims::BridgeApp
 
       module TubeRackMoveJsonDecoder
         def self.call(json, options)
-          plates = []
-          json["tube_rack_move"]["result"].each do |tube_rack|
-            plates << TubeRackJsonDecoder.call(tube_rack, options) 
-          end
+          moves = json["tube_rack_move"]["moves"]
 
-          source_locations = {}
-          json["tube_rack_move"]["moves"].each do |move|
-            source_uuid = move["source_uuid"]
-            source_locations[source_uuid] ||= []
-            source_locations[source_uuid] << move["source_location"]
-          end
+          {:moves => moves, :date => options[:date]}
+        end
+      end
 
-          {:plates => plates, :source_locations => source_locations}
+
+      module SwapSamplesJsonDecoder
+        def self.call(json, options)
+          resources = [].tap do |r|
+            json["swap_samples"]["result"].each do |resource|
+              model = resource.keys.first
+              decoder = case model
+                        when "tube_rack" then TubeRackJsonDecoder
+                        when "plate" then PlateJsonDecoder
+                        end
+              r << decoder.call(resource, options) if decoder 
+            end
+          end
+          swaps = json["swap_samples"]["parameters"]
+
+          {:resources => resources, :swaps => swaps, :date => options[:date]}
         end
       end
     end

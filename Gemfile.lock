@@ -1,9 +1,9 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: 8df3f706c8a1c273433173527562ac2535f7da9f
+  revision: e97b060910df42ef1be3c2094612ad5f5827474e
   branch: development
   specs:
-    lims-core (2.1.0.3.0)
+    lims-core (2.3.0.1.0)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
@@ -16,10 +16,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 149e2068b5703d66ac982f5dd7dbf7c2c78789de
+  revision: 9b8ed2328eaa74d6b8f0051a06f1eedd0d40b3b6
   branch: development
   specs:
-    lims-laboratory-app (1.4.1)
+    lims-laboratory-app (1.9.1)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -40,17 +40,17 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: 645d0e0c14cd3948097112fb6c272fc0ed3c5d08
+  revision: ee3e8970f022d583f8597492154c58536ad12f93
   branch: development
   specs:
-    lims-management-app (1.4.0)
+    lims-management-app (1.7.0)
       bunny (= 0.9.0.pre10)
       json
 
 PATH
   remote: .
   specs:
-    lims-bridge-app (0.4.2)
+    lims-bridge-app (1.1.1)
       aequitas
       amqp
       facets
@@ -64,7 +64,7 @@ GEM
     active_support (3.0.0)
       activesupport (= 3.0.0)
     activesupport (3.0.0)
-    addressable (2.3.4)
+    addressable (2.3.5)
     aequitas (0.0.2)
     amq-client (1.0.2)
       amq-protocol (>= 1.2.0)
@@ -97,7 +97,7 @@ GEM
     json (1.8.0)
     macaddr (1.6.1)
       systemu (~> 2.5.0)
-    mysql2 (0.3.11)
+    mysql2 (0.3.13)
     rack (1.5.2)
     rake (10.0.4)
     rspec (2.8.0)
@@ -128,10 +128,10 @@ DEPENDENCIES
   debugger
   debugger-completion
   lims-bridge-app!
-  lims-busclient (~> 0.3.0)!
-  lims-core (~> 2.1)!
-  lims-laboratory-app (~> 1.4)!
-  lims-management-app (~> 1.4)!
+  lims-busclient (~> 0.3)!
+  lims-core (~> 2.3)!
+  lims-laboratory-app (~> 1.9)!
+  lims-management-app (~> 1.7)!
   psd_logger!
   rake
   rspec (~> 2.8.0)

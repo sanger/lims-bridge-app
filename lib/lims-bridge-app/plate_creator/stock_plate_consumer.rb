@@ -3,6 +3,7 @@ require 'lims-bridge-app/plate_creator/json_decoder'
 require 'lims-bridge-app/plate_creator/sequencescape_updater'
 require 'lims-bridge-app/plate_creator/message_handlers/all'
 require 'lims-bridge-app/s2_resource'
+require 'lims-bridge-app/message_bus'
 
 module Lims::BridgeApp
   module PlateCreator
@@ -31,17 +32,21 @@ module Lims::BridgeApp
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
       attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
+      attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
 
       EXPECTED_ROUTING_KEYS_PATTERNS = [
         '*.*.plate.create',
         '*.*.tuberack.create',
         '*.*.tuberack.updatetuberack',
+        '*.*.tuberack.deletetuberack',
         '*.*.order.create',
         '*.*.order.updateorder',
         '*.*.platetransfer.platetransfer',
         '*.*.transferplatestoplates.transferplatestoplates',
         '*.*.tuberacktransfer.tuberacktransfer',
-        '*.*.tuberackmove.tuberackmove'
+        '*.*.tuberackmove.tuberackmove',
+        '*.*.labellable.create', '*.*.bulkcreatelabellable.*',
+        '*.*.swapsamples.*'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
 
       # Initilize the SequencescapePlateCreator class
@@ -49,6 +54,7 @@ module Lims::BridgeApp
       # @param [Hash] AMQP settings
       def initialize(amqp_settings, mysql_settings)
         @queue_name = amqp_settings.delete("plate_creator_queue_name") 
+        @bus = MessageBus.new(amqp_settings.delete("sequencescape").first)
         consumer_setup(amqp_settings)
         sequencescape_db_setup(mysql_settings)
         set_queue
@@ -100,7 +106,7 @@ module Lims::BridgeApp
         handler_for = lambda do |type|
           klass = "#{type.to_s.capitalize.gsub(/_./) {|p| p[1].upcase}}Handler"         
           handler_class = PlateCreator::MessageHandler.const_get(klass)  
-          handler_class.new(db, log, metadata, s2_resource)
+          handler_class.new(db, bus, log, metadata, s2_resource)
         end
 
         case metadata.routing_key
@@ -112,6 +118,9 @@ module Lims::BridgeApp
         when /platetransfer|transferplatestoplates|updatetuberack|tuberacktransfer/ then handler_for[:update_aliquots].call
           # Tube rack move messages have a custom handler as it needs to delete aliquots in the source racks.
         when /tuberackmove/ then handler_for[:tube_rack_move].call
+        when /deletetuberack/ then handler_for[:plate_delete].call
+        when /labellable/ then handler_for[:labellable].call
+        when /swapsamples/ then handler_for[:swap_samples].call
         end
       end
     end

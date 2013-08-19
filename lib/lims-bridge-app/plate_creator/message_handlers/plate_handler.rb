@@ -15,12 +15,12 @@ module Lims::BridgeApp::PlateCreator
       # {:plate => Lims::Core::Laboratory::Plate, :uuid => xxxx}
       def _call_in_transaction
         begin 
-          create_plate_in_sequencescape(s2_resource[:plate], 
-                                        s2_resource[:uuid], 
-                                        s2_resource[:sample_uuids])
+          plate_uuid = s2_resource[:uuid]
+          create_plate_in_sequencescape(s2_resource[:plate], plate_uuid, s2_resource[:date], s2_resource[:sample_uuids])
+          bus.publish(plate_uuid) 
         rescue Sequel::Rollback, UnknownSample => e
           metadata.reject(:requeue => true)
-          log.error("Error saving plate in Sequencescape: #{e}")
+          log.info("Error saving plate in Sequencescape: #{e}")
           # Need to reraise a rollback exception as we are still 
           # in a sequel transaction block.
           raise Sequel::Rollback

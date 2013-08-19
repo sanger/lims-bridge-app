@@ -4,8 +4,10 @@ require 'logging'
 
 module Lims
   module BridgeApp
-    amqp_settings = YAML.load_file(File.join('config','amqp.yml'))["production"] 
-    mysql_settings = YAML.load_file(File.join('config','database.yml'))["production"] 
+    env = ENV["LIMS_BRIDGE_APP_ENV"] or raise "LIMS_BRIDGE_APP_ENV is not set in the environment"
+
+    amqp_settings = YAML.load_file(File.join('config','amqp.yml'))[env]
+    mysql_settings = YAML.load_file(File.join('config','database.yml'))[env]
 
     creator = PlateCreator::StockPlateConsumer.new(amqp_settings, mysql_settings)
     creator.set_logger(Logging::LOGGER)
