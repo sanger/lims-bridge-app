@@ -11,6 +11,7 @@ module Lims::BridgeApp
       SAMPLE = "Sample"
       STOCK_PLATE_PURPOSE_ID = 2
       UNASSIGNED_PLATE_PURPOSE_ID = 2
+      STOCK_RNA_PLATE_PURPOSE_ID = 183
       STOCK_PLATES = ["stock"]
       ITEM_DONE_STATUS = "done"
       SANGER_BARCODE_TYPE = "sanger-barcode"
@@ -19,6 +20,9 @@ module Lims::BridgeApp
       REQUEST_STI_TYPE = "CreateAssetRequest"
       REQUEST_TYPE_ID = 11
       REQUEST_STATE = "passed"
+
+      STOCK_DNA_PLATE_ROLE = "samples.rack.stock.dna"
+      STOCK_RNA_PLATE_ROLE = "samples.rack.stock.rna"
 
       BARCODE_PREFIXES = ["ND", "NR"]
 
@@ -183,10 +187,11 @@ module Lims::BridgeApp
       # with the right plate_purpose_id for a stock plate.
       # @param [String] plate uuid
       # @param [Time] date 
-      def update_plate_purpose_in_sequencescape(plate_uuid, date)
+      # @param [Integer] plate_purpose_id
+      def update_plate_purpose_in_sequencescape(plate_uuid, date, plate_purpose_id)
         plate_id = plate_id_by_uuid(plate_uuid)
         db[:assets].where(:id => plate_id).update(
-          :plate_purpose_id => STOCK_PLATE_PURPOSE_ID,
+          :plate_purpose_id => plate_purpose_id,
           :updated_at => date
         ) 
       end
