@@ -73,7 +73,9 @@ module Lims::BridgeApp::PlateCreator
           db[:aliquots].where(:receptacle_id => source_well_id).count.should == 0
 
           # check if the source plate has all its wells after the move
-          source_well_id.should_not be_nil
+          db[:assets].join(:container_associations, :content_id => :assets__id).where({
+            :container_id => source_plate_id
+          }).count.should == 96
         end
       end
 
@@ -91,7 +93,9 @@ module Lims::BridgeApp::PlateCreator
           db[:aliquots].where(:receptacle_id => target_well_id).count.should == 1
 
           # check if the target plate has all its wells after the move
-          target_well_id.should_not be_nil
+          db[:assets].join(:container_associations, :content_id => :assets__id).where({
+            :container_id => target_plate_id
+          }).count.should == 96
         end
       end
     end
