@@ -23,17 +23,20 @@ module Lims::BridgeApp::PlateCreator
         stock_plate_items = stock_plate_items(order)
         unless stock_plate_items.empty?
           success = true
-          stock_plate_items.flatten.each do |item|
-            if item.status == ITEM_DONE_STATUS
-              begin
-                plate_uuid = item.uuid
-                update_plate_purpose_in_sequencescape(plate_uuid, date)
-                bus.publish(plate_uuid)
-              rescue PlateNotFoundInSequencescape, Sequel::Rollback => e
-                success = false
-                log.info("Error updating plate in Sequencescape: #{e}")
-              else
-                success = success && true
+          stock_plate_items.each do |items|
+            items[:items].each do |item|
+              if item.status == ITEM_DONE_STATUS
+                begin
+                  plate_uuid = item.uuid
+                  plate_purpose_id = plate_purpose_id(item[:role])
+                  update_plate_purpose_in_sequencescape(plate_uuid, date, plate_purpose_id)
+                  bus.publish(plate_uuid)
+                rescue PlateNotFoundInSequencescape, Sequel::Rollback => e
+                  success = false
+                  log.info("Error updating plate in Sequencescape: #{e}")
+                else
+                  success = success && true
+                end
               end
             end
           end
@@ -59,10 +62,20 @@ module Lims::BridgeApp::PlateCreator
           STOCK_PLATES.each do |stock|
             order.each do |role, _|
               if role.match(stock)
-                items << order[role]
+                items << {:role => role, :items => order[role]}
               end
             end
           end
+        end
+      end
+
+      # @param [String] role
+      # @return [Integer]
+      def plate_purpose_id(role)
+        case role
+        when STOCK_DNA_PLATE_ROLE then STOCK_PLATE_PURPOSE_ID 
+        when STOCK_RNA_PLATE_ROLE then STOCK_RNA_PLATE_PURPOSE_ID 
+        else UNASSIGNED_PLATE_PURPOSE_ID 
         end
       end
     end
