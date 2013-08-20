@@ -34,21 +34,6 @@ module Lims::BridgeApp
       attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
       attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
 
-      EXPECTED_ROUTING_KEYS_PATTERNS = [
-        '*.*.plate.create',
-        '*.*.tuberack.create',
-        '*.*.tuberack.updatetuberack',
-        '*.*.tuberack.deletetuberack',
-        '*.*.order.create',
-        '*.*.order.updateorder',
-        '*.*.platetransfer.platetransfer',
-        '*.*.transferplatestoplates.transferplatestoplates',
-        '*.*.tuberacktransfer.tuberacktransfer',
-        '*.*.tuberackmove.tuberackmove',
-        '*.*.labellable.create', '*.*.bulkcreatelabellable.*',
-        '*.*.swapsamples.*'
-      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
-
       # Initilize the SequencescapePlateCreator class
       # @param [String] queue name
       # @param [Hash] AMQP settings
@@ -73,29 +58,15 @@ module Lims::BridgeApp
         @db = Sequel.connect(settings) unless settings.empty?
       end 
 
-      # @param [String] routing_key
-      # @return [Bool]
-      def expected_message?(routing_key)
-        EXPECTED_ROUTING_KEYS_PATTERNS.each do |pattern|
-          return true if routing_key.match(pattern)
-        end
-        false
-      end
-
       # Setup the queue.
       # 3 different behaviours depending on the routing key
       # of the message (plate/plate_transfer/order). 
       def set_queue
         self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
-          if expected_message?(metadata.routing_key)
-            log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
-            s2_resource = s2_resource(payload)
-            routing_message(metadata, s2_resource)
-          else
-            metadata.reject
-            log.debug("Message rejected: unexpected message (routing key: #{metadata.routing_key})")
-          end
+          log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
+          s2_resource = s2_resource(payload)
+          routing_message(metadata, s2_resource)
         end
       end
 
