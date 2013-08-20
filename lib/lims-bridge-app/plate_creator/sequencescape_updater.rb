@@ -260,7 +260,10 @@ module Lims::BridgeApp
         })
 
         # We attach then the old well of the target tube rack to the source tube rack
+        # We delete the association between the old well and the target tube rack
+        # And link that old empty well to the source tube rack
         # This well should normally be empty (no aliquots attached to it)
+        # We update the location of the well finally.
         db[:container_associations].where({
           :container_id => target_plate_id,
           :content_id => target_well_id
