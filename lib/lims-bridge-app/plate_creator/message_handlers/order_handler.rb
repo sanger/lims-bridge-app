@@ -28,7 +28,7 @@ module Lims::BridgeApp::PlateCreator
               if item.status == ITEM_DONE_STATUS
                 begin
                   plate_uuid = item.uuid
-                  plate_purpose_id = plate_purpose_id(item[:role])
+                  plate_purpose_id = plate_purpose_id(items[:role])
                   update_plate_purpose_in_sequencescape(plate_uuid, date, plate_purpose_id)
                   bus.publish(plate_uuid)
                 rescue PlateNotFoundInSequencescape, Sequel::Rollback => e
