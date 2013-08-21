@@ -25,7 +25,7 @@ module Lims::BridgeApp::PlateCreator
           success = true
           stock_plate_items.each do |items|
             items[:items].each do |item|
-              if item.status == ITEM_DONE_STATUS
+              if item.status == settings["item_done_status"]
                 begin
                   plate_uuid = item.uuid
                   plate_purpose_id = plate_purpose_id(items[:role])
@@ -59,7 +59,7 @@ module Lims::BridgeApp::PlateCreator
       # @return [Array] stock plate items
       def stock_plate_items(order)
         [].tap do |items|
-          STOCK_PLATES.each do |stock|
+          settings["stock_plate_patterns"].each do |stock|
             order.each do |role, _|
               if role.match(stock)
                 items << {:role => role, :items => order[role]}
@@ -73,9 +73,9 @@ module Lims::BridgeApp::PlateCreator
       # @return [Integer]
       def plate_purpose_id(role)
         case role
-        when STOCK_DNA_PLATE_ROLE then STOCK_PLATE_PURPOSE_ID 
-        when STOCK_RNA_PLATE_ROLE then STOCK_RNA_PLATE_PURPOSE_ID 
-        else UNASSIGNED_PLATE_PURPOSE_ID 
+        when settings["stock_dna_plate_role"] then settings["stock_dna_plate_purpose_id"] 
+        when settings["stock_rna_plate_role"] then settings["stock_rna_plate_purpose_id"] 
+        else settings["unassigned_plate_purpose_id"] 
         end
       end
     end

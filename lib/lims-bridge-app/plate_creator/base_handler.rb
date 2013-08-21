@@ -19,18 +19,21 @@ module Lims::BridgeApp::PlateCreator
           attribute :s2_resource, Hash, :required => true, :writer => :private, :reader => :private
           attribute :log, Object, :required => true, :writer => :private, :reader => :private 
           attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
+          attribute :settings, Hash, :required => true, :writer => :private
 
           # @param [Sequel::MySQL::Database] db
           # @param [Lims::Core::Persistence::MessageBus] bus
           # @param [Object] log
           # @param [AMQP::Header] metadata
           # @param [Hash] s2_resource
-          def initialize(db, bus, log, metadata, s2_resource)
+          # @param [Hash] settings
+          def initialize(db, bus, log, metadata, s2_resource, settings)
             @db = db
             @bus = bus
             @log = log
             @metadata = metadata
             @s2_resource = s2_resource
+            @settings = settings
           end
         end
       end

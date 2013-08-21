@@ -3,6 +3,7 @@ require 'lims-bridge-app/sample/sequencescape_updater'
 require 'lims-bridge-app/sample/json_decoder'
 require 'lims-bridge-app/s2_resource'
 require 'lims-bridge-app/message_bus'
+require 'lims-bridge-app/validator'
 
 module Lims::BridgeApp
   module SampleManagement
@@ -11,16 +12,23 @@ module Lims::BridgeApp
       include SequencescapeUpdater
       include S2Resource
       include JsonDecoder
+      include Validator
 
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
       attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
+      attribute :settings, Hash, :required => true, :writer => :private
+      validates_with_method :settings_validation
+
+      SETTINGS = {:sample_type => String, :study_sample_type => String}
 
       # @param [Hash] amqp_settings
       # @param [Hash] mysql_settings
-      def initialize(amqp_settings, mysql_settings)
+      # @param [Hash] bridge_settings
+      def initialize(amqp_settings, mysql_settings, bridge_settings)
         @queue_name = amqp_settings.delete("sample_queue_name")
         @bus = MessageBus.new(amqp_settings.delete("sequencescape").first)
+        @settings = bridge_settings
         consumer_setup(amqp_settings)
         sequencescape_db_setup(mysql_settings)
         set_queue

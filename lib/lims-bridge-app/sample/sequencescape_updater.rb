@@ -22,9 +22,6 @@ module Lims::BridgeApp
         end
       end
 
-      SampleType = 'Sample'
-      StudySampleType = 'StudySample'
-
       # Setup the Sequencescape database connection
       # @param [Hash] MySQL settings
       def sequencescape_db_setup(settings = {})
@@ -78,7 +75,7 @@ module Lims::BridgeApp
       # @param [String] sample_uuid
       def create_uuid_record(sample_id, sample_uuid)
         db[:uuids].insert({
-          :resource_type => SampleType,
+          :resource_type => settings["sample_type"],
           :resource_id => sample_id,
           :external_id => sample_uuid
         })
@@ -105,7 +102,7 @@ module Lims::BridgeApp
             study_sample_uuid = SecureRandom.uuid
             uuids << study_sample_uuid
             db[:uuids].insert({
-              :resource_type => StudySampleType,
+              :resource_type => settings["study_sample_type"],
               :resource_id => study_sample_id,
               :external_id => study_sample_uuid 
             })

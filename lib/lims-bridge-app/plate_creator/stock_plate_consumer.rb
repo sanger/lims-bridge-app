@@ -4,6 +4,7 @@ require 'lims-bridge-app/plate_creator/sequencescape_updater'
 require 'lims-bridge-app/plate_creator/message_handlers/all'
 require 'lims-bridge-app/s2_resource'
 require 'lims-bridge-app/message_bus'
+require 'lims-bridge-app/validator'
 
 module Lims::BridgeApp
   module PlateCreator
@@ -28,18 +29,30 @@ module Lims::BridgeApp
       include S2Resource
       include Virtus
       include Aequitas
+      include Validator
 
       attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
       attribute :log, Object, :required => false, :writer => :private
       attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
       attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
+      attribute :settings, Hash, :required => true, :writer => :private
+      validates_with_method :settings_validation
+
+      SETTINGS = {:well_type => String, :plate_type => String, :asset_type => String, :sample_type => String,
+                  :stock_dna_plate_role => String, :stock_rna_plate_role => String, :stock_dna_plate_purpose_id => Integer, 
+                  :stock_rna_plate_purpose_id => Integer, :unassigned_plate_purpose_id => Integer, 
+                  :stock_plate_patterns => Array, :item_done_status => String, :sanger_barcode_type => String, 
+                  :plate_location => String, :request_sti_type => String, :request_type_id => Integer, 
+                  :request_state => String, :barcode_prefixes => Array}
 
       # Initilize the SequencescapePlateCreator class
       # @param [String] queue name
       # @param [Hash] AMQP settings
-      def initialize(amqp_settings, mysql_settings)
+      # @param [Hash] bridge settings
+      def initialize(amqp_settings, mysql_settings, bridge_settings)
         @queue_name = amqp_settings.delete("plate_creator_queue_name") 
         @bus = MessageBus.new(amqp_settings.delete("sequencescape").first)
+        @settings = bridge_settings
         consumer_setup(amqp_settings)
         sequencescape_db_setup(mysql_settings)
         set_queue
@@ -66,18 +79,18 @@ module Lims::BridgeApp
           log.info("Message received with the routing key: #{metadata.routing_key}")
           log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
           s2_resource = s2_resource(payload)
-          routing_message(metadata, s2_resource)
+          route_message(metadata, s2_resource)
         end
       end
 
       # @param [AMQP::Header] metadata
       # @param [Hash] s2_resource
       # Route the message to the correct handler method
-      def routing_message(metadata, s2_resource)
+      def route_message(metadata, s2_resource)
         handler_for = lambda do |type|
           klass = "#{type.to_s.capitalize.gsub(/_./) {|p| p[1].upcase}}Handler"         
           handler_class = PlateCreator::MessageHandler.const_get(klass)  
-          handler_class.new(db, bus, log, metadata, s2_resource)
+          handler_class.new(db, bus, log, metadata, s2_resource, settings)
         end
 
         case metadata.routing_key

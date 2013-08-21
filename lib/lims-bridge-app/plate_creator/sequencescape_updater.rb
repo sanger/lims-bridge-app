@@ -5,27 +5,6 @@ module Lims::BridgeApp
   module PlateCreator
     module SequencescapeUpdater
 
-      WELL = "Well"
-      PLATE = "Plate"
-      ASSET = "Asset"
-      SAMPLE = "Sample"
-      STOCK_PLATE_PURPOSE_ID = 2
-      UNASSIGNED_PLATE_PURPOSE_ID = 2
-      STOCK_RNA_PLATE_PURPOSE_ID = 183
-      STOCK_PLATES = ["stock"]
-      ITEM_DONE_STATUS = "done"
-      SANGER_BARCODE_TYPE = "sanger-barcode"
-      PLATE_LOCATION = "Sample logistics freezer"
-
-      REQUEST_STI_TYPE = "CreateAssetRequest"
-      REQUEST_TYPE_ID = 11
-      REQUEST_STATE = "passed"
-
-      STOCK_DNA_PLATE_ROLE = "samples.rack.stock.dna"
-      STOCK_RNA_PLATE_ROLE = "samples.rack.stock.rna"
-
-      BARCODE_PREFIXES = ["ND", "NR"]
-
       # Exception raised after an unsuccessful lookup for a plate 
       # in Sequencescape database.
       PlateNotFoundInSequencescape = Class.new(StandardError)
@@ -58,15 +37,15 @@ module Lims::BridgeApp
 
         # Save plate and plate uuid
         plate_id = db[:assets].insert(
-          :sti_type => PLATE,
-          :plate_purpose_id => UNASSIGNED_PLATE_PURPOSE_ID,
+          :sti_type => settings["plate_type"],
+          :plate_purpose_id => settings["unassigned_plate_purpose_id"],
           :size => asset_size,
           :created_at => date,
           :updated_at => date
         ) 
 
         db[:uuids].insert(
-          :resource_type => ASSET,
+          :resource_type => settings["asset_type"],
           :resource_id => plate_id,
           :external_id => plate_uuid
         ) 
@@ -81,7 +60,7 @@ module Lims::BridgeApp
           ).first[:id]
 
           well_id = db[:assets].insert(
-            :sti_type => WELL, 
+            :sti_type => settings["well_type"], 
             :map_id => map_id,
             :created_at => date,
             :updated_at => date
@@ -96,7 +75,7 @@ module Lims::BridgeApp
           if sample_uuids.has_key?(location)
             sample_uuids[location].each do |sample_uuid|
               sample_resource_uuid = db[:uuids].select(:resource_id).where(
-                :resource_type => SAMPLE, 
+                :resource_type => settings["sample_type"], 
                 :external_id => sample_uuid
               ).first
 
@@ -122,8 +101,8 @@ module Lims::BridgeApp
 
       # @param [Integer] plate_id
       def set_plate_location(plate_id)
-        location = db[:locations].where(:name => PLATE_LOCATION).first
-        raise UnknownLocation, "The location #{PLATE_LOCATION} cannot be found in Sequencescape" unless location
+        location = db[:locations].where(:name => settings["plate_location"]).first
+        raise UnknownLocation, "The location #{settings["plate_location"]} cannot be found in Sequencescape" unless location
 
         location_id = location[:id]
         db[:location_associations].insert(:locatable_id => plate_id, :location_id => location_id)
@@ -143,9 +122,9 @@ module Lims::BridgeApp
           db[:requests].insert({
             :asset_id => well_id,
             :initial_study_id => study_id,
-            :sti_type => REQUEST_STI_TYPE,
-            :state => REQUEST_STATE,
-            :request_type_id => REQUEST_TYPE_ID,
+            :sti_type => settings["request_sti_type"],
+            :state => settings["request_state"],
+            :request_type_id => settings["request_type_id"],
             :created_at => date,
             :updated_at => date 
           })
@@ -313,7 +292,7 @@ module Lims::BridgeApp
           if sample_uuids.has_key?(location)
             sample_uuids[location].each do |sample_uuid|
               sample_resource_uuid = db[:uuids].select(:resource_id).where(
-                :resource_type => SAMPLE,
+                :resource_type => settings["sample_type"],
                 :external_id => sample_uuid
               ).first
 
@@ -390,7 +369,7 @@ module Lims::BridgeApp
         plate_id = plate_id_by_uuid(labellable.name)
         barcode = sanger_barcode(labellable)
 
-        unless BARCODE_PREFIXES.map { |p| p.downcase }.include?(barcode[:prefix].downcase)
+        unless settings["barcode_prefixes"].map { |p| p.downcase }.include?(barcode[:prefix].downcase)
           raise InvalidBarcode, "#{barcode[:prefix]} is not a valid barcode prefix"
         end
 
@@ -424,7 +403,7 @@ module Lims::BridgeApp
       # The preceeding zeroes from the barcode are stripped for sequencescape.
       def sanger_barcode(labellable)
         labellable.each do |position, label|
-          if label.type == SANGER_BARCODE_TYPE
+          if label.type == settings["sanger_barcode_type"]
             label.value.match(/^(\w{2})([0-9]*)\w$/)
             prefix = $1
             number = $2.to_i.to_s
@@ -450,11 +429,11 @@ module Lims::BridgeApp
             old_sample_uuid = swaps.inverse[sample_uuid]
             next unless old_sample_uuid
 
-            sample_resource_uuid = db[:uuids].where(:resource_type => SAMPLE, :external_id => sample_uuid).first 
+            sample_resource_uuid = db[:uuids].where(:resource_type => settings["sample_type"], :external_id => sample_uuid).first 
             raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
             sample_id = sample_resource_uuid[:resource_id]
 
-            old_sample_resource_uuid = db[:uuids].where(:resource_type => SAMPLE, :external_id => old_sample_uuid).first 
+            old_sample_resource_uuid = db[:uuids].where(:resource_type => settings["sample_type"], :external_id => old_sample_uuid).first 
             raise UnknownSample, "The sample #{old_sample_uuid} cannot be found in Sequencescape" unless old_sample_resource_uuid
             old_sample_id = old_sample_resource_uuid[:resource_id]
 
