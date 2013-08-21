@@ -6,7 +6,7 @@ require 'lims-bridge-app/base_json_decoder'
 require 'json'
 
 module Lims::BridgeApp
-  module PlateCreator
+  module PlateManagement
     # Json Decoder which decodes a S2 json message into a
     # Lims Core Resource.
     module JsonDecoder

@@ -1,5 +1,5 @@
 require 'lims-management-app/sample/sample'
-require 'lims-bridge-app/sample/sequencescape_mapper'
+require 'lims-bridge-app/sample_management/sequencescape_mapper'
 require 'sequel'
 require 'sequel/adapters/mysql2'
 require 'securerandom'
@@ -12,22 +12,6 @@ module Lims::BridgeApp
 
     module SequencescapeUpdater
       include SequencescapeMapper
-
-      def self.included(klass)
-        klass.class_eval do
-          include Virtus
-          include Aequitas
-          attribute :mysql_settings, Hash, :required => true, :writer => :private, :reader => :private
-          attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
-        end
-      end
-
-      # Setup the Sequencescape database connection
-      # @param [Hash] MySQL settings
-      def sequencescape_db_setup(settings = {})
-        @mysql_settings = settings
-        @db = Sequel.connect(mysql_settings)
-      end 
 
       # @param [Lims::ManagementApp::Sample] sample
       # @param [String] sample_uuid

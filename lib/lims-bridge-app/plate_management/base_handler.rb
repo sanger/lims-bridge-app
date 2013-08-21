@@ -1,9 +1,9 @@
-require 'lims-bridge-app/plate_creator/sequencescape_updater'
+require 'lims-bridge-app/plate_management/sequencescape_updater'
 require 'lims-bridge-app/message_bus'
 require 'common'
 require 'sequel/adapters/mysql2'
 
-module Lims::BridgeApp::PlateCreator
+module Lims::BridgeApp::PlateManagement
   module MessageHandler
     class BaseHandler
       include SequencescapeUpdater

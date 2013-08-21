@@ -1,6 +1,6 @@
-require 'lims-bridge-app/plate_creator/base_handler'
+require 'lims-bridge-app/plate_management/base_handler'
 
-module Lims::BridgeApp::PlateCreator
+module Lims::BridgeApp::PlateManagement
   module MessageHandler
     class UpdateAliquotsHandler < BaseHandler
 

@@ -1,0 +1,7 @@
+require 'lims-bridge-app/plate_management/message_handlers/order_handler'
+require 'lims-bridge-app/plate_management/message_handlers/plate_handler'
+require 'lims-bridge-app/plate_management/message_handlers/tuberackmove_handler'
+require 'lims-bridge-app/plate_management/message_handlers/update_aliquots_handler'
+require 'lims-bridge-app/plate_management/message_handlers/labellable_handler'
+require 'lims-bridge-app/plate_management/message_handlers/swap_samples_handler'
+require 'lims-bridge-app/plate_management/message_handlers/plate_delete_handler'

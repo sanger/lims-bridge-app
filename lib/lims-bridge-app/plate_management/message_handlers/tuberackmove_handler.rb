@@ -1,7 +1,7 @@
-require 'lims-bridge-app/plate_creator/message_handlers/update_aliquots_handler'
-require 'lims-bridge-app/plate_creator/base_handler'
+require 'lims-bridge-app/plate_management/message_handlers/update_aliquots_handler'
+require 'lims-bridge-app/plate_management/base_handler'
 
-module Lims::BridgeApp::PlateCreator
+module Lims::BridgeApp::PlateManagement
   module MessageHandler
     class TubeRackMoveHandler < BaseHandler
 

@@ -2,7 +2,7 @@ require 'sequel'
 require 'facets'
 
 module Lims::BridgeApp
-  module PlateCreator
+  module PlateManagement
     module SequencescapeUpdater
 
       # Exception raised after an unsuccessful lookup for a plate 

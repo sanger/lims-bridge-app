@@ -1,24 +1,13 @@
 require 'lims-busclient'
-require 'lims-bridge-app/sample/sequencescape_updater'
-require 'lims-bridge-app/sample/json_decoder'
-require 'lims-bridge-app/s2_resource'
+require 'lims-bridge-app/sample_management/sequencescape_updater'
+require 'lims-bridge-app/sample_management/json_decoder'
 require 'lims-bridge-app/message_bus'
-require 'lims-bridge-app/validator'
+require 'lims-bridge-app/base_consumer'
 
 module Lims::BridgeApp
   module SampleManagement
-    class SampleConsumer
-      include Lims::BusClient::Consumer
+    class SampleConsumer < BaseConsumer
       include SequencescapeUpdater
-      include S2Resource
-      include JsonDecoder
-      include Validator
-
-      attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
-      attribute :log, Object, :required => false, :writer => :private
-      attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
-      attribute :settings, Hash, :required => true, :writer => :private
-      validates_with_method :settings_validation
 
       SETTINGS = {:sample_type => String, :study_sample_type => String}
 
@@ -27,16 +16,7 @@ module Lims::BridgeApp
       # @param [Hash] bridge_settings
       def initialize(amqp_settings, mysql_settings, bridge_settings)
         @queue_name = amqp_settings.delete("sample_queue_name")
-        @bus = MessageBus.new(amqp_settings.delete("sequencescape").first)
-        @settings = bridge_settings
-        consumer_setup(amqp_settings)
-        sequencescape_db_setup(mysql_settings)
-        set_queue
-      end
-
-      # @param [Object] logger
-      def set_logger(logger)
-        @log = logger
+        super(amqp_settings, mysql_settings, bridge_settings)
       end
 
       private

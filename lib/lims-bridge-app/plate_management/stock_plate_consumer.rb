@@ -1,13 +1,12 @@
 require 'lims-busclient'
-require 'lims-bridge-app/plate_creator/json_decoder'
-require 'lims-bridge-app/plate_creator/sequencescape_updater'
-require 'lims-bridge-app/plate_creator/message_handlers/all'
-require 'lims-bridge-app/s2_resource'
+require 'lims-bridge-app/plate_management/json_decoder'
+require 'lims-bridge-app/plate_management/sequencescape_updater'
+require 'lims-bridge-app/plate_management/message_handlers/all'
+require 'lims-bridge-app/base_consumer'
 require 'lims-bridge-app/message_bus'
-require 'lims-bridge-app/validator'
 
 module Lims::BridgeApp
-  module PlateCreator
+  module PlateManagement
     # When a stock plate is created on S2, it must be created in
     # Sequencescape as well. To identify a stock plate creation in S2,
     # two kinds of message need to be recorded on the message bus:
@@ -23,20 +22,8 @@ module Lims::BridgeApp
     # before the plate creation message. The order message is then requeued 
     # waiting for the plate message to arrive.
     # Note: S2 tuberacks are treated like plates in Sequencescape.
-    class StockPlateConsumer
-      include Lims::BusClient::Consumer
+    class StockPlateConsumer < BaseConsumer
       include JsonDecoder
-      include S2Resource
-      include Virtus
-      include Aequitas
-      include Validator
-
-      attribute :queue_name, String, :required => true, :writer => :private, :reader => :private
-      attribute :log, Object, :required => false, :writer => :private
-      attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
-      attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
-      attribute :settings, Hash, :required => true, :writer => :private
-      validates_with_method :settings_validation
 
       SETTINGS = {:well_type => String, :plate_type => String, :asset_type => String, :sample_type => String,
                   :stock_dna_plate_role => String, :stock_rna_plate_role => String, :stock_dna_plate_purpose_id => Integer, 
@@ -45,31 +32,15 @@ module Lims::BridgeApp
                   :plate_location => String, :request_sti_type => String, :request_type_id => Integer, 
                   :request_state => String, :barcode_prefixes => Array}
 
-      # Initilize the SequencescapePlateCreator class
-      # @param [String] queue name
-      # @param [Hash] AMQP settings
-      # @param [Hash] bridge settings
+      # @param [Hash] amqp_settings
+      # @param [Hash] mysql_settings
+      # @param [Hash] bridge_settings
       def initialize(amqp_settings, mysql_settings, bridge_settings)
-        @queue_name = amqp_settings.delete("plate_creator_queue_name") 
-        @bus = MessageBus.new(amqp_settings.delete("sequencescape").first)
-        @settings = bridge_settings
-        consumer_setup(amqp_settings)
-        sequencescape_db_setup(mysql_settings)
-        set_queue
-      end
-
-      # @param [Logger] logger
-      def set_logger(logger)
-        @log = logger
+        @queue_name = amqp_settings.delete("plate_management_queue_name")
+        super(amqp_settings, mysql_settings, bridge_settings)
       end
 
       private
-
-      # Setup the Sequencescape database connection
-      # @param [Hash] MySQL settings
-      def sequencescape_db_setup(settings = {})
-        @db = Sequel.connect(settings) unless settings.empty?
-      end 
 
       # Setup the queue.
       # 3 different behaviours depending on the routing key
@@ -89,7 +60,7 @@ module Lims::BridgeApp
       def route_message(metadata, s2_resource)
         handler_for = lambda do |type|
           klass = "#{type.to_s.capitalize.gsub(/_./) {|p| p[1].upcase}}Handler"         
-          handler_class = PlateCreator::MessageHandler.const_get(klass)  
+          handler_class = PlateManagement::MessageHandler.const_get(klass)  
           handler_class.new(db, bus, log, metadata, s2_resource, settings)
         end
 
