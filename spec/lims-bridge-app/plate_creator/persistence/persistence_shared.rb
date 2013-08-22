@@ -41,7 +41,7 @@ shared_context "a labellable" do
   let(:barcode_type) { "sanger-barcode" }
   let(:barcode_value) { "ND0012345A" }
   let(:labellable) do
-    Lims::LaboratoryApp::Labels::Labellable.new(:name => plate_uuid, :type => "resource").tap do |labellable|
+    Lims::LaboratoryApp::Labels::Labellable.new(:name => resource_uuid, :type => "resource").tap do |labellable|
       labellable["position"] = Lims::LaboratoryApp::Labels::Labellable::Label.new({
         :type => barcode_type,
         :value => barcode_value
