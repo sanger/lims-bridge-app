@@ -1,5 +1,5 @@
-require 'lims-bridge-app/sample/spec_helper'
-require 'lims-bridge-app/sample/json_decoder'
+require 'lims-bridge-app/sample_management/spec_helper'
+require 'lims-bridge-app/sample_management/json_decoder'
 
 module Lims::BridgeApp::SampleManagement
   describe JsonDecoder do

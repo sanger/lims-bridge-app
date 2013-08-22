@@ -1,7 +1,7 @@
-require 'lims-bridge-app/plate_creator/persistence/spec_helper'
-require 'lims-bridge-app/plate_creator/persistence/persistence_shared'
+require 'lims-bridge-app/plate_management/persistence/spec_helper'
+require 'lims-bridge-app/plate_management/persistence/persistence_shared'
 
-module Lims::BridgeApp::PlateCreator
+module Lims::BridgeApp::PlateManagement
   describe "Updating the plate purpose" do
     include_context "prepare database for plate management"
     include_context "updater"
@@ -22,7 +22,7 @@ module Lims::BridgeApp::PlateCreator
 
       it "updates the plate purpose of the plate" do
         updater.update_plate_purpose_in_sequencescape(plate_uuid, Time.now, stock_plate_purpose_id)
-        db[:assets].select(:assets__plate_purpose_id).join(:uuids, :resource_id => :assets__id).where(:external_id => plate_uuid).first[:plate_purpose_id].should == SequencescapeUpdater::STOCK_PLATE_PURPOSE_ID 
+        db[:assets].select(:assets__plate_purpose_id).join(:uuids, :resource_id => :assets__id).where(:external_id => plate_uuid).first[:plate_purpose_id].should == updater.settings["stock_dna_plate_purpose_id"] 
       end
     end
   end

@@ -1,5 +1,5 @@
-require 'lims-bridge-app/sample/spec_helper'
-require 'lims-bridge-app/sample/sequencescape_updater'
+require 'lims-bridge-app/sample_management/spec_helper'
+require 'lims-bridge-app/sample_management/sequencescape_updater'
 
 module Lims::BridgeApp::SampleManagement
   describe "Persistence on Sequencescape database" do
@@ -14,14 +14,18 @@ module Lims::BridgeApp::SampleManagement
     end
 
     let(:db_settings) { YAML.load_file(File.join('config', 'database.yml'))['test'] }
+    let(:bridge_settings) { YAML.load_file(File.join('config', 'bridge.yml'))['test']['sample_management'] }
     let(:bus) { mock(:bus).tap { |n| n.stub(:publish) }}
     let!(:updater) do
       Class.new do
         include SequencescapeUpdater
         attr_accessor :bus
+        attr_accessor :db
+        attr_accessor :settings
       end.new.tap do |o|
-        o.sequencescape_db_setup(db_settings)
+        o.db = Sequel.connect(db_settings)
         o.bus = bus 
+        o.settings = bridge_settings
       end
     end
 

@@ -1,7 +1,7 @@
-require 'lims-bridge-app/plate_creator/persistence/spec_helper'
+require 'lims-bridge-app/plate_management/persistence/spec_helper'
 require 'lims-laboratory-app/laboratory/plate'
 
-module Lims::BridgeApp::PlateCreator
+module Lims::BridgeApp::PlateManagement
   describe "Moves tube between tuberacks" do
     include_context "prepare database for plate management"
     include_context "updater"

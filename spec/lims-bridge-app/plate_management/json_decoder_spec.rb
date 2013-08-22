@@ -1,7 +1,7 @@
-require 'lims-bridge-app/plate_creator/spec_helper'
-require 'lims-bridge-app/plate_creator/json_decoder'
+require 'lims-bridge-app/plate_management/spec_helper'
+require 'lims-bridge-app/plate_management/json_decoder'
 
-module Lims::BridgeApp::PlateCreator
+module Lims::BridgeApp::PlateManagement
   describe JsonDecoder do
     let(:decoder) do
       Class.new do

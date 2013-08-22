@@ -1,7 +1,7 @@
-require 'lims-bridge-app/plate_creator/persistence/spec_helper'
-require 'lims-bridge-app/plate_creator/persistence/persistence_shared'
+require 'lims-bridge-app/plate_management/persistence/spec_helper'
+require 'lims-bridge-app/plate_management/persistence/persistence_shared'
 
-module Lims::BridgeApp::PlateCreator
+module Lims::BridgeApp::PlateManagement
   describe "Setting a barcode to a plate" do
     include_context "prepare database for plate management"
     include_context "updater"

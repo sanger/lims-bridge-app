@@ -1,11 +1,11 @@
-require 'lims-bridge-app/plate_creator/spec_helper'
-require 'lims-bridge-app/plate_creator/stock_plate_consumer'
-require 'lims-bridge-app/plate_creator/message_handlers/all'
+require 'lims-bridge-app/plate_management/spec_helper'
+require 'lims-bridge-app/plate_management/stock_plate_consumer'
+require 'lims-bridge-app/plate_management/message_handlers/all'
 
-module Lims::BridgeApp::PlateCreator
+module Lims::BridgeApp::PlateManagement
   describe StockPlateConsumer do
     shared_examples_for "routing message" do |routing_key, object|
-      let(:consumer) { described_class.new({"sequencescape" => [{:routing_key => nil}]}, {}) }
+      let(:consumer) { described_class.new({"sequencescape" => [{:routing_key => nil}]}, {}, {}) }
       let(:db) { mock(:db) }
       let(:log) { mock(:log) }
       let(:s2_resource) { mock(:s2_resource) }
@@ -17,7 +17,7 @@ module Lims::BridgeApp::PlateCreator
       it "dispatches the message" do
         Lims::BridgeApp::MessageBus.any_instance.stub(:message_bus_connection)
         object.any_instance.should_receive(:call)
-        consumer.send(:routing_message, metadata, s2_resource)
+        consumer.send(:route_message, metadata, s2_resource)
       end
     end
 

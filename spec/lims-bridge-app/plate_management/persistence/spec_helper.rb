@@ -1,15 +1,18 @@
-require 'lims-bridge-app/plate_creator/spec_helper'
-require 'lims-bridge-app/plate_creator/sequencescape_updater'
+require 'lims-bridge-app/plate_management/spec_helper'
+require 'lims-bridge-app/plate_management/sequencescape_updater'
 require 'yaml'
 
 shared_context "updater" do
   let(:db_settings) { YAML.load_file(File.join('config', 'database.yml'))['test'] }
+  let(:bridge_settings) { YAML.load_file(File.join('config', 'bridge.yml'))['test']['plate_management'] }
   let!(:updater) do
     Class.new do 
-      include Lims::BridgeApp::PlateCreator::SequencescapeUpdater 
+      include Lims::BridgeApp::PlateManagement::SequencescapeUpdater 
       attr_accessor :db
+      attr_accessor :settings
     end.new.tap do |o|
       o.db = Sequel.connect(db_settings)
+      o.settings = bridge_settings
     end
   end
 end
