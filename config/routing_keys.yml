@@ -1,0 +1,22 @@
+plate_management:
+  - '*.*.plate.create'
+  - '*.*.tuberack.create'
+  - '*.*.tuberack.updatetuberack'
+  - '*.*.tuberack.deletetuberack'
+  - '*.*.order.create'
+  - '*.*.order.updateorder'
+  - '*.*.platetransfer.platetransfer'
+  - '*.*.transferplatestoplates.transferplatestoplates'
+  - '*.*.tuberacktransfer.tuberacktransfer'
+  - '*.*.tuberackmove.tuberackmove'
+  - '*.*.labellable.create'
+  - '*.*.bulkcreatelabellable.*'
+  - '*.*.swapsamples.*'
+
+sample_management:
+  - '*.*.sample.create'
+  - '*.*.sample.updatesample'
+  - '*.*.sample.deletesample'
+  - '*.*.bulkcreatesample.*'
+  - '*.*.bulkupdatesample.*'
+  - '*.*.bulkdeletesample.*'

@@ -33,6 +33,9 @@ module Lims::BridgeApp
       UnknownLocation = Class.new(StandardError)
       InvalidBarcode = Class.new(StandardError)
 
+      Pattern = [8, 4, 4, 4, 12]
+      UuidWithoutDashes = /#{Pattern.map { |n| "(\\w{#{n}})"}.join}/i
+
       # Ensure that all the requests for a message are made in a
       # transaction.
       def call
@@ -387,7 +390,10 @@ module Lims::BridgeApp
       # @param [Lims::LaboratoryApp::Labels::Labellable] labellable
       # @param [Time] date
       def set_barcode_to_a_plate(labellable, date)
-        plate_id = plate_id_by_uuid(labellable.name)
+        plate_uuid = labellable.name
+        plate_uuid = Regexp.last_match[1..5].join("-") if plate_uuid =~ UuidWithoutDashes
+
+        plate_id = plate_id_by_uuid(plate_uuid)
         barcode = sanger_barcode(labellable)
 
         unless BARCODE_PREFIXES.map { |p| p.downcase }.include?(barcode[:prefix].downcase)
