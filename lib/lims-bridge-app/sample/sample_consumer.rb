@@ -16,11 +16,6 @@ module Lims::BridgeApp
       attribute :log, Object, :required => false, :writer => :private
       attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
 
-      EXPECTED_ROUTING_KEYS_PATTERNS = [
-        '*.*.sample.create', '*.*.sample.updatesample', '*.*.sample.deletesample',
-        '*.*.bulkcreatesample.*', '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*'
-      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
-
       # @param [Hash] amqp_settings
       # @param [Hash] mysql_settings
       def initialize(amqp_settings, mysql_settings)
@@ -38,15 +33,6 @@ module Lims::BridgeApp
 
       private
 
-      # @param [String] routing_key
-      # @return [Boolean]
-      def expected_message?(routing_key)
-        EXPECTED_ROUTING_KEYS_PATTERNS.each do |pattern|
-          return true if routing_key.match(pattern)
-        end
-        false
-      end
-
       # If the message is an expected message, we get the 
       # corresponding s2 resource from the message json, then
       # pass it to the sample message handler for processing.
@@ -54,20 +40,15 @@ module Lims::BridgeApp
         self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
 
-          if expected_message?(metadata.routing_key)
-            log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
-            s2_resource = s2_resource(payload)
-            action = case metadata.routing_key
-                     when /sample\.create|bulkcreatesample/ then "create"
-                     when /sample\.updatesample|bulkupdatesample/ then "update"
-                     when /sample\.deletesample|bulkdeletesample/ then "delete"
-                     end
+          log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
+          s2_resource = s2_resource(payload)
+          action = case metadata.routing_key
+                   when /sample\.create|bulkcreatesample/ then "create"
+                   when /sample\.updatesample|bulkupdatesample/ then "update"
+                   when /sample\.deletesample|bulkdeletesample/ then "delete"
+                   end
 
-            sample_message_handler(metadata, s2_resource, action)
-          else
-            metadata.reject
-            log.debug("Message rejected: unexpected message (routing key: #{metadata.routing_key})")
-          end
+          sample_message_handler(metadata, s2_resource, action)
         end
       end
 
