@@ -10,7 +10,7 @@ module Lims
     mysql_settings = YAML.load_file(File.join('config','database.yml'))[env]
     bridge_settings = YAML.load_file(File.join('config','bridge.yml'))[env]["plate_management"]
 
-    creator = PlateCreator::StockPlateConsumer.new(amqp_settings, mysql_settings, bridge_settings)
+    creator = PlateManagement::StockPlateConsumer.new(amqp_settings, mysql_settings, bridge_settings)
     creator.set_logger(Logging::LOGGER)
 
     Logging::LOGGER.info("Plate Creator started")
