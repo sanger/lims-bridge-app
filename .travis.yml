@@ -7,3 +7,5 @@ env:
   - DB=sqlite
 script:
   - bundle exec rspec
+before_script:
+  - sqlite3 test.db < db/test/sequencescape_test.sql
