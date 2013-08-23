@@ -1,7 +1,9 @@
 language: ruby
 rvm:
-  - "1.9.3"
-
+  - 1.9.3
 before_install: gem install bundler
-
 install: bundle install --without debugger
+env:
+  - DB=sqlite
+script:
+  - bundle exec rspec
