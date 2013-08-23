@@ -8,6 +8,7 @@ module Lims::BridgeApp
   module SampleManagement
     class SampleConsumer < BaseConsumer
       include SequencescapeUpdater
+      include JsonDecoder
 
       SETTINGS = {:sample_type => String, :study_sample_type => String}
 
