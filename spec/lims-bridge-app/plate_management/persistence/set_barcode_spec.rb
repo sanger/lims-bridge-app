@@ -13,6 +13,8 @@ module Lims::BridgeApp::PlateManagement
         updater.create_plate_in_sequencescape(plate, plate_uuid, Time.now, sample_uuids)
       end
 
+      let(:resource_uuid) { plate_uuid }
+
       context "invalid" do
         it "raises an exception if the plate to barcode cannot be found" do
           expect do
@@ -30,10 +32,22 @@ module Lims::BridgeApp::PlateManagement
           updater.set_barcode_to_a_plate(labellable, Time.now)
         end
 
-        it "set the barcode to the plate" do
-          plate_row[:name].should == "Plate 12345"
-          plate_row[:barcode].should == "12345"
-          plate_row[:barcode_prefix_id].should == 1
+        context "with a dashed uuid" do
+          it "set the barcode to the plate" do
+            plate_row[:name].should == "Plate 12345"
+            plate_row[:barcode].should == "12345"
+            plate_row[:barcode_prefix_id].should == 1
+          end
+        end
+
+        context "with a non dashed uuid" do
+          let(:resource_uuid) { "11111111222233334444555555555555" }
+
+          it "set the barcode to the plate" do
+            plate_row[:name].should == "Plate 12345"
+            plate_row[:barcode].should == "12345"
+            plate_row[:barcode_prefix_id].should == 1           
+          end
         end
       end
 
