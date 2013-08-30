@@ -11,6 +11,7 @@ module Lims::BridgeApp
       SAMPLE = "Sample"
       STOCK_PLATE_PURPOSE_ID = 2
       UNASSIGNED_PLATE_PURPOSE_ID = 2
+      STOCK_RNA_PLATE_PURPOSE_ID = 183
       STOCK_PLATES = ["stock"]
       ITEM_DONE_STATUS = "done"
       SANGER_BARCODE_TYPE = "sanger-barcode"
@@ -20,6 +21,9 @@ module Lims::BridgeApp
       REQUEST_TYPE_ID = 11
       REQUEST_STATE = "passed"
 
+      STOCK_DNA_PLATE_ROLE = "samples.rack.stock.dna"
+      STOCK_RNA_PLATE_ROLE = "samples.rack.stock.rna"
+
       BARCODE_PREFIXES = ["ND", "NR"]
 
       # Exception raised after an unsuccessful lookup for a plate 
@@ -28,6 +32,9 @@ module Lims::BridgeApp
       UnknownSample = Class.new(StandardError)
       UnknownLocation = Class.new(StandardError)
       InvalidBarcode = Class.new(StandardError)
+
+      Pattern = [8, 4, 4, 4, 12]
+      UuidWithoutDashes = /#{Pattern.map { |n| "(\\w{#{n}})"}.join}/i
 
       # Ensure that all the requests for a message are made in a
       # transaction.
@@ -183,10 +190,11 @@ module Lims::BridgeApp
       # with the right plate_purpose_id for a stock plate.
       # @param [String] plate uuid
       # @param [Time] date 
-      def update_plate_purpose_in_sequencescape(plate_uuid, date)
+      # @param [Integer] plate_purpose_id
+      def update_plate_purpose_in_sequencescape(plate_uuid, date, plate_purpose_id)
         plate_id = plate_id_by_uuid(plate_uuid)
         db[:assets].where(:id => plate_id).update(
-          :plate_purpose_id => STOCK_PLATE_PURPOSE_ID,
+          :plate_purpose_id => plate_purpose_id,
           :updated_at => date
         ) 
       end
@@ -215,6 +223,82 @@ module Lims::BridgeApp
         ).where(:container_id => plate_id).all.inject({}) do |m,e|
           m.merge({e[:description] => e[:id]})
         end
+      end
+
+      # Move wells from a plate to a plate
+      # @param [Lims::Core::Laboratory::Plate] plate
+      # @param [String] plate uuid
+      # @param [Hash] sample uuids
+      def move_wells_in_sequencescape(move, date)
+        source_plate_id = plate_id_by_uuid(move["source_uuid"])
+        target_plate_id = plate_id_by_uuid(move["target_uuid"])
+        source_location = move["source_location"]
+        target_location = move["target_location"]
+        source_map_id = get_map_id(source_location, source_plate_id)
+        target_map_id = get_map_id(target_location, target_plate_id)
+
+        well_id_for = lambda do |container_id, map_id|
+          db[:assets].select(:assets__id).join(:container_associations, :content_id => :assets__id).where({
+            :container_id => container_id,
+            :map_id => map_id
+          }).first[:id]
+        end
+
+        source_well_id = well_id_for.call(source_plate_id, source_map_id)
+        target_well_id = well_id_for.call(target_plate_id, target_map_id)
+
+        # Associate the well in the source location to the target tube rack
+        # We delete the couple (source_plate_id, source_well_id) from the table
+        # container_associations first as there is a unique constraint on content_id column.
+        # Then we add the couple (target_plate_id, source_well_id).
+        # Finally, we update the location of the well.
+        db[:container_associations].where({
+          :container_id => source_plate_id,
+          :content_id => source_well_id
+        }).delete
+
+        db[:container_associations].insert(
+          :container_id => target_plate_id,
+          :content_id => source_well_id
+        )
+
+        db[:assets].where(:id => source_well_id).update({
+          :map_id => target_map_id,
+          :updated_at => date
+        })
+
+        # We attach then the old well of the target tube rack to the source tube rack
+        # We delete the association between the old well and the target tube rack
+        # And link that old empty well to the source tube rack
+        # This well should normally be empty (no aliquots attached to it)
+        # We update the location of the well finally.
+        db[:container_associations].where({
+          :container_id => target_plate_id,
+          :content_id => target_well_id
+        }).delete
+
+        db[:container_associations].insert(
+          :container_id => source_plate_id,
+          :content_id => target_well_id
+        )
+
+        db[:assets].where(:id => target_well_id).update({
+          :map_id => source_map_id,
+          :updated_at => date
+        })
+      end
+
+      # @param [String] the location string in the plate. For example: "A1"
+      # @param [String] plate uuid
+      # @return [String]
+      def get_map_id(location, plate_id)
+        map_id_data = db[:maps].select(:id).where({
+          :description => location,
+          :asset_size => db[:assets].select(:size).where(:id => plate_id)
+        }).first
+
+        raise UnknownLocation, "The location '#{location}' cannot be found in Sequencescape" unless map_id_data
+        map_id_data[:id]
       end
 
       # Update the aliquots of a plate after a plate transfer
@@ -306,7 +390,10 @@ module Lims::BridgeApp
       # @param [Lims::LaboratoryApp::Labels::Labellable] labellable
       # @param [Time] date
       def set_barcode_to_a_plate(labellable, date)
-        plate_id = plate_id_by_uuid(labellable.name)
+        plate_uuid = labellable.name
+        plate_uuid = Regexp.last_match[1..5].join("-") if plate_uuid =~ UuidWithoutDashes
+
+        plate_id = plate_id_by_uuid(plate_uuid)
         barcode = sanger_barcode(labellable)
 
         unless BARCODE_PREFIXES.map { |p| p.downcase }.include?(barcode[:prefix].downcase)

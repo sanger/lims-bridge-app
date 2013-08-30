@@ -185,19 +185,9 @@ module Lims::BridgeApp
 
       module TubeRackMoveJsonDecoder
         def self.call(json, options)
-          plates = []
-          json["tube_rack_move"]["result"].each do |tube_rack|
-            plates << TubeRackJsonDecoder.call(tube_rack, options) 
-          end
+          moves = json["tube_rack_move"]["moves"]
 
-          source_locations = {}
-          json["tube_rack_move"]["moves"].each do |move|
-            source_uuid = move["source_uuid"]
-            source_locations[source_uuid] ||= []
-            source_locations[source_uuid] << move["source_location"]
-          end
-
-          {:plates => plates, :source_locations => source_locations}
+          {:moves => moves, :date => options[:date]}
         end
       end
 
