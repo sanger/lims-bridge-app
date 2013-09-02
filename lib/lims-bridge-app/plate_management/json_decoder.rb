@@ -58,7 +58,10 @@ module Lims::BridgeApp
           plate_hash["wells"].each do |location, aliquots|
             unless aliquots.empty?
               aliquots.each do |aliquot|
-                plate[location] << Lims::LaboratoryApp::Laboratory::Aliquot.new
+                plate[location] << Lims::LaboratoryApp::Laboratory::Aliquot.new({
+                  :quantity => aliquot["quantity"],
+                  :type => aliquot["type"]
+                })
               end
             end
           end
@@ -99,10 +102,13 @@ module Lims::BridgeApp
         def self.call(json, options)
           tuberack_hash = json["tube_rack"]
           plate = Lims::LaboratoryApp::Laboratory::Plate.new({:number_of_rows => tuberack_hash["number_of_rows"],
-                                                     :number_of_columns => tuberack_hash["number_of_columns"]})
+                                                              :number_of_columns => tuberack_hash["number_of_columns"]})
           tuberack_hash["tubes"].each do |location, tube|
             tube["aliquots"].each do |aliquot|
-              plate[location] << Lims::LaboratoryApp::Laboratory::Aliquot.new
+              plate[location] << Lims::LaboratoryApp::Laboratory::Aliquot.new({
+                :quantity => aliquot["quantity"],
+                :type => aliquot["type"]
+              })
             end
           end
 

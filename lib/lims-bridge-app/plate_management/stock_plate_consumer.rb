@@ -70,7 +70,7 @@ module Lims::BridgeApp
           # On reception of an order creation/update message
         when /order\.(create|updateorder)/ then handler_for[:order].call
           # On reception of a plate transfer message
-        when /platetransfer|transferplatestoplates|updatetuberack|tuberacktransfer/ then handler_for[:update_aliquots].call
+        when /platetransfer|transferplatestoplates|updatetuberack|updateplate|tuberacktransfer/ then handler_for[:update_aliquots].call
           # Tube rack move messages have a custom handler as it needs to delete aliquots in the source racks.
         when /tuberackmove/ then handler_for[:tube_rack_move].call
         when /deletetuberack/ then handler_for[:plate_delete].call
