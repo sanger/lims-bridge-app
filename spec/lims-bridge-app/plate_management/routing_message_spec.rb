@@ -22,6 +22,7 @@ module Lims::BridgeApp::PlateManagement
     end
 
     it_behaves_like "routing message", "*.*.plate.create", MessageHandler::PlateHandler
+    it_behaves_like "routing message", "*.*.plate.updateplate", MessageHandler::UpdateAliquotsHandler
     it_behaves_like "routing message", "*.*.tuberack.create", MessageHandler::PlateHandler 
     it_behaves_like "routing message", "*.*.tuberack.updatetuberack", MessageHandler::UpdateAliquotsHandler 
     it_behaves_like "routing message", "*.*.tuberack.deletetuberack", MessageHandler::PlateDeleteHandler 

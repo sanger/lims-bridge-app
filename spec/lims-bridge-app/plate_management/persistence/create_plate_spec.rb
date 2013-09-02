@@ -22,6 +22,7 @@ module Lims::BridgeApp::PlateManagement
       it_behaves_like "updating table for plate creation", :uuids, 1
       it_behaves_like "updating table for plate creation", :location_associations, 1
       it_behaves_like "updating table for plate creation", :requests, 2
+      it_behaves_like "updating table for plate creation", :well_attributes, 2
     end
   end
 end

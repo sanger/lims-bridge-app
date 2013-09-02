@@ -33,6 +33,7 @@ module Lims::BridgeApp::PlateManagement
       it_behaves_like "updating table for aliquots update", :assets, 0
       it_behaves_like "updating table for aliquots update", :container_associations, 0
       it_behaves_like "updating table for aliquots update", :requests, 2
+      it_behaves_like "updating table for aliquots update", :well_attributes, 2
     end
   end
 end

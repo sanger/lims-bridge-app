@@ -9,11 +9,13 @@ shared_context "a plate" do
   }}
   let(:number_of_rows) { 8 }
   let(:number_of_columns) { 12 }
+  let(:aliquot_quantity_1) { 100 }
+  let(:aliquot_quantity_2) { 200 }
   let!(:plate) do
     Lims::LaboratoryApp::Laboratory::Plate.new(:number_of_rows => number_of_rows,  :number_of_columns => number_of_columns).tap do |plate|
       sample_uuids.size.times do
-        plate["A1"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
-        plate["E5"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
+        plate["A1"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_1)
+        plate["E5"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_2)
       end
     end
   end
@@ -29,8 +31,8 @@ shared_context "a transfered plate" do
   let(:transfered_plate) do
     Lims::LaboratoryApp::Laboratory::Plate.new(:number_of_rows => number_of_rows,  :number_of_columns => number_of_columns).tap do |plate|
       sample_uuids.size.times do
-        plate["A2"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
-        plate["B9"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
+        plate["A2"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_1)
+        plate["B9"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_2)
         plate["E6"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
       end
     end
