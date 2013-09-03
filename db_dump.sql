@@ -139,26 +139,6 @@ CREATE TABLE "maps" (
   "row_order" int(11) DEFAULT NULL,
   "column_order" int(11) DEFAULT NULL
 );
-CREATE TABLE "well_attributes" (
-  "id" INTEGER PRIMARY KEY,
-  "well_id" int(11) DEFAULT NULL,
-  "gel_pass" varchar(20) DEFAULT NULL,
-  "concentration" float DEFAULT NULL,
-  "current_volume" float DEFAULT NULL,
-  "buffer_volume" float DEFAULT NULL,
-  "requested_volume" float DEFAULT NULL,
-  "picked_volume" float DEFAULT NULL,
-  "created_at" datetime DEFAULT NULL,
-  "updated_at" datetime DEFAULT NULL,
-  "pico_pass" varchar(255) NOT NULL DEFAULT 'ungraded',
-  "sequenom_count" int(11) DEFAULT NULL,
-  "study_id" varchar(255) DEFAULT NULL,
-  "gender_markers" varchar(255) DEFAULT NULL,
-  "gender" varchar(255) DEFAULT NULL,
-  "measured_volume" float DEFAULT NULL
-);
-
-
 INSERT INTO "maps" VALUES(1,'A1',96,1,0,0);
 INSERT INTO "maps" VALUES(2,'A2',96,2,1,8);
 INSERT INTO "maps" VALUES(3,'A3',96,3,2,16);
