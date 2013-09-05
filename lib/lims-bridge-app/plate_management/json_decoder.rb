@@ -85,7 +85,7 @@ module Lims::BridgeApp
               unless aliquots.empty?
                 aliquots.each do |aliquot|
                   uuids[location] ||= []
-                  uuids[location] << aliquot["sample"]["uuid"]
+                  uuids[location] << aliquot["sample"]["uuid"] if aliquot["sample"]
                 end
               end
             end
@@ -170,10 +170,12 @@ module Lims::BridgeApp
       module TransferPlatesToPlatesJsonDecoder
         def self.call(json, options)
           plates = []
-          json["transfer_plates_to_plates"]["result"]["targets"].each do |target|
-            plates << case target.first
-            when "plate" then PlateJsonDecoder.call(target, options) 
-            when "tube_rack" then TubeRackJsonDecoder.call(target, options)
+          ["sources", "targets"].each do |key|
+            json["transfer_plates_to_plates"]["result"][key].each do |asset|
+              plates << case asset.keys.first
+              when "plate" then PlateJsonDecoder.call(asset, options) 
+              when "tube_rack" then TubeRackJsonDecoder.call(asset, options)
+              end
             end
           end
 
