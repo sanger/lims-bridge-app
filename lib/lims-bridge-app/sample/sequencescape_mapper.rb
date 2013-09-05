@@ -17,7 +17,7 @@ module Lims::BridgeApp
         :sample_metadata => {
           :organism => nil,
           :gc_content => :gc_content,
-          :cohort => :__cellular_material__donor_id,
+          :donor_id => :__cellular_material__donor_id,
           :gender => :gender,
           :country_of_origin => :__genotyping__country_of_origin,
           :geographical_region => :__genotyping__geographical_region,
