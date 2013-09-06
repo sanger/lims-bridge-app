@@ -1,6 +1,4 @@
 require 'lims-bridge-app/plate_management/base_handler'
-require 'rubygems'
-require 'ruby-debug/debugger'
 
 module Lims::BridgeApp::PlateManagement
   module MessageHandler
@@ -26,7 +24,7 @@ module Lims::BridgeApp::PlateManagement
           else
             aliquot_updater.send(:update_aliquots, s2_resource)
           end
-        rescue Sequel::Rollback, PlateNotFoundInSequencescape, UnknownSample, TransferRequestNotFound => e
+        rescue Sequel::Rollback, PlateNotFoundInSequencescape, UnknownSample => e
           metadata.reject(:requeue => true)
           log.info("Error updating plate aliquots in Sequencescape: #{e}")
           raise Sequel::Rollback
