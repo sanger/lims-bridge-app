@@ -77,14 +77,7 @@ module Lims::BridgeApp
           # Save the volume contained in the well ie the solvent quantity in S2 
           aliquot = plate[location].find { |aliquot| aliquot.type == "solvent" }
           volume = aliquot.quantity if aliquot
-          if volume
-            db[:well_attributes].insert(
-              :well_id => well_id,
-              :current_volume => volume,
-              :created_at => date,
-              :updated_at => date
-            )
-          end
+          set_well_volume_and_concentration(well_id, volume, nil, date) if volume
 
           # Save well aliquots
           if sample_uuids.has_key?(location)
@@ -340,32 +333,38 @@ module Lims::BridgeApp
               end
             end
 
-            # Save well volume
-            well_attribute = db[:well_attributes].where({
-              :well_id => receptacle_id
-            }).first
-
-            # Update or create well_attribute with solvent aliquot volume information
-            plate_aliquot = plate[location].find { |aliquot| aliquot.type == "solvent" }
-            volume = plate_aliquot.quantity if plate_aliquot
-
-            if volume
-              if well_attribute && well_attribute[:current_volume] != volume
-                db[:well_attributes].where(:well_id => receptacle_id).update(
-                  :current_volume => volume,
-                  :updated_at => date
-                )
-              elsif well_attribute.nil?
-                db[:well_attributes].insert(
-                  :well_id => receptacle_id,
-                  :current_volume => volume,
-                  :created_at => date,
-                  :updated_at => date
-                )
-              end
-            end
+            # Update or create well_attribute with volume and concentration information
+            plate_solvent = plate[location].find { |aliquot| aliquot.type == "solvent" }
+            plate_aliquot = plate[location].find { |aliquot| aliquot.type != "solvent" }            
+            volume = plate_solvent.quantity if plate_solvent
+            concentration = plate_aliquot.out_of_bounds["Concentration"] if plate_aliquot
+            set_well_volume_and_concentration(receptacle_id, volume, concentration, date) if volume || concentration
           end
         end
+      end
+
+      # @param [Integer] well_id
+      # @paran [Integer] volume
+      # @paran [Float] concentration
+      # @param [Time] date
+      def set_well_volume_and_concentration(well_id, volume, concentration, date)
+        well_attribute = db[:well_attributes].where(:well_id => well_id).first
+
+        if well_attribute && (well_attribute[:current_volume] != volume || well_attribute[:concentration] != concentration)
+          db[:well_attributes].where(:well_id => well_id).update(
+            :concentration => concentration,
+            :current_volume => volume,
+            :updated_at => date
+          )
+        elsif well_attribute.nil?
+          db[:well_attributes].insert(
+            :well_id => well_id,
+            :concentration => concentration,
+            :current_volume => volume,
+            :created_at => date,
+            :updated_at => date
+          )
+        end       
       end
 
       # @param [String] plate_uuid
