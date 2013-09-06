@@ -13,9 +13,14 @@ plate_management: &plate_management_settings
   item_done_status: "done"
   sanger_barcode_type: "sanger-barcode"
   plate_location: "Sample logistics freezer"
-  request_sti_type: "CreateAssetRequest"
-  request_type_id: 11
-  request_state: "passed"
+  create_asset_request_sti_type: "CreateAssetRequest"
+  create_asset_request_type_id: 11
+  create_asset_request_state: "passed"
+  transfer_request_sti_type: "TransferRequest"
+  transfer_request_type_id: 22
+  transfer_request_state: "passed"
+  out_of_bounds_concentration_key: "Concentration"
+  stock_plate_concentration_multiplier: 12.5
   barcode_prefixes: 
     - "ND"
     - "NR"
