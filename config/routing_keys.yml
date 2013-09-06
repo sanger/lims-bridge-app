@@ -1,5 +1,6 @@
 plate_management:
   - '*.*.plate.create'
+  - '*.*.plate.updateplate'
   - '*.*.tuberack.create'
   - '*.*.tuberack.updatetuberack'
   - '*.*.tuberack.deletetuberack'

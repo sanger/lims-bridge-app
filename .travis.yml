@@ -1,7 +1,11 @@
 language: ruby
 rvm:
-  - "1.9.3"
-
-  before_install: gem install bundler
-
-  install: bundle install --without debugger
+  - 1.9.3
+before_install: gem install bundler
+install: bundle install --without debugger
+env:
+  - DB=sqlite
+script:
+  - bundle exec rspec
+before_script:
+  - sqlite3 test.db < db/test/sequencescape_test.sql
