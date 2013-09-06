@@ -14,7 +14,9 @@ shared_context "a plate" do
   let!(:plate) do
     Lims::LaboratoryApp::Laboratory::Plate.new(:number_of_rows => number_of_rows,  :number_of_columns => number_of_columns).tap do |plate|
       plate["A1"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_1)
+      plate["A1"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_1, :type => "solvent")
       plate["E5"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_2)
+      plate["E5"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_2, :type => "solvent")
     end
   end
 end
@@ -29,7 +31,9 @@ shared_context "a transfered plate" do
   let(:transfered_plate) do
     Lims::LaboratoryApp::Laboratory::Plate.new(:number_of_rows => number_of_rows,  :number_of_columns => number_of_columns).tap do |plate|
       plate["A2"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_1)
+      plate["A2"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_1, :type => "solvent")
       plate["B9"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_2)
+      plate["B9"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_2, :type => "solvent")
       plate["E6"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
     end
   end

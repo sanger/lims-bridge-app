@@ -74,9 +74,8 @@ module Lims::BridgeApp
             :content_id => well_id
           ) 
 
-          # Save the first aliquot quantity in well_attributes table
-          # TODO: what if the well contains more than one non-solvent aliquot? 
-          aliquot = plate[location].find { |aliquot| aliquot.type != "solvent" }
+          # Save the volume contained in the well ie the solvent quantity in S2 
+          aliquot = plate[location].find { |aliquot| aliquot.type == "solvent" }
           volume = aliquot.quantity if aliquot
           if volume
             db[:well_attributes].insert(
@@ -305,6 +304,9 @@ module Lims::BridgeApp
 
         # We save the plate wells data from the transfer
         plate.keys.each do |location|
+          receptacle_id = wells[location]
+
+          # Save aliquots
           if sample_uuids.has_key?(location)
             sample_uuids[location].each do |sample_uuid|
               sample_resource_uuid = db[:uuids].select(:resource_id).where(
@@ -315,7 +317,6 @@ module Lims::BridgeApp
               raise UnknownSample, "The sample #{sample_uuid} cannot be found in Sequencescape" unless sample_resource_uuid
               sample_id = sample_resource_uuid[:resource_id]
               tag_id = get_tag_id(sample_id)
-              receptacle_id = wells[location]
               study_id = study_id(sample_id)
 
               aliquot = db[:aliquots].where({
@@ -337,29 +338,30 @@ module Lims::BridgeApp
                   :tag_id => tag_id
                 )
               end
+            end
 
-              well_attribute = db[:well_attributes].where({
-                :well_id => receptacle_id
-              }).first
+            # Save well volume
+            well_attribute = db[:well_attributes].where({
+              :well_id => receptacle_id
+            }).first
 
-              # Update or create well_attribute with aliquot volume information
-              plate_aliquot = plate[location].find { |aliquot| aliquot.type != "solvent" }
-              volume = plate_aliquot.quantity if plate_aliquot
+            # Update or create well_attribute with solvent aliquot volume information
+            plate_aliquot = plate[location].find { |aliquot| aliquot.type == "solvent" }
+            volume = plate_aliquot.quantity if plate_aliquot
 
-              if volume
-                if well_attribute && well_attribute[:current_volume] != volume
-                  db[:well_attributes].where(:well_id => receptacle_id).update(
-                    :current_volume => volume,
-                    :updated_at => date
-                  )
-                elsif well_attribute.nil?
-                  db[:well_attributes].insert(
-                    :well_id => receptacle_id,
-                    :current_volume => volume,
-                    :created_at => date,
-                    :updated_at => date
-                  )
-                end
+            if volume
+              if well_attribute && well_attribute[:current_volume] != volume
+                db[:well_attributes].where(:well_id => receptacle_id).update(
+                  :current_volume => volume,
+                  :updated_at => date
+                )
+              elsif well_attribute.nil?
+                db[:well_attributes].insert(
+                  :well_id => receptacle_id,
+                  :current_volume => volume,
+                  :created_at => date,
+                  :updated_at => date
+                )
               end
             end
           end

@@ -25,7 +25,7 @@ module Lims::BridgeApp::PlateManagement
             update_aliquots_in_sequencescape(s2_resource[:plate], plate_uuid, s2_resource[:date], s2_resource[:sample_uuids])
             bus.publish(plate_uuid)
           end
-        rescue Sequel::Rollback, PlateNotFoundInSequencescape => e
+        rescue Sequel::Rollback, PlateNotFoundInSequencescape, UnknownSample => e
           metadata.reject(:requeue => true)
           log.info("Error updating plate aliquots in Sequencescape: #{e}")
           raise Sequel::Rollback
