@@ -17,6 +17,9 @@ module Lims::BridgeApp::PlateManagement
           metadata.reject(:requeue => true)
           log.info("Error updating plate aliquots in Sequencescape: #{e}")
           raise Sequel::Rollback
+        rescue TransferRequestNotFound => e
+          metadata.ack
+          log.info("Plate update message processed and acknowledged with the warning: #{e}")
         else
           metadata.ack
           log.info("Plate update message processed and acknowledged")
