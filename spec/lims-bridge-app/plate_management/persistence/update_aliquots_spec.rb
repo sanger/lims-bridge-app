@@ -49,6 +49,12 @@ module Lims::BridgeApp::PlateManagement
           well_attributes[0][:current_volume].should == aliquot_quantity_2
           well_attributes[1][:current_volume].should == aliquot_quantity_1
         end
+
+        it "saves the aliquot concentrations in well_attributes" do
+          well_attributes = db[:well_attributes].reverse_order(:id).limit(2).all
+          well_attributes[0][:concentration].should == aliquot_concentration_2.to_f
+          well_attributes[1][:concentration].should == aliquot_concentration_1.to_f
+        end
       end
     end
   end
