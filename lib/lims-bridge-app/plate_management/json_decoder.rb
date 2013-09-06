@@ -163,8 +163,23 @@ module Lims::BridgeApp
 
       module PlateTransferJsonDecoder
         def self.call(json, options)
-          transfer_h = json["plate_transfer"]
-          PlateJsonDecoder.call(transfer_h["result"], options)         
+          plates = []
+          transfer_map = [].tap do |t|
+            source_uuid = json["plate_transfer"]["source"]["plate"]["uuid"]
+            target_uuid = json["plate_transfer"]["target"]["plate"]["uuid"]
+            json["plate_transfer"]["transfer_map"].each do |source_location, target_location|
+              t << {
+                "source_uuid" => source_uuid, "source_location" => source_location, 
+                "target_uuid" => target_uuid, "target_location" => target_location
+              }
+            end
+          end
+
+          ["source", "target"].each do |key|
+            plates << PlateJsonDecoder.call(json["plate_transfer"][key], options)
+          end
+
+          {:plates => plates, :transfer_map => transfer_map}
         end
       end
 
@@ -172,6 +187,7 @@ module Lims::BridgeApp
       module TransferPlatesToPlatesJsonDecoder
         def self.call(json, options)
           plates = []
+          transfer_map = json["transfer_plates_to_plates"]["transfers"]
           ["sources", "targets"].each do |key|
             json["transfer_plates_to_plates"]["result"][key].each do |asset|
               plates << case asset.keys.first
@@ -181,14 +197,30 @@ module Lims::BridgeApp
             end
           end
 
-          {:plates => plates}
+          {:plates => plates, :transfer_map => transfer_map}
         end
       end
 
 
       module TubeRackTransferJsonDecoder
         def self.call(json, options)
-          TubeRackJsonDecoder.call(json["tube_rack_transfer"]["result"], options) 
+          plates = []
+          transfer_map = [].tap do |t|
+            source_uuid = json["tube_rack_transfer"]["source"]["tube_rack"]["uuid"]
+            target_uuid = json["tube_rack_transfer"]["target"]["tube_rack"]["uuid"]
+            json["tube_rack_transfer"]["transfer_map"].each do |source_location, target_location|
+              t << {
+                "source_uuid" => source_uuid, "source_location" => source_location, 
+                "target_uuid" => target_uuid, "target_location" => target_location
+              }
+            end
+          end
+
+          ["source", "target"].each do |key|
+            plates << TubeRackJsonDecoder.call(json["tube_rack_transfer"][key], options)
+          end
+
+          {:plates => plates, :transfer_map => transfer_map}
         end
       end
 
