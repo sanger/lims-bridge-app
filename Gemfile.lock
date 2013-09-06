@@ -16,10 +16,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 1926d19fac0d3b697959778db318ef271136d67f
+  revision: 0e0aa732b882e4b88ca5559968413313547e3660
   branch: uat
   specs:
-    lims-laboratory-app (2.5.1.pre)
+    lims-laboratory-app (2.5.7.pre)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -50,7 +50,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-bridge-app (1.4.1.pre)
+    lims-bridge-app (1.4.2.pre)
       aequitas
       amqp
       facets
@@ -130,7 +130,7 @@ DEPENDENCIES
   lims-bridge-app!
   lims-busclient (~> 0.4.0.rc1)!
   lims-core (~> 2.5.0.pre)!
-  lims-laboratory-app (~> 2.5.1.pre)!
+  lims-laboratory-app (~> 2.5.7.pre)!
   lims-management-app (~> 1.8.0.rc1)!
   psd_logger!
   rake
