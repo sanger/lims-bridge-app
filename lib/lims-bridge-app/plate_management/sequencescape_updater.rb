@@ -74,9 +74,8 @@ module Lims::BridgeApp
             :content_id => well_id
           ) 
 
-          # Save the first aliquot quantity in well_attributes table
-          # TODO: what if the well contains more than one non-solvent aliquot? 
-          aliquot = plate[location].find { |aliquot| aliquot.type != "solvent" }
+          # Save the volume contained in the well ie the solvent quantity in S2 
+          aliquot = plate[location].find { |aliquot| aliquot.type == "solvent" }
           volume = aliquot.quantity if aliquot
           if volume
             db[:well_attributes].insert(
@@ -342,8 +341,8 @@ module Lims::BridgeApp
                 :well_id => receptacle_id
               }).first
 
-              # Update or create well_attribute with aliquot volume information
-              plate_aliquot = plate[location].find { |aliquot| aliquot.type != "solvent" }
+              # Update or create well_attribute with solvent aliquot volume information
+              plate_aliquot = plate[location].find { |aliquot| aliquot.type == "solvent" }
               volume = plate_aliquot.quantity if plate_aliquot
 
               if volume
