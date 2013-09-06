@@ -58,9 +58,11 @@ module Lims::BridgeApp
           plate_hash["wells"].each do |location, aliquots|
             unless aliquots.empty?
               aliquots.each do |aliquot|
+                out_of_bounds = aliquot["out_of_bounds"] ? aliquot["out_of_bounds"] : {}
                 plate[location] << Lims::LaboratoryApp::Laboratory::Aliquot.new({
                   :quantity => aliquot["quantity"],
-                  :type => aliquot["type"]
+                  :type => aliquot["type"],
+                  :out_of_bounds => out_of_bounds
                 })
               end
             end
