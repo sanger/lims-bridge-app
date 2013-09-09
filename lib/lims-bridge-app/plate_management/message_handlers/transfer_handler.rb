@@ -15,15 +15,11 @@ module Lims::BridgeApp::PlateManagement
         aliquot_updater = UpdateAliquotsHandler.new(db, bus, log, metadata, s2_resource, settings)
 
         begin 
-          if s2_resource.has_key?(:plates)
-            s2_resource[:plates].each do |plate|
-              aliquot_updater.send(:update_aliquots, plate)
-            end
-            date = s2_resource[:plates].first[:date]
-            set_transfer_requests(s2_resource[:transfer_map], date)
-          else
-            aliquot_updater.send(:update_aliquots, s2_resource)
+          s2_resource[:plates].each do |plate|
+            aliquot_updater.send(:update_aliquots, plate)
           end
+          date = s2_resource[:plates].first[:date]
+          set_transfer_requests(s2_resource[:transfer_map], date)
         rescue Sequel::Rollback, PlateNotFoundInSequencescape, UnknownSample => e
           metadata.reject(:requeue => true)
           log.info("Error updating plate aliquots in Sequencescape: #{e}")
