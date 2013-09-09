@@ -21,6 +21,22 @@ shared_context "a plate" do
   end
 end
 
+shared_context "a source plate in a transfer" do
+  let(:source_plate_uuid) { "11111111-2222-3333-4444-444444444444" }
+  let(:source_sample_uuids) {{
+    "A2" => ["11111111-0000-0000-0000-222222222222"],
+    "B9" => ["11111111-0000-0000-0000-555555555555"]
+  }}
+  let(:source_plate) do
+    Lims::LaboratoryApp::Laboratory::Plate.new(:number_of_rows => number_of_rows,  :number_of_columns => number_of_columns).tap do |plate|
+      plate["A2"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_1)
+      plate["A2"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_1, :type => "solvent")
+      plate["B9"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_2)
+      plate["B9"] << Lims::LaboratoryApp::Laboratory::Aliquot.new(:quantity => aliquot_quantity_2, :type => "solvent")
+    end
+  end
+end
+
 shared_context "a transfered plate" do
   let(:aliquot_concentration_1) { 100 }
   let(:aliquot_concentration_2) { 200 }
