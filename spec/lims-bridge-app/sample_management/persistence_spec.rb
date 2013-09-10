@@ -14,7 +14,7 @@ module Lims::BridgeApp::SampleManagement
     end
 
     let(:db_settings) { YAML.load_file(File.join('config', 'database.yml'))['test'] }
-    let(:bridge_settings) { YAML.load_file(File.join('config', 'bridge.yml'))['test']['sample_management'] }
+    let(:bridge_settings) { YAML.load_file(File.join('config', 'bridge.yml'))['default']['sample_management'] }
     let(:bus) { mock(:bus).tap { |n| n.stub(:publish) }}
     let!(:updater) do
       Class.new do
