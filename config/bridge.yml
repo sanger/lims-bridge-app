@@ -29,17 +29,9 @@ sample_management: &sample_management_settings
   sample_type: "Sample"
   study_sample_type: "StudySample"
 
-defaults: &defaults
+default: &default
   plate_management:
     <<: *plate_management_settings
   sample_management:
     <<: *sample_management_settings
 
-development:
-  <<: *defaults
-
-test:
-  <<: *defaults
-
-production:
-  <<: *defaults
