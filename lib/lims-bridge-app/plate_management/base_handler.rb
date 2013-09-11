@@ -2,6 +2,7 @@ require 'lims-bridge-app/plate_management/sequencescape_updater'
 require 'lims-bridge-app/message_bus'
 require 'common'
 require 'sequel/adapters/mysql2'
+require 'amqp'
 
 module Lims::BridgeApp::PlateManagement
   module MessageHandler
@@ -15,7 +16,7 @@ module Lims::BridgeApp::PlateManagement
           include Virtus
           include Aequitas
           attribute :db, Sequel::Mysql2::Database, :required => true, :writer => :private, :reader => :private
-          attribute :metadata, AMQP::Header, :required => true, :writer => :private, :reader => :private
+          attribute :metadata, ::AMQP::Header, :required => true, :writer => :private, :reader => :private
           attribute :s2_resource, Hash, :required => true, :writer => :private, :reader => :private
           attribute :log, Object, :required => true, :writer => :private, :reader => :private 
           attribute :bus, Lims::BridgeApp::MessageBus, :required => true, :writer => :private
