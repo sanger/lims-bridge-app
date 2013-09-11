@@ -6,24 +6,19 @@ module Lims::BridgeApp::PlateManagement
 
       private
 
-      # When an order message is received,
-      # we check if it contains an item which is a stock plate 
-      # with a done status. Otherwise, we just ignore the message
-      # and delete the plates which could have been saved in sequencescape
-      # but aren't stock plate.
-      # We try to update the stock plate on Sequencescape, if the plate
-      # is not found in Sequencescape, the message is requeued.
-      # @param [AMQP::Header] metadata
-      # @param [Hash] s2 resource 
+      # When an order message is received, we check if it contains
+      # items whose role match an item_role_pattern with a done status.
+      # For these items, we update the corresponding plate purpose id in
+      # sequencescape.
       def _call_in_transaction
         order = s2_resource[:order]
         order_uuid = s2_resource[:uuid]
         date = s2_resource[:date]
 
-        stock_plate_items = stock_plate_items(order)
-        unless stock_plate_items.empty?
+        plate_items = plate_items(order)
+        unless plate_items.empty?
           success = true
-          stock_plate_items.each do |items|
+          plate_items.each do |items|
             items[:items].each do |item|
               if item.status == settings["item_done_status"]
                 begin
@@ -54,14 +49,15 @@ module Lims::BridgeApp::PlateManagement
         end
       end
 
-      # Get all the stock plate items from an order
+      # Get all the plate items from an order which match a pattern
+      # defined in item_role_patterns.
       # @param [Lims::Core::Organization::Order] order
-      # @return [Array] stock plate items
-      def stock_plate_items(order)
+      # @return [Array] plate items
+      def plate_items(order)
         [].tap do |items|
-          settings["stock_plate_patterns"].each do |stock|
+          settings["item_role_patterns"].each do |pattern|
             order.each do |role, _|
-              if role.match(stock)
+              if role.match(pattern)
                 items << {:role => role, :items => order[role]}
               end
             end
@@ -75,6 +71,8 @@ module Lims::BridgeApp::PlateManagement
         case role
         when settings["stock_dna_plate_role"] then settings["stock_dna_plate_purpose_id"] 
         when settings["stock_rna_plate_role"] then settings["stock_rna_plate_purpose_id"] 
+        when settings["working_dilution_rna_plate_role"] then settings["working_dilution_plate_purpose_id"]
+        when settings["working_dilution_rna_nanodrop_plate_role"] then settings["working_dilution_plate_purpose_id"]
         else settings["unassigned_plate_purpose_id"] 
         end
       end
