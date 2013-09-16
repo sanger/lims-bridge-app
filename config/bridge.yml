@@ -5,17 +5,26 @@ plate_management: &plate_management_settings
   sample_type: "Sample"
   stock_dna_plate_role: "samples.rack.stock.dna"
   stock_rna_plate_role: "samples.rack.stock.rna"
+  working_dilution_rna_plate_role: "samples.qc.nx_nanodrop.working_dilution_rna"
+  working_dilution_rna_nanodrop_plate_role: "samples.qc.nx_nanodrop.working_dilution_rna.nanodrop"
   stock_dna_plate_purpose_id: 2
   stock_rna_plate_purpose_id: 183
+  working_dilution_plate_purpose_id: 1
   unassigned_plate_purpose_id: 2
-  stock_plate_patterns:
+  item_role_patterns:
     - "stock"
+    - "working_dilution"
   item_done_status: "done"
   sanger_barcode_type: "sanger-barcode"
   plate_location: "Sample logistics freezer"
-  request_sti_type: "CreateAssetRequest"
-  request_type_id: 11
-  request_state: "passed"
+  create_asset_request_sti_type: "CreateAssetRequest"
+  create_asset_request_type_id: 11
+  create_asset_request_state: "passed"
+  transfer_request_sti_type: "TransferRequest"
+  transfer_request_type_id: 22
+  transfer_request_state: "passed"
+  out_of_bounds_concentration_key: "Concentration"
+  stock_plate_concentration_multiplier: 12.5
   barcode_prefixes: 
     - "ND"
     - "NR"
@@ -24,17 +33,9 @@ sample_management: &sample_management_settings
   sample_type: "Sample"
   study_sample_type: "StudySample"
 
-defaults: &defaults
+default: &default
   plate_management:
     <<: *plate_management_settings
   sample_management:
     <<: *sample_management_settings
 
-development:
-  <<: *defaults
-
-test:
-  <<: *defaults
-
-production:
-  <<: *defaults

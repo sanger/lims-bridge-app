@@ -28,9 +28,12 @@ module Lims::BridgeApp
       SETTINGS = {:well_type => String, :plate_type => String, :asset_type => String, :sample_type => String,
                   :stock_dna_plate_role => String, :stock_rna_plate_role => String, :stock_dna_plate_purpose_id => Integer, 
                   :stock_rna_plate_purpose_id => Integer, :unassigned_plate_purpose_id => Integer, 
-                  :stock_plate_patterns => Array, :item_done_status => String, :sanger_barcode_type => String, 
-                  :plate_location => String, :request_sti_type => String, :request_type_id => Integer, 
-                  :request_state => String, :barcode_prefixes => Array}
+                  :item_role_patterns => Array, :item_done_status => String, :sanger_barcode_type => String, 
+                  :plate_location => String, :create_asset_request_sti_type => String, :create_asset_request_type_id => Integer, 
+                  :create_asset_request_state => String, :transfer_request_sti_type => String, :transfer_request_type_id => Integer,
+                  :transfer_request_state => String, :barcode_prefixes => Array, :out_of_bounds_concentration_key => String,
+                  :stock_plate_concentration_multiplier => Float, :working_dilution_rna_plate_role => String,
+                  :working_dilution_rna_nanodrop_plate_role => String, :working_dilution_plate_purpose_id => Integer}
 
       # @param [Hash] amqp_settings
       # @param [Hash] mysql_settings
@@ -69,8 +72,10 @@ module Lims::BridgeApp
         when /(plate|tuberack)\.create/ then handler_for[:plate].call
           # On reception of an order creation/update message
         when /order\.(create|updateorder)/ then handler_for[:order].call
+          # On reception of a plate update message
+        when /updatetuberack|updateplate/ then handler_for[:update_aliquots].call
           # On reception of a plate transfer message
-        when /platetransfer|transferplatestoplates|updatetuberack|updateplate|tuberacktransfer/ then handler_for[:update_aliquots].call
+        when /platetransfer|transferplatestoplates|tuberacktransfer/ then handler_for[:transfer].call
           # Tube rack move messages have a custom handler as it needs to delete aliquots in the source racks.
         when /tuberackmove/ then handler_for[:tube_rack_move].call
         when /deletetuberack/ then handler_for[:plate_delete].call
