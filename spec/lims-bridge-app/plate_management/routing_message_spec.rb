@@ -28,9 +28,9 @@ module Lims::BridgeApp::PlateManagement
     it_behaves_like "routing message", "*.*.tuberack.deletetuberack", MessageHandler::PlateDeleteHandler 
     it_behaves_like "routing message", "*.*.order.create", MessageHandler::OrderHandler 
     it_behaves_like "routing message", "*.*.order.updateorder", MessageHandler::OrderHandler 
-    it_behaves_like "routing message", "*.*.platetransfer.platetransfer", MessageHandler::UpdateAliquotsHandler 
-    it_behaves_like "routing message", "*.*.transferplatestoplates.transferplatestoplates", MessageHandler::UpdateAliquotsHandler 
-    it_behaves_like "routing message", "*.*.tuberacktransfer.tuberacktransfer", MessageHandler::UpdateAliquotsHandler 
+    it_behaves_like "routing message", "*.*.platetransfer.platetransfer", MessageHandler::TransferHandler 
+    it_behaves_like "routing message", "*.*.transferplatestoplates.transferplatestoplates", MessageHandler::TransferHandler 
+    it_behaves_like "routing message", "*.*.tuberacktransfer.tuberacktransfer", MessageHandler::TransferHandler 
     it_behaves_like "routing message", "*.*.tuberackmove.tuberackmove", MessageHandler::TubeRackMoveHandler 
     it_behaves_like "routing message", "*.*.labellable.create", MessageHandler::LabellableHandler 
     it_behaves_like "routing message", "*.*.bulkcreatelabellable.*", MessageHandler::LabellableHandler 

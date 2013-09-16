@@ -698,7 +698,8 @@ CREATE TABLE "location_associations" (
 CREATE TABLE "requests" (
   "id" INTEGER PRIMARY KEY,
   "asset_id" int(11) NOT NULL,
-  "initial_study_id" int(11) NOT NULL,
+  "initial_study_id" int(11) NULL,
+  "target_asset_id" int(11) NULL,
   "sti_type" varchar(255) NOT NULL,
   "state" varchar(255) NOT NULL,
   "request_type_id" int(11) DEFAULT NULL,

@@ -4,7 +4,7 @@ require 'yaml'
 
 shared_context "updater" do
   let(:db_settings) { YAML.load_file(File.join('config', 'database.yml'))['test'] }
-  let(:bridge_settings) { YAML.load_file(File.join('config', 'bridge.yml'))['test']['plate_management'] }
+  let(:bridge_settings) { YAML.load_file(File.join('config', 'bridge.yml'))['default']['plate_management'] }
   let!(:updater) do
     Class.new do 
       include Lims::BridgeApp::PlateManagement::SequencescapeUpdater 
