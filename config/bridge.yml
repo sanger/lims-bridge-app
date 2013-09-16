@@ -5,11 +5,15 @@ plate_management: &plate_management_settings
   sample_type: "Sample"
   stock_dna_plate_role: "samples.rack.stock.dna"
   stock_rna_plate_role: "samples.rack.stock.rna"
+  working_dilution_rna_plate_role: "samples.qc.nx_nanodrop.working_dilution_rna"
+  working_dilution_rna_nanodrop_plate_role: "samples.qc.nx_nanodrop.working_dilution_rna.nanodrop"
   stock_dna_plate_purpose_id: 2
   stock_rna_plate_purpose_id: 183
+  working_dilution_plate_purpose_id: 1
   unassigned_plate_purpose_id: 2
-  stock_plate_patterns:
+  item_role_patterns:
     - "stock"
+    - "working_dilution"
   item_done_status: "done"
   sanger_barcode_type: "sanger-barcode"
   plate_location: "Sample logistics freezer"
