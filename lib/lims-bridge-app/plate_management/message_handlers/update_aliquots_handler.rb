@@ -6,33 +6,31 @@ module Lims::BridgeApp::PlateManagement
 
       private
 
-      # When a plate transfer message is received,
-      # or an update message,
-      # we update the target plate in sequencescape 
-      # setting the transfered aliquots.
+      # For an update message, we update the plate in sequencescape 
+      # setting the updated aliquots.
       # @param [AMQP::Header] metadata
       # @param [Hash] s2 resource
       def _call_in_transaction
         begin
-          if s2_resource.has_key?(:plates)
-            s2_resource[:plates].each do |plate|
-              plate_uuid = plate[:uuid]
-              update_aliquots_in_sequencescape(plate[:plate], plate_uuid, plate[:date], plate[:sample_uuids])
-              bus.publish(plate_uuid)
-            end
-          else
-            plate_uuid = s2_resource[:uuid]
-            update_aliquots_in_sequencescape(s2_resource[:plate], plate_uuid, s2_resource[:date], s2_resource[:sample_uuids])
-            bus.publish(plate_uuid)
-          end
-        rescue Sequel::Rollback, PlateNotFoundInSequencescape => e
+          update_aliquots(s2_resource)
+        rescue Sequel::Rollback, PlateNotFoundInSequencescape, UnknownSample => e
           metadata.reject(:requeue => true)
           log.info("Error updating plate aliquots in Sequencescape: #{e}")
           raise Sequel::Rollback
+        rescue TransferRequestNotFound => e
+          metadata.ack
+          log.info("Plate update message processed and acknowledged with the warning: #{e}")
         else
           metadata.ack
-          log.info("Plate transfer message processed and acknowledged")
+          log.info("Plate update message processed and acknowledged")
         end
+      end
+
+      # @param [Lims::LaboratoryApp::Laboratory::Plate] plate
+      def update_aliquots(plate)
+        plate_uuid = plate[:uuid]
+        update_aliquots_in_sequencescape(plate[:plate], plate_uuid, plate[:date], plate[:sample_uuids])
+        bus.publish(plate_uuid)
       end
     end
   end

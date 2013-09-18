@@ -78,7 +78,8 @@ CREATE TABLE "sample_metadata" (
   "subject" varchar(255) DEFAULT NULL,
   "treatment" varchar(255) DEFAULT NULL,
   "created_at" datetime DEFAULT NULL,
-  "updated_at" datetime DEFAULT NULL
+  "updated_at" datetime DEFAULT NULL,
+  "donor_id" varchar(255) DEFAULT NULL
 );
 CREATE TABLE "sample_registrars" (
   "id" INTEGER PRIMARY KEY,
@@ -697,7 +698,8 @@ CREATE TABLE "location_associations" (
 CREATE TABLE "requests" (
   "id" INTEGER PRIMARY KEY,
   "asset_id" int(11) NOT NULL,
-  "initial_study_id" int(11) NOT NULL,
+  "initial_study_id" int(11) NULL,
+  "target_asset_id" int(11) NULL,
   "sti_type" varchar(255) NOT NULL,
   "state" varchar(255) NOT NULL,
   "request_type_id" int(11) DEFAULT NULL,
