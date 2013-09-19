@@ -1,14 +1,16 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: d5020c3c8bec8e835073894c4518d6ec4e358933
-  branch: master
+  revision: 4e3d2b9a8b3eba102a918ce3e2107e2a61db6d22
+  branch: development
   specs:
-    lims-core (2.5.0)
+    lims-core (3.0.0.1.3)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
       dm-validations
       facets (= 2.9.3)
+      modularity
+      oj
       sequel
       state_machine
       uuid
@@ -16,10 +18,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 5150f37cc690d184df40a607b2d507365d41ea59
-  branch: master
+  revision: 1511a45c8037854f0466f89bd0ecd31da3d18c19
+  branch: development
   specs:
-    lims-laboratory-app (2.5.7)
+    lims-laboratory-app (3.0.1)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -40,17 +42,17 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: 17264b6dbe832a6492256201a5afe5afbdd9095e
-  branch: master
+  revision: ebaf599d7d8419854eedb715fc5b08990a24cab2
+  branch: development
   specs:
-    lims-management-app (1.8.2)
+    lims-management-app (2.0.0)
       bunny (= 0.9.0.pre10)
       json
 
 PATH
   remote: .
   specs:
-    lims-bridge-app (1.4.4)
+    lims-bridge-app (1.5.0)
       aequitas
       amqp
       facets
@@ -97,7 +99,9 @@ GEM
     json (1.8.0)
     macaddr (1.6.1)
       systemu (~> 2.5.0)
+    modularity (0.6.1)
     mysql2 (0.3.13)
+    oj (2.1.4)
     rack (1.5.2)
     rake (10.1.0)
     rspec (2.8.0)
@@ -129,9 +133,9 @@ DEPENDENCIES
   debugger-completion
   lims-bridge-app!
   lims-busclient (~> 0.4.0)!
-  lims-core (~> 2.5.0)!
-  lims-laboratory-app (~> 2.5.1)!
-  lims-management-app (~> 1.8.0)!
+  lims-core (~> 3.0)!
+  lims-laboratory-app (~> 3.0)!
+  lims-management-app (~> 2.0)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
