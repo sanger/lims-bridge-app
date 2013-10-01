@@ -28,6 +28,8 @@ plate_management: &plate_management_settings
   barcode_prefixes: 
     - "ND"
     - "NR"
+    - "WD"
+    - "WR"
 
 sample_management: &sample_management_settings
   sample_type: "Sample"

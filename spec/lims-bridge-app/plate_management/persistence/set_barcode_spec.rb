@@ -51,6 +51,22 @@ module Lims::BridgeApp::PlateManagement
         end
       end
 
+      context "with a Working Dilution plate" do
+        before do
+          updater.set_barcode_to_a_plate(labellable, Time.now)
+        end
+
+        let(:barcode_value) { "WD0012345A" }
+
+        context "with a dashed uuid" do
+          it "set the barcode to the plate" do
+            plate_row[:name].should == "Working dilution 12345"
+            plate_row[:barcode].should == "12345"
+            plate_row[:barcode_prefix_id].should == 2
+          end
+        end
+      end
+
       context "with an unknown valid prefix" do
         before do
           updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "NR12345A"}, Time.now)

@@ -467,13 +467,20 @@ module Lims::BridgeApp
 
         plate_id = plate_id_by_uuid(plate_uuid)
         barcode = sanger_barcode(labellable)
+        prefix = barcode[:prefix]
 
-        unless settings["barcode_prefixes"].map { |p| p.downcase }.include?(barcode[:prefix].downcase)
-          raise InvalidBarcode, "#{barcode[:prefix]} is not a valid barcode prefix"
+        unless settings["barcode_prefixes"].map { |p| p.downcase }.include?(prefix.downcase)
+          raise InvalidBarcode, "#{prefix} is not a valid barcode prefix"
         end
 
-        barcode_prefix_id = barcode_prefix_id(barcode[:prefix])
-        plate_name = "Plate #{barcode[:number]}"
+        barcode_prefix_id = barcode_prefix_id(prefix)
+
+        plate_name = case
+          when prefix.match(/N[DR]/)
+            "Plate #{barcode[:number]}"
+          when prefix.match(/W[DR]/)
+            "Working dilution #{barcode[:number]}"
+        end
 
         db[:assets].where(:id => plate_id).update({
           :name => plate_name,
