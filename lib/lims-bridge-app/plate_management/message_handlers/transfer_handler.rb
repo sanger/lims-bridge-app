@@ -19,6 +19,7 @@ module Lims::BridgeApp::PlateManagement
             aliquot_updater.send(:update_aliquots, plate)
           end
           date = s2_resource[:plates].first[:date]
+          add_asset_links(s2_resource[:transfer_map], date)
           set_transfer_requests(s2_resource[:transfer_map], date)
         rescue Sequel::Rollback, PlateNotFoundInSequencescape, UnknownSample => e
           metadata.reject(:requeue => true)
@@ -28,6 +29,23 @@ module Lims::BridgeApp::PlateManagement
           metadata.ack
           log.info("Plate transfer message processed and acknowledged")
         end
+      end
+
+      def add_asset_links(transfer_map, date)
+        asset_link_set = Set.new
+
+        transfer_map.each do |transfer|
+          source_uuid = transfer["source_uuid"]
+          target_uuid = transfer["target_uuid"]
+
+          source_id = plate_id_by_uuid(source_uuid)
+          target_id = plate_id_by_uuid(target_uuid)
+
+          asset_link_set.add(:ancestor_id => source_id, :descendant_id => target_id)
+        end
+
+        set_asset_link(asset_link_set, date)
+
       end
 
       # @param [Hash] transfer_map
