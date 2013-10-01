@@ -212,17 +212,8 @@ module Lims::BridgeApp
         plate_uuid_data[:resource_id]
       end
 
-      def set_asset_link(asset_link_set, date)
-        asset_link_set.each do |asset_link|
-          db[:asset_links].insert({
-            :ancestor_id    => asset_link[:ancestor_id],
-            :descendant_id  => asset_link[:descendant_id],
-            :direct         => 1,
-            :count          => 1,
-            :created_at     => date,
-            :updated_at     => date
-          })
-        end
+      def set_asset_link(asset_link_set)
+        db[:asset_links].multi_insert(asset_link_set)
       end
 
       # @param [Integer] plate_id

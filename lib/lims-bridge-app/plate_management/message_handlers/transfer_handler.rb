@@ -32,19 +32,17 @@ module Lims::BridgeApp::PlateManagement
       end
 
       def add_asset_links(transfer_map, date)
-        asset_link_set = Set.new
+        asset_link_set = Set.new(transfer_map.map do |transfer|
+            {:ancestor_id    => plate_id_by_uuid(transfer["source_uuid"]),
+              :descendant_id  => plate_id_by_uuid(transfer["target_uuid"]),
+              :direct         => 1,
+              :count          => 1,
+              :created_at     => date,
+              :updated_at     => date }
+          end
+        )
 
-        transfer_map.each do |transfer|
-          source_uuid = transfer["source_uuid"]
-          target_uuid = transfer["target_uuid"]
-
-          source_id = plate_id_by_uuid(source_uuid)
-          target_id = plate_id_by_uuid(target_uuid)
-
-          asset_link_set.add(:ancestor_id => source_id, :descendant_id => target_id)
-        end
-
-        set_asset_link(asset_link_set, date)
+        set_asset_link(asset_link_set)
 
       end
 
