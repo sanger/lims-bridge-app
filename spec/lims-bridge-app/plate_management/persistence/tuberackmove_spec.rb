@@ -5,31 +5,7 @@ module Lims::BridgeApp::PlateManagement
   describe "Moves tube between tuberacks" do
     include_context "prepare database for plate management"
     include_context "updater"
-
-    let(:number_of_rows) { 8 }
-    let(:number_of_columns) { 12 }
-
-    let(:sample_uuids) {{
-      "A1" => ["11111111-0000-0000-0000-111111111111"],
-      "B2" => ["11111111-0000-0000-0000-222222222222"],
-      "C3" => ["11111111-0000-0000-0000-333333333333"],
-      "D4" => ["11111111-0000-0000-0000-444444444444"]
-    }}
-
-    let(:source_plate_uuid) { "11111111-2222-3333-4444-555555555555" }
-    let(:source_plate) do
-      Lims::LaboratoryApp::Laboratory::Plate.new(:number_of_rows => number_of_rows, :number_of_columns => number_of_columns).tap do |plate|
-        plate["A1"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
-        plate["B2"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
-        plate["C3"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
-        plate["D4"] << Lims::LaboratoryApp::Laboratory::Aliquot.new
-      end
-    end
-
-    let(:target_plate_uuid) { "11111111-2222-3333-4444-666666666666" }
-    let(:target_plate) { 
-      Lims::LaboratoryApp::Laboratory::Plate.new(:number_of_rows => number_of_rows, :number_of_columns => number_of_columns)
-    }
+    include_context "source and target plate"
 
     let(:moves) {[
         { "source_uuid"          => source_plate_uuid,

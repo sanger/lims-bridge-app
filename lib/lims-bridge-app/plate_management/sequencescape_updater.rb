@@ -212,6 +212,10 @@ module Lims::BridgeApp
         plate_uuid_data[:resource_id]
       end
 
+      def set_asset_link(asset_link_set)
+        db[:asset_links].multi_insert(asset_link_set)
+      end
+
       # @param [Integer] plate_id
       # @param [String] location
       # @return [Integer]
@@ -463,13 +467,15 @@ module Lims::BridgeApp
 
         plate_id = plate_id_by_uuid(plate_uuid)
         barcode = sanger_barcode(labellable)
+        prefix = barcode[:prefix]
 
-        unless settings["barcode_prefixes"].map { |p| p.downcase }.include?(barcode[:prefix].downcase)
-          raise InvalidBarcode, "#{barcode[:prefix]} is not a valid barcode prefix"
+        unless settings["barcode_prefixes"].keys.map { |p| p.downcase }.include?(prefix.downcase)
+          raise InvalidBarcode, "#{prefix} is not a valid barcode prefix"
         end
 
-        barcode_prefix_id = barcode_prefix_id(barcode[:prefix])
-        plate_name = "Plate #{barcode[:number]}"
+        barcode_prefix_id = barcode_prefix_id(prefix)
+
+        plate_name = "#{settings["barcode_prefixes"][prefix]} #{barcode[:number]}"
 
         db[:assets].where(:id => plate_id).update({
           :name => plate_name,

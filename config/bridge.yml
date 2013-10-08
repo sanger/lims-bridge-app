@@ -26,8 +26,10 @@ plate_management: &plate_management_settings
   out_of_bounds_concentration_key: "Concentration"
   stock_plate_concentration_multiplier: 12.5
   barcode_prefixes: 
-    - "ND"
-    - "NR"
+    "ND": "Plate"
+    "NR": "Plate"
+    "WD": "Working dilution"
+    "WR": "Working dilution"
 
 sample_management: &sample_management_settings
   sample_type: "Sample"

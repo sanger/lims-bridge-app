@@ -158,7 +158,15 @@ CREATE TABLE "well_attributes" (
   "gender" varchar(255) DEFAULT NULL,
   "measured_volume" float DEFAULT NULL
 );
-
+CREATE TABLE "asset_links" (
+  "id" INTEGER PRIMARY KEY,
+  "ancestor_id" int(11) DEFAULT NULL,
+  "descendant_id" int(11) DEFAULT NULL,
+  "direct" tinyint(1) DEFAULT NULL,
+  "count" int(11) DEFAULT NULL,
+  "created_at" datetime NOT NULL,
+  "updated_at" datetime NOT NULL
+);
 
 INSERT INTO "maps" VALUES(1,'A1',96,1,0,0);
 INSERT INTO "maps" VALUES(2,'A2',96,2,1,8);
