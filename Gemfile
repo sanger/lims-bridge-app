@@ -2,10 +2,10 @@ source "http://www.rubygems.org"
  
 gemspec
 
-gem 'lims-core', '~>2.5.0', :git => 'http://github.com/sanger/lims-core.git' , :branch => 'master'
-gem 'lims-laboratory-app', '~>2.5.1', :git => 'http://github.com/sanger/lims-laboratory-app.git' , :branch => 'master'
-gem 'lims-busclient', '~>0.4.0', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'master'
-gem 'lims-management-app', '~>1.8.0', :git => 'https://github.com/sanger/lims-management-app.git', :branch => 'master'
+gem 'lims-core', '~>2.5.1.pre', :git => 'http://github.com/sanger/lims-core.git' , :branch => 'uat'
+gem 'lims-laboratory-app', '~>2.5.13.pre', :git => 'http://github.com/sanger/lims-laboratory-app.git' , :branch => 'uat'
+gem 'lims-busclient', '~>0.4.0.rc1', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'uat'
+gem 'lims-management-app', '~>1.8.2.pre', :git => 'https://github.com/sanger/lims-management-app.git', :branch => 'uat'
 
 group :development do
   gem 'sqlite3', :platforms => :mri
