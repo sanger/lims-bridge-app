@@ -5,7 +5,7 @@ gemspec
 gem 'lims-core', '~>3.0', :git => 'http://github.com/sanger/lims-core.git' , :branch => 'development'
 gem 'lims-laboratory-app', '~>3.0', :git => 'http://github.com/sanger/lims-laboratory-app.git' , :branch => 'development'
 gem 'lims-busclient', '~>0.4.0', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'development'
-gem 'lims-management-app', '~>2.0', :git => 'https://github.com/sanger/lims-management-app.git', :branch => 'development'
+gem 'lims-management-app', '~>3.0', :git => 'https://github.com/sanger/lims-management-app.git', :branch => 'development'
 
 group :development do
   gem 'sqlite3', :platforms => :mri
