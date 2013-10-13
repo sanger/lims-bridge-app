@@ -1,9 +1,9 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: df65402894bf40c0b545cf9e6d19cf4758e0865c
-  branch: development
+  revision: bc263264c56d16e5edf5141d5fa26b033e548fab
+  branch: uat
   specs:
-    lims-core (3.0.0.3.2)
+    lims-core (3.0.0.rc1)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
@@ -17,10 +17,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 17e255e0f69bbef42edeb948f44d83b92ebf638e
-  branch: development
+  revision: d78b5a213aed3d2a890dd3d8e5786cf7d8167926
+  branch: uat
   specs:
-    lims-laboratory-app (3.0.6)
+    lims-laboratory-app (3.0.6.rc1)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -30,8 +30,8 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-busclient.git
-  revision: ddba1b2a3b34b9d1f01c55f555a621d73803b300
-  branch: development
+  revision: d276ded954920fc9206e89f593189728bbdc2101
+  branch: uat
   specs:
     lims-busclient (0.4.0.rc1)
       aequitas
@@ -41,17 +41,17 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: 84b972d37d8ddf41bbcfc7bacb18c6fdc29130c6
-  branch: development
+  revision: 667b92371ed7956a258ee74fbeaa86dc71a81caa
+  branch: uat
   specs:
-    lims-management-app (3.0.0)
+    lims-management-app (3.0.0.rc1)
       bunny (= 0.9.0.pre10)
       json
 
 PATH
   remote: .
   specs:
-    lims-bridge-app (1.5.1)
+    lims-bridge-app (1.5.1.rc1)
       aequitas
       amqp
       facets
@@ -130,10 +130,10 @@ DEPENDENCIES
   debugger
   debugger-completion
   lims-bridge-app!
-  lims-busclient (~> 0.4.0)!
-  lims-core (~> 3.0)!
-  lims-laboratory-app (~> 3.0)!
-  lims-management-app (~> 3.0)!
+  lims-busclient (~> 0.4.0.rc1)!
+  lims-core (~> 3.0.0.rc1)!
+  lims-laboratory-app (~> 3.0.6.rc1)!
+  lims-management-app (~> 3.0.0.rc1)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
