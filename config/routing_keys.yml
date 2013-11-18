@@ -12,6 +12,7 @@ plate_management:
   - '*.*.tuberackmove.tuberackmove'
   - '*.*.labellable.create'
   - '*.*.bulkcreatelabellable.*'
+  - '*.*.updatelabel.*'
   - '*.*.swapsamples.*'
 
 sample_management:
