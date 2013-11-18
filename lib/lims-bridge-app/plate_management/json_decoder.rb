@@ -43,6 +43,13 @@ module Lims::BridgeApp
       end
 
 
+      module UpdateLabelJsonDecoder
+        def self.call(json, options)
+          LabellableJsonDecoder.call(json["update_label"]["result"], options)
+        end
+      end
+
+
       module PlateJsonDecoder
         # Create a Core Laboratory Plate from the json
         # @param [String] json
