@@ -79,7 +79,7 @@ module Lims::BridgeApp
           # Tube rack move messages have a custom handler as it needs to delete aliquots in the source racks.
         when /tuberackmove/ then handler_for[:tube_rack_move].call
         when /deletetuberack/ then handler_for[:plate_delete].call
-        when /labellable/ then handler_for[:labellable].call
+        when /label/ then handler_for[:labellable].call
         when /swapsamples/ then handler_for[:swap_samples].call
         end
       end
