@@ -1,9 +1,9 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: df65402894bf40c0b545cf9e6d19cf4758e0865c
+  revision: 342f55be0eab59d0505f16a2d79061b58d000859
   branch: development
   specs:
-    lims-core (3.0.0.3.2)
+    lims-core (3.1.0.3.1)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
@@ -17,10 +17,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 17e255e0f69bbef42edeb948f44d83b92ebf638e
+  revision: e8d71a31e71b826b29347edbf8dc29a57ca3e7f9
   branch: development
   specs:
-    lims-laboratory-app (3.0.6)
+    lims-laboratory-app (3.4.0.0.0)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -41,17 +41,16 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: 84b972d37d8ddf41bbcfc7bacb18c6fdc29130c6
+  revision: f788d2b0439dcef234fb8bfb1eb9127e1e750f4e
   branch: development
   specs:
-    lims-management-app (3.0.0)
+    lims-management-app (3.2.0)
       bunny (= 0.9.0.pre10)
-      json
 
 PATH
   remote: .
   specs:
-    lims-bridge-app (1.6.0)
+    lims-bridge-app (1.7.0)
       aequitas
       amqp
       facets
@@ -67,9 +66,9 @@ GEM
     activesupport (3.0.0)
     addressable (2.3.5)
     aequitas (0.0.2)
-    amq-protocol (1.8.0)
-    amqp (1.1.1)
-      amq-protocol (>= 1.8.0)
+    amq-protocol (1.9.0)
+    amqp (1.1.3)
+      amq-protocol (>= 1.9.0)
       eventmachine
     bond (0.4.3)
     bunny (0.9.0.pre10)
@@ -91,11 +90,10 @@ GEM
       dm-core (~> 1.2.0)
     eventmachine (1.0.3)
     facets (2.9.3)
-    json (1.8.0)
     macaddr (1.6.1)
       systemu (~> 2.5.0)
     modularity (0.6.1)
-    mysql2 (0.3.13)
+    mysql2 (0.3.14)
     rack (1.5.2)
     rake (10.1.0)
     rspec (2.8.0)
@@ -106,7 +104,7 @@ GEM
     rspec-expectations (2.8.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.8.0)
-    sequel (4.3.0)
+    sequel (4.4.0)
     shotgun (0.9)
       rack (>= 1.0)
     sqlite3 (1.3.8)
@@ -127,9 +125,9 @@ DEPENDENCIES
   debugger-completion
   lims-bridge-app!
   lims-busclient (~> 0.4.1)!
-  lims-core (~> 3.0)!
-  lims-laboratory-app (~> 3.0)!
-  lims-management-app (~> 3.0)!
+  lims-core (~> 3.1.0)!
+  lims-laboratory-app (~> 3.4.0)!
+  lims-management-app (~> 3.2.0)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
