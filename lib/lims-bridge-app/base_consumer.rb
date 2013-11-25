@@ -37,7 +37,10 @@ module Lims::BridgeApp
     # @param [Hash] AMQP settings
     # @param [Hash] bridge settings
     def initialize(amqp_settings, mysql_settings, bridge_settings)
-      @bus = MessageBus.new(amqp_settings.delete("sequencescape").first)
+      sequencescape_bus_settings = amqp_settings.delete("sequencescape").first.tap do |settings|
+        settings["backend_application_id"] = "lims-bridge-app"
+      end
+      @bus = MessageBus.new(sequencescape_bus_settings)
       @settings = bridge_settings
       consumer_setup(amqp_settings)
       sequencescape_db_setup(mysql_settings)

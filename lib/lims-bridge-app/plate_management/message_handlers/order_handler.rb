@@ -68,13 +68,9 @@ module Lims::BridgeApp::PlateManagement
       # @param [String] role
       # @return [Integer]
       def plate_purpose_id(role)
-        case role
-        when settings["stock_dna_plate_role"] then settings["stock_dna_plate_purpose_id"] 
-        when settings["stock_rna_plate_role"] then settings["stock_rna_plate_purpose_id"] 
-        when settings["working_dilution_rna_plate_role"] then settings["working_dilution_plate_purpose_id"]
-        when settings["working_dilution_rna_nanodrop_plate_role"] then settings["working_dilution_plate_purpose_id"]
-        else settings["unassigned_plate_purpose_id"] 
-        end
+        purpose_id = settings["roles_purpose_ids"][role]
+        purpose_id = settings["unassigned_plate_purpose_id"] unless purpose_id
+        purpose_id
       end
     end
   end
