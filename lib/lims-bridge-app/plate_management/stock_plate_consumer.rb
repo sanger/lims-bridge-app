@@ -26,14 +26,12 @@ module Lims::BridgeApp
       include JsonDecoder
 
       SETTINGS = {:well_type => String, :plate_type => String, :asset_type => String, :sample_type => String,
-                  :stock_dna_plate_role => String, :stock_rna_plate_role => String, :stock_dna_plate_purpose_id => Integer, 
-                  :stock_rna_plate_purpose_id => Integer, :unassigned_plate_purpose_id => Integer, 
+                  :roles_purpose_ids => Hash, :unassigned_plate_purpose_id => Integer, 
                   :item_role_patterns => Array, :item_done_status => String, :sanger_barcode_type => String, 
                   :plate_location => String, :create_asset_request_sti_type => String, :create_asset_request_type_id => Integer, 
                   :create_asset_request_state => String, :transfer_request_sti_type => String, :transfer_request_type_id => Integer,
                   :transfer_request_state => String, :barcode_prefixes => Hash, :out_of_bounds_concentration_key => String,
-                  :stock_plate_concentration_multiplier => Float, :working_dilution_rna_plate_role => String,
-                  :working_dilution_rna_nanodrop_plate_role => String, :working_dilution_plate_purpose_id => Integer}
+                  :stock_plate_concentration_multiplier => Float}
 
       # @param [Hash] amqp_settings
       # @param [Hash] mysql_settings

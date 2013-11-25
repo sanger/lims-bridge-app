@@ -89,5 +89,18 @@ module Lims::BridgeApp::PlateManagement::MessageHandler
       it_behaves_like "finding processable items", ["samples.rack.stock.dna", "samples.rack.stock.rna", "samples.qc.nx_nanodrop.working_dilution_rna"]
       it_behaves_like "updating the plate with the right plate purpose", [2, 183, 1]
     end
+
+    context "Order with volume checked stock rna racks" do
+      let(:order) do
+        empty_order["samples.qc.nx_nanodrop.volume_checked_stock_rack_rna"] = []
+        empty_order["samples.qc.nx_nanodrop.volume_checked_stock_rack_rna"] << order_item
+        empty_order["samples.qc.nx_nanodrop.volume_checked_stock_rack_rna.batched"] = []
+        empty_order["samples.qc.nx_nanodrop.volume_checked_stock_rack_rna.batched"] << order_item
+        empty_order
+      end
+
+      it_behaves_like "finding processable items", ["samples.qc.nx_nanodrop.volume_checked_stock_rack_rna", "samples.qc.nx_nanodrop.volume_checked_stock_rack_rna.batched"]
+      it_behaves_like "updating the plate with the right plate purpose", [183, 183]
+    end
   end
 end

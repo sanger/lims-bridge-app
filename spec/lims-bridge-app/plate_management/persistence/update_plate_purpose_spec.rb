@@ -22,7 +22,7 @@ module Lims::BridgeApp::PlateManagement
 
       it "updates the plate purpose of the plate" do
         updater.update_plate_purpose_in_sequencescape(plate_uuid, Time.now, stock_plate_purpose_id)
-        db[:assets].select(:assets__plate_purpose_id).join(:uuids, :resource_id => :assets__id).where(:external_id => plate_uuid).first[:plate_purpose_id].should == updater.settings["stock_dna_plate_purpose_id"] 
+        db[:assets].select(:assets__plate_purpose_id).join(:uuids, :resource_id => :assets__id).where(:external_id => plate_uuid).first[:plate_purpose_id].should == updater.settings["roles_purpose_ids"]["samples.rack.stock.dna"]
       end
     end
   end
