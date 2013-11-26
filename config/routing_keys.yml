@@ -13,6 +13,7 @@ plate_management:
   - '*.*.labellable.create'
   - '*.*.bulkcreatelabellable.*'
   - '*.*.updatelabel.*'
+  - '*.*.bulkupdatelabel.*'
   - '*.*.swapsamples.*'
 
 sample_management:
