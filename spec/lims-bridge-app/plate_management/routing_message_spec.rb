@@ -35,6 +35,7 @@ module Lims::BridgeApp::PlateManagement
     it_behaves_like "routing message", "*.*.labellable.create", MessageHandler::LabellableHandler 
     it_behaves_like "routing message", "*.*.bulkcreatelabellable.*", MessageHandler::LabellableHandler 
     it_behaves_like "routing message", "*.*.udpatelabel.*", MessageHandler::LabellableHandler 
+    it_behaves_like "routing message", "*.*.bulkupdatelabel.*", MessageHandler::LabellableHandler 
     it_behaves_like "routing message", "*.*.swapsamples.*", MessageHandler::SwapSamplesHandler 
   end
 end
