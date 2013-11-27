@@ -53,7 +53,7 @@ module Lims::BridgeApp
       module BulkUpdateLabelJsonDecoder
         def self.call(json, options)
           labellables = []
-          json["bulk_update_label"]["labellables"].each do |labellable|
+          json["bulk_update_label"]["result"]["labellables"].each do |labellable|
             labellables << LabellableJsonDecoder.call({"labellable" => labellable}, options)
           end
           {:labellables => labellables}
