@@ -46,6 +46,14 @@ module Lims::BridgeApp::PlateManagement
         decoder.json_decoder_for("bulk_create_labellable").should == JsonDecoder::BulkCreateLabellableJsonDecoder
       end
 
+      it "gets the right decoder for an update label message" do
+        decoder.json_decoder_for("update_label").should == JsonDecoder::UpdateLabelJsonDecoder
+      end
+
+      it "gets the right decoder for a bulk update label message" do
+        decoder.json_decoder_for("bulk_update_label").should == JsonDecoder::BulkUpdateLabelJsonDecoder
+      end
+
       it "gets the right decoder for a swap samples message" do
         decoder.json_decoder_for("swap_samples").should == JsonDecoder::SwapSamplesJsonDecoder
       end

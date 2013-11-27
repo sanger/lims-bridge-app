@@ -50,6 +50,17 @@ module Lims::BridgeApp
       end
 
 
+      module BulkUpdateLabelJsonDecoder
+        def self.call(json, options)
+          labellables = []
+          json["bulk_update_label"]["result"]["labellables"].each do |labellable|
+            labellables << LabellableJsonDecoder.call({"labellable" => labellable}, options)
+          end
+          {:labellables => labellables}
+        end
+      end
+
+
       module PlateJsonDecoder
         # Create a Core Laboratory Plate from the json
         # @param [String] json
