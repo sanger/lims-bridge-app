@@ -1,7 +1,9 @@
 require 'lims-laboratory-app/laboratory/plate'
+require 'lims-laboratory-app/laboratory/gel'
 require 'lims-laboratory-app/laboratory/aliquot'
 require 'lims-laboratory-app/organization/order'
 require 'lims-laboratory-app/labels/labellable'
+require 'lims-quality-app/gel-image/gel_image'
 require 'lims-bridge-app/base_json_decoder'
 require 'json'
 
@@ -11,6 +13,27 @@ module Lims::BridgeApp
     # Lims Core Resource.
     module JsonDecoder
       include BaseJsonDecoder
+
+      module GelImageJsonDecoder
+        def self.call(json, options)
+          gi_hash = json["gel_image"]
+          gi = Lims::QualityApp::GelImage.new({
+            :gel_uuid => gi_hash["gel_uuid"],
+            :scores => gi_hash["scores"]
+          })
+
+          {:gel_image => gi, :date => options[:date]}
+        end
+      end
+
+
+      module UpdateGelImageScoreJsonDecoder
+        def self.call(json, options)
+          gel_image = json["update_gel_image_score"]["result"]
+          GelImageJsonDecoder.call(gel_image, options)
+        end
+      end
+
 
       module LabellableJsonDecoder
         def self.call(json, options)
@@ -114,6 +137,36 @@ module Lims::BridgeApp
       end
 
 
+      module GelJsonDecoder
+        def self.call(json, options)
+          gel_hash = json["gel"]
+          gel = Lims::LaboratoryApp::Laboratory::Gel.new({
+            :number_of_rows => gel_hash["number_of_rows"],
+            :number_of_columns => gel_hash["number_of_columns"]
+          })
+          gel_hash["windows"].each do |location, aliquots|
+            unless aliquots.empty?
+              aliquots.each do |aliquot|
+                out_of_bounds = aliquot["out_of_bounds"] ? aliquot["out_of_bounds"] : {}
+                gel[location] << Lims::LaboratoryApp::Laboratory::Aliquot.new({
+                  :quantity => aliquot["quantity"],
+                  :type => aliquot["type"],
+                  :out_of_bounds => out_of_bounds
+                })
+              end
+            end
+          end
+
+          {
+            :plate => gel, 
+            :uuid => gel_hash["uuid"], 
+            :sample_uuids => PlateJsonDecoder.sample_uuids(gel_hash["windows"]),
+            :date => options[:date]
+          }
+        end
+      end
+
+
       module TubeRackJsonDecoder
         # As a tuberack is seen as a plate in sequencescape,
         # we map below a tuberack to a s2 plate.
@@ -211,6 +264,7 @@ module Lims::BridgeApp
               plates << case asset.keys.first
               when "plate" then PlateJsonDecoder.call(asset, options) 
               when "tube_rack" then TubeRackJsonDecoder.call(asset, options)
+              when "gel" then GelJsonDecoder.call(asset, options)
               end
             end
           end
