@@ -30,6 +30,11 @@ plate_management: &plate_management_settings
     "NR": "Plate"
     "WD": "Working dilution"
     "WR": "Working dilution"
+  gel_image_s2_scores_to_sequencescape_scores:
+    "pass": "OK"
+    "fail": "fail"
+    "degraded": "Degraded"
+    "partially degraded": "Partially degraded"
 
 sample_management: &sample_management_settings
   sample_type: "Sample"

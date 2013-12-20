@@ -14,6 +14,14 @@ module Lims::BridgeApp::PlateManagement
         decoder.json_decoder_for("plate").should == JsonDecoder::PlateJsonDecoder 
       end
 
+      it "gets the right decoder for a gel message" do
+        decoder.json_decoder_for("gel").should == JsonDecoder::GelJsonDecoder 
+      end
+
+      it "gets the right decoder for a gel message" do
+        decoder.json_decoder_for("gel_image").should == JsonDecoder::GelImageJsonDecoder 
+      end
+
       it "gets the right decoder for a tube rack message" do
         decoder.json_decoder_for("tube_rack").should == JsonDecoder::TubeRackJsonDecoder
       end
