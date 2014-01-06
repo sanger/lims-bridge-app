@@ -50,7 +50,7 @@ module Lims::BridgeApp
         self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
           log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
-          s2_resource = s2_resource(payload)
+          s2_resource = BaseDecoder.decode(payload)
           route_message(metadata, s2_resource)
         end
       end
