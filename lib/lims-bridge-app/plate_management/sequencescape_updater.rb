@@ -38,10 +38,11 @@ module Lims::BridgeApp
       # @param [Hash] sample uuids
       def create_plate_in_sequencescape(plate, plate_uuid, date, sample_uuids)
         asset_size = plate.number_of_rows * plate.number_of_columns
+        sti_type = plate.is_a?(Lims::LaboratoryApp::Laboratory::Gel) ? settings["gel_type"] : settings["plate_type"]
 
         # Save plate and plate uuid
         plate_id = db[:assets].insert(
-          :sti_type => settings["plate_type"],
+          :sti_type => sti_type,
           :plate_purpose_id => settings["unassigned_plate_purpose_id"],
           :size => asset_size,
           :created_at => date,

@@ -1,6 +1,7 @@
 plate_management: &plate_management_settings
   well_type: "Well"
   plate_type: "Plate"
+  gel_type: "GelDilutionPlate"
   asset_type: "Asset"
   sample_type: "Sample"
   roles_purpose_ids:
