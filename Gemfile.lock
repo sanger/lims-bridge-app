@@ -48,10 +48,18 @@ GIT
       bunny (= 0.9.0.pre10)
       json
 
+GIT
+  remote: https://github.com/sanger/lims-quality-app.git
+  revision: 9c39e0907b2b8a53c7aa2908bfaf88dc5849ebf4
+  branch: uat
+  specs:
+    lims-quality-app (0.7.1.pre)
+      bunny (= 0.9.0.pre10)
+
 PATH
   remote: .
   specs:
-    lims-bridge-app (1.7.0.pre)
+    lims-bridge-app (1.10.0.pre)
       aequitas
       amqp
       facets
@@ -130,6 +138,7 @@ DEPENDENCIES
   lims-core (~> 3.1.0.pre)!
   lims-laboratory-app (~> 3.3.1.pre)!
   lims-management-app (~> 3.0.1.rc1)!
+  lims-quality-app (~> 0.7.1.pre)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
