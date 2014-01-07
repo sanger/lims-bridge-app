@@ -23,6 +23,14 @@ module Lims::BridgeApp
         end
       end
 
+      # @return [Lims::LaboratoryApp::Labels::Labellable]
+      def decode_update_label
+        @payload = resource_hash["result"]
+        decode_labellable
+      end
+    end
+
+    class BulkCreateLabellableDecoder < LabellableDecoder
       # @return [Hash]
       def decode_bulk_create_labellable
         {:labellables => [].tap { |labellables|
@@ -31,13 +39,9 @@ module Lims::BridgeApp
           end
         }}
       end
+    end
 
-      # @return [Lims::LaboratoryApp::Labels::Labellable]
-      def decode_update_label
-        @payload = resource_hash["result"]
-        decode_labellable
-      end
-
+    class BulkUpdateLabelDecoder < LabellableDecoder
       # @return [Hash]
       def decode_bulk_update_label
         {:labellables => [].tap { |labellables|
@@ -47,5 +51,7 @@ module Lims::BridgeApp
         }}
       end
     end
+
+    UpdateLabelDecoder = Class.new(LabellableDecoder)
   end
 end

@@ -1,9 +1,9 @@
 module Lims::BridgeApp
   module Decoders
+
+    UndefinedDecoder = Class.new(StandardError)
+
     class BaseDecoder
-
-      UndefinedDecoder = Class.new(StandardError)
-
       attr_reader :resource_hash, :resource_uuid
 
       # @param [String] payload
