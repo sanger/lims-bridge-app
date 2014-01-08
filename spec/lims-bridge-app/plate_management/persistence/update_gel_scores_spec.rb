@@ -96,7 +96,7 @@ module Lims::BridgeApp::PlateManagement
 
     context "update gel score of the stock plate well attribute" do
       before do
-        updater.update_gel_scores(gel_image)
+        updater.update_gel_scores(gel_image, Time.now)
       end
 
       let(:stock_wells) { db[:well_attributes].where(:well_id => stock_well_ids).all }
