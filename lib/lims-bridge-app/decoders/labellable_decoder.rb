@@ -9,10 +9,10 @@ module Lims::BridgeApp
 
       # @param [Hash] payload
       # @return [Lims::LaboratoryApp::Labels::Labellable]
-      def decode_labellable(labellable_hash = @resource_hash)
+      def decode_labellable(labellable_hash = resource_hash)
         Lims::LaboratoryApp::Labels::Labellable.new({
-          :name => resource_hash["name"],
-          :type => resource_hash["type"]
+          :name => labellable_hash["name"],
+          :type => labellable_hash["type"]
         }).tap do |labellable|
           labellable_hash["labels"].each do |position, label_hash|
             labellable[position] = Lims::LaboratoryApp::Labels::Labellable::Label.new({
@@ -26,6 +26,13 @@ module Lims::BridgeApp
       # @return [Lims::LaboratoryApp::Labels::Labellable]
       def decode_update_label
         decode_labellable(resource_hash["result"])
+      end
+    end
+
+    class CreateLabelDecoder < LabellableDecoder
+      def decode_create_label
+        @payload = resource_hash["result"]
+        decode_labellable
       end
     end
 

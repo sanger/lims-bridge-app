@@ -12,8 +12,6 @@ module Lims::BridgeApp
       # @param [Hash] options
       def initialize(payload, options)
         @payload = payload
-        @resource_hash = payload[resource_key]
-        @resource_uuid = @resource_hash["uuid"] if @resource_hash.has_key?("uuid")
         @options = options
       end
 
@@ -21,7 +19,7 @@ module Lims::BridgeApp
       def call
         decoded_resource = _call
         to_merge = {:date => @options[:date]}
-        to_merge[:uuid] = @resource_uuid if @resource_uuid
+        to_merge[:uuid] = resource_uuid if resource_uuid
         if decoded_resource.is_a?(Hash)
           decoded_resource.merge!(to_merge)
         else
@@ -56,7 +54,14 @@ module Lims::BridgeApp
         end
       end
 
-      # @return [String]
+      def resource_uuid
+        resource_hash["uuid"]
+      end
+
+      def resource_hash
+        @payload[resource_key]
+      end
+
       def resource_key
         @payload.keys.first.to_s
       end

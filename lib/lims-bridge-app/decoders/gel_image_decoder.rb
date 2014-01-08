@@ -14,9 +14,11 @@ module Lims::BridgeApp
           :scores => resource_hash["scores"]
         })
       end
+    end
 
+    class UpdateGelImageScoreDecoder < GelImageDecoder
       # @return [Lims::QualityApp::GelImage]
-      def decode_update_gel_image_scores
+      def decode_update_gel_image_score
         @payload = resource_hash["result"]
         decode_gel_image
       end
