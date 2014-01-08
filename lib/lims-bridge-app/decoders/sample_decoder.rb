@@ -8,19 +8,36 @@ module Lims::BridgeApp
       private
 
       # @return [Lims::ManagementApp::Sample]
-      def decode_sample
+      def decode_sample(sample_hash = resource_hash)
         Lims::ManagementApp::Sample.new.tap do |sample|
-          resource_hash.each do |k,v|
+          sample_hash.each do |k,v|
             sample.send("#{k}=", v) if sample.respond_to?("#{k}=")
           end
         end
       end
     end
 
-    class BulkSampleDecoder < SampleDecoder
+    module BulkSampleDecoder
       def decode_bulk_sample
-
+        samples_hash = resource_hash["result"]["samples"]
+        samples = []
+        samples_hash.each do |sample_hash|
+          samples << decode_sample(sample_hash)
+        end
+        {:samples => samples}
       end
+    end
+
+    %w{create update delete}.each do |action|
+      class_eval %Q{
+        class Bulk#{action.upcase}SampleDecoder < SampleDecoder
+          include BulkSampleDecoder
+
+          def decode_bulk_#{action}_sample
+            decode_bulk_sample
+          end
+        end
+      }
     end
   end
 end

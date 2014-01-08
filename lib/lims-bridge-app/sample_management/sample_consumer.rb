@@ -1,6 +1,5 @@
 require 'lims-busclient'
 require 'lims-bridge-app/sample_management/sequencescape_updater'
-require 'lims-bridge-app/sample_management/json_decoder'
 require 'lims-bridge-app/message_bus'
 require 'lims-bridge-app/base_consumer'
 
@@ -8,7 +7,6 @@ module Lims::BridgeApp
   module SampleManagement
     class SampleConsumer < BaseConsumer
       include SequencescapeUpdater
-      include JsonDecoder
 
       SETTINGS = {:sample_type => String, :study_sample_type => String}
 

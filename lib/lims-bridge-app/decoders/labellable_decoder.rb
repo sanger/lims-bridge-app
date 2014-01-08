@@ -9,12 +9,12 @@ module Lims::BridgeApp
 
       # @param [Hash] payload
       # @return [Lims::LaboratoryApp::Labels::Labellable]
-      def decode_labellable(payload = @payload)
+      def decode_labellable(labellable_hash = @resource_hash)
         Lims::LaboratoryApp::Labels::Labellable.new({
           :name => resource_hash["name"],
           :type => resource_hash["type"]
         }).tap do |labellable|
-          resource_hash["labels"].each do |position, label_hash|
+          labellable_hash["labels"].each do |position, label_hash|
             labellable[position] = Lims::LaboratoryApp::Labels::Labellable::Label.new({
               :type => label_hash["type"],
               :value => label_hash["value"]
@@ -25,8 +25,7 @@ module Lims::BridgeApp
 
       # @return [Lims::LaboratoryApp::Labels::Labellable]
       def decode_update_label
-        @payload = resource_hash["result"]
-        decode_labellable
+        decode_labellable(resource_hash["result"])
       end
     end
 
@@ -46,7 +45,7 @@ module Lims::BridgeApp
       def decode_bulk_update_label
         {:labellables => [].tap { |labellables|
           resource_hash["result"]["labellables"].each do |labellable|
-            labellables << decode_labellable({"labellable" => labellable})
+            labellables << decode_labellable(labellable)
           end
         }}
       end

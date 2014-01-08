@@ -1,10 +1,8 @@
 require 'lims-busclient'
-require 'lims-bridge-app/s2_resource'
 
 module Lims::BridgeApp
   class BaseConsumer
     include Lims::BusClient::Consumer
-    include S2Resource
 
     InvalidParameters = Class.new(StandardError) 
 
@@ -32,9 +30,8 @@ module Lims::BridgeApp
       end
     end
 
-    # Initilize the SequencescapePlateCreator class
-    # @param [String] queue name
     # @param [Hash] AMQP settings
+    # @param [Hash] mysql settings 
     # @param [Hash] bridge settings
     def initialize(amqp_settings, mysql_settings, bridge_settings)
       sequencescape_bus_settings = amqp_settings.delete("sequencescape").first.tap do |settings|

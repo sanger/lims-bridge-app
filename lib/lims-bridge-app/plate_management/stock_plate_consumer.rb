@@ -1,5 +1,5 @@
 require 'lims-busclient'
-require 'lims-bridge-app/plate_management/json_decoder'
+require 'lims-bridge-app/decoders/all'
 require 'lims-bridge-app/plate_management/sequencescape_updater'
 require 'lims-bridge-app/plate_management/message_handlers/all'
 require 'lims-bridge-app/base_consumer'
@@ -23,7 +23,6 @@ module Lims::BridgeApp
     # waiting for the plate message to arrive.
     # Note: S2 tuberacks are treated like plates in Sequencescape.
     class StockPlateConsumer < BaseConsumer
-      include JsonDecoder
 
       SETTINGS = {:well_type => String, :plate_type => String, :asset_type => String, :sample_type => String,
                   :roles_purpose_ids => Hash, :unassigned_plate_purpose_id => Integer, 
@@ -50,7 +49,7 @@ module Lims::BridgeApp
         self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
           log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
-          s2_resource = BaseDecoder.decode(payload)
+          s2_resource = Decoders::BaseDecoder.decode(payload)
           route_message(metadata, s2_resource)
         end
       end

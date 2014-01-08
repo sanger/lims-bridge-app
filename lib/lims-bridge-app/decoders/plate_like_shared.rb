@@ -10,7 +10,7 @@ module Lims::BridgeApp
       # @param [String] receptacle_name
       # @return [Plate]
       def _decode(payload, receptacle_name)
-        plate = Lims::LaboratoryApp::Laboratory::Plate.new({
+        Lims::LaboratoryApp::Laboratory::Plate.new({
           :number_of_rows => resource_hash["number_of_rows"],
           :number_of_columns => resource_hash["number_of_columns"]
         }).tap do |p|

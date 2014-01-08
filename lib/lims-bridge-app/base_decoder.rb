@@ -1,3 +1,5 @@
+require 'json'
+
 module Lims::BridgeApp
   module Decoders
 
@@ -18,10 +20,8 @@ module Lims::BridgeApp
       # @return [Hash]
       def call
         decoded_resource = _call
-
-        to_merge = {:date => options[:date]}
+        to_merge = {:date => @options[:date]}
         to_merge[:uuid] = @resource_uuid if @resource_uuid
-
         if decoded_resource.is_a?(Hash)
           decoded_resource.merge!(to_merge)
         else
@@ -46,6 +46,7 @@ module Lims::BridgeApp
 
       # @param [String] model
       # @return [Class]
+      # @raise [UndefinedDecoder]
       def self.decoder_for(model)
         begin
           decoder = "#{model.to_s.capitalize.gsub(/_./) {|p| p[1].upcase}}Decoder"
@@ -60,6 +61,8 @@ module Lims::BridgeApp
         @payload.keys.first.to_s
       end
 
+      # @return [Object]
+      # @raise [UndefinedDecoder]
       def _call
         begin
           self.send("decode_#{resource_key}")

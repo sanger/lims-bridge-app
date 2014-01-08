@@ -13,7 +13,7 @@ module Lims::BridgeApp
       # Gel behaves like plate in Sequencescape
       # @return [Hash]
       def decode_gel
-        plate = _decode(@payload, "gel", "windows") 
+        plate = _decode(@payload, "windows") 
         sample_uuids = _sample_uuids(@payload["gel"]["windows"])
         {:plate => plate, :sample_uuids => sample_uuids} 
       end
