@@ -399,10 +399,11 @@ module Lims::BridgeApp
       end
 
       # @param [GelImage] gel_image
+      # @param [Time] date
       # The score is updated in the original stock plate from which
       # a transfer has been done to a working dilution plate and then 
       # to a gel plate.
-      def update_gel_scores(gel_image)
+      def update_gel_scores(gel_image, date)
         unless gel_image.scores.empty?
           gel_id = plate_id_by_uuid(gel_image.gel_uuid)
           gel_image.scores.each do |location, score|
@@ -417,9 +418,19 @@ module Lims::BridgeApp
             next unless stock_well
             stock_well_id = stock_well[:asset_id]
 
-            db[:well_attributes].where(:well_id => stock_well_id).update(
-              :gel_pass => settings["gel_image_s2_scores_to_sequencescape_scores"][score] 
-            )
+            if stock_well_id
+              db[:well_attributes].where(:well_id => stock_well_id).update(
+                :gel_pass => settings["gel_image_s2_scores_to_sequencescape_scores"][score],
+                :updated_at => date
+              )
+            else
+              db[:well_attributes].insert(
+                :well_id => stock_well_id,
+                :gel_pass => settings["gel_image_s2_scores_to_sequencescape_scores"][score],
+                :created_at => date,
+                :updated_at => date
+              )
+            end
           end
         end
       end
