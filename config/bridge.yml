@@ -11,6 +11,10 @@ plate_management: &plate_management_settings
     "samples.qc.nx_nanodrop.working_dilution_rna.nanodrop": 1
     "samples.qc.nx_nanodrop.volume_checked_stock_rack_rna.batched": 183
     "samples.qc.nx_nanodrop.volume_checked_stock_rack_rna": 183
+    "samples.qc_gel.imager.rna": 14
+    "samples.qc_gel.ebase.rna.batched": 14
+    "samples.qc_gel.imager.rna.done": 14
+    "samples.qc_gel.imager.rna.done.scored": 14
   unassigned_plate_purpose_id: 2
   item_role_patterns:
     - "stock"
@@ -31,6 +35,7 @@ plate_management: &plate_management_settings
     "NR": "Plate"
     "WD": "Working dilution"
     "WR": "Working dilution"
+    "GR": "Gel Dilution Plate"
   gel_image_s2_scores_to_sequencescape_scores:
     "pass": "OK"
     "fail": "fail"
