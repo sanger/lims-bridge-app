@@ -1,4 +1,6 @@
 require 'lims-bridge-app/plate_management/base_handler'
+require 'rubygems'
+require 'ruby-debug/debugger'
 
 module Lims::BridgeApp::PlateManagement
   module MessageHandler
