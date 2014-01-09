@@ -20,7 +20,7 @@ module Lims::BridgeApp::Decoders
     end
 
     context "when creating a labellable" do
-      let(:result) { described_class.decode(create_message) }
+      let(:result) { described_class.decode(labellable_message) }
 
       it_behaves_like "decoding the resource", Lims::LaboratoryApp::Labels::Labellable
       it_behaves_like "decoding the date"
@@ -29,22 +29,24 @@ module Lims::BridgeApp::Decoders
     end
 
     context "when bulk creating labellables" do
-      let(:result) { described_class.decode(bulk_create_message) }
+      let(:result) { described_class.decode(bulk_create_labellable_message) }
 
       it_behaves_like "decoding the date"
 
       it "decodes labellables" do
         result[:labellables].should be_a(Array)
+        result[:labellables].size.should == 2
         result[:labellables].each do |labellable|
           labellable.should be_a(Lims::LaboratoryApp::Labels::Labellable)
         end
       end
     end
 
-    context "when create label" do
-      let(:result) { described_class.decode(create_label_action_message) }
+    context "when creating label" do
+      let(:result) { described_class.decode(create_label_message) }
 
       it_behaves_like "decoding the date"
+      it_behaves_like "decoding the uuid"
 
       it "decodes the labellable" do
         result[:labellable].should be_a(Lims::LaboratoryApp::Labels::Labellable)
@@ -57,11 +59,33 @@ module Lims::BridgeApp::Decoders
     end
 
     context "when update label" do
-      pending
+      let(:result) { described_class.decode(update_label_message) }
+
+      it_behaves_like "decoding the date"
+      it_behaves_like "decoding the uuid"
+
+      it "decodes the labellable" do
+        result[:labellable].should be_a(Lims::LaboratoryApp::Labels::Labellable)
+        result[:labellable].name.should == "11111111-2222-3333-4444-000000000000"
+        result[:labellable].type.should == "resource" 
+        result[:labellable]["rearbarcode"].should be_a(Lims::LaboratoryApp::Labels::Labellable::Label) 
+        result[:labellable]["rearbarcode"].type.should == "sanger-barcode"
+        result[:labellable]["rearbarcode"].value.should == "5678DEF"
+      end
     end
 
     context "when bulk update label" do
-      pending
+      let(:result) { described_class.decode(bulk_update_label_message) }
+
+      it_behaves_like "decoding the date"
+
+      it "decodes labellables" do
+        result[:labellables].should be_a(Array)
+        result[:labellables].size.should == 1
+        result[:labellables].each do |labellable|
+          labellable.should be_a(Lims::LaboratoryApp::Labels::Labellable)
+        end
+      end
     end
   end
 end

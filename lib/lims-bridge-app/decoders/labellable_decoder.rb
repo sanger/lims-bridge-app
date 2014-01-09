@@ -22,42 +22,31 @@ module Lims::BridgeApp
           end
         end
       end
-
-      # @return [Lims::LaboratoryApp::Labels::Labellable]
-      def decode_update_label
-        decode_labellable(resource_hash["result"])
-      end
     end
 
-    class CreateLabelDecoder < LabellableDecoder
-      def decode_create_label
-        @payload = resource_hash["result"]
-        decode_labellable
-      end
-    end
-
-    class BulkCreateLabellableDecoder < LabellableDecoder
-      # @return [Hash]
-      def decode_bulk_create_labellable
-        {:labellables => [].tap { |labellables|
-          resource_hash["labellables"].each do |labellable|
-            labellables << decode_labellable(labellable)          
+    %w{create update}.to_a.each do |action|
+      class_eval %Q{
+        class #{action.capitalize}LabelDecoder < LabellableDecoder
+          def decode_#{action}_label
+            @payload = resource_hash["result"]
+            decode_labellable
           end
-        }}
-      end
+        end
+      }
     end
 
-    class BulkUpdateLabelDecoder < LabellableDecoder
-      # @return [Hash]
-      def decode_bulk_update_label
-        {:labellables => [].tap { |labellables|
-          resource_hash["result"]["labellables"].each do |labellable|
-            labellables << decode_labellable(labellable)
+    %w{bulk_create_labellable bulk_update_label}.to_a.each do |action|
+      class_eval %Q{
+        class #{action.split("_").map { |a| a.capitalize! }.join("")}Decoder < LabellableDecoder
+          def decode_#{action}
+            {:labellables => [].tap { |labellables|
+              resource_hash["result"]["labellables"].each do |labellable|
+                labellables << decode_labellable(labellable)
+              end
+            }}
           end
-        }}
-      end
+        end
+      }
     end
-
-    UpdateLabelDecoder = Class.new(LabellableDecoder)
   end
 end

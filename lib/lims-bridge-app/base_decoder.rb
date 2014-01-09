@@ -42,6 +42,35 @@ module Lims::BridgeApp
 
       private
 
+      S2_REST_ACTIONS = [:create, :update, :delete]
+
+      # @param [Class] klass
+      # Automatically create default decoders for each children class
+      # inheriting BaseDecoder. It creates decoders for the create/update/delete
+      # actions of the resource called as a s2 action.
+      # Example: For GelDecoder, it will create a decode_create_gel, which is 
+      # called when we receive a message "create_gel", result of a post request
+      # to "actions/create_gel".
+      # TODO: limit the creation of these classes to S2 resources (currently, 
+      # it works for every decoder, even plate_transfer)
+      def self.inherited(klass)
+        # Avoid infinite call to inherited method as we define here new child classes
+        return unless klass.superclass == BaseDecoder
+        klass.to_s =~ /::(\w+)Decoder$/
+        resource_name = $1
+        resource_name_snakecase = resource_name.gsub(/(.)([A-Z])/, '\1_\2').downcase
+        S2_REST_ACTIONS.each do |action|
+          Decoders.class_eval %Q{ 
+            class #{action.to_s.capitalize}#{resource_name}Decoder < #{klass} 
+              def decode_#{action.to_s}_#{resource_name_snakecase}
+                @payload = resource_hash["result"]
+                send("decode_#{resource_name_snakecase}")
+              end
+            end
+          }
+        end
+      end
+
       # @param [String] model
       # @return [Class]
       # @raise [UndefinedDecoder]
