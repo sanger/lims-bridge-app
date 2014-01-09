@@ -418,7 +418,7 @@ module Lims::BridgeApp
             next unless stock_well
             stock_well_id = stock_well[:asset_id]
 
-            if stock_well_id
+            if db[:well_attributes].where(:well_id => stock_well_id).count > 0
               db[:well_attributes].where(:well_id => stock_well_id).update(
                 :gel_pass => settings["gel_image_s2_scores_to_sequencescape_scores"][score],
                 :updated_at => date
