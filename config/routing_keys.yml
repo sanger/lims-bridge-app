@@ -7,7 +7,7 @@ plate_management:
   - '*.*.gel.updategel'
   - '*.*.gelimage.creategelimage'
   - '*.*.gelimage.create'
-  - '*.*.gelimage.updategelimage'
+  - '*.*.gelimage.updategelimagescore'
   - '*.*.updategelimagescore.updategelimagescore'
   - '*.*.tuberack.createtuberack'
   - '*.*.tuberack.create'
