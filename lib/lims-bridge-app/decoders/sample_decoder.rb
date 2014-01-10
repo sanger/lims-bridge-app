@@ -30,7 +30,7 @@ module Lims::BridgeApp
 
     %w{create update delete}.each do |action|
       class_eval %Q{
-        class Bulk#{action.upcase}SampleDecoder < SampleDecoder
+        class Bulk#{action.capitalize}SampleDecoder < SampleDecoder
           include BulkSampleDecoder
 
           def decode_bulk_#{action}_sample

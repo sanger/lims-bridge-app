@@ -1,5 +1,6 @@
 require 'lims-bridge-app/base_decoder'
-require 'lims-laboratory-app/laboratory/tube_rack'
+require 'lims-laboratory-app/laboratory/plate'
+require 'lims-bridge-app/decoders/single_transfer_shared'
 
 module Lims::BridgeApp
   module Decoders
@@ -30,7 +31,7 @@ module Lims::BridgeApp
       # @return [Hash] sample uuids
       # @example
       # {"A1" => ["sample_uuid1", "sample_uuid2"]} 
-      def self.sample_uuids(tubes)
+      def _sample_uuids(tubes)
         {}.tap do |uuids|
           tubes.each do |location, tube|
             tube["aliquots"].each do |aliquot|
@@ -40,6 +41,26 @@ module Lims::BridgeApp
           end
         end
       end
+    end
+
+
+    class TubeRackMoveDecoder < TubeRackDecoder
+      # @return [Hash]
+      def decode_tube_rack_move
+        {:moves => resource_hash["moves"]}
+      end
+      private :decode_tube_rack_move
+    end
+
+
+    class TubeRackTransferDecoder < TubeRackDecoder
+      include SingleTransferShared
+
+      # @return [Hash]
+      def decode_tube_rack_transfer
+        _decode_transfer("tube_rack", TubeRackDecoder)
+      end
+      private :decode_tube_rack_transfer
     end
   end
 end

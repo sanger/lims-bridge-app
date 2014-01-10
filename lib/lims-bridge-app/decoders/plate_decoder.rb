@@ -43,9 +43,9 @@ module Lims::BridgeApp
         ["sources", "targets"].each do |key|
           resource_hash["result"][key].each do |asset|
             asset_decoder = case asset.keys.first
-                            when "plate" then PlateDecoder.new(asset, options)
-                            when "tube_rack" then TubeRackDecoder.new(asset, options)
-                            when "gel" then GelDecoder.new(asset, options)
+                            when "plate" then PlateDecoder.new(asset, @options)
+                            when "tube_rack" then TubeRackDecoder.new(asset, @options)
+                            when "gel" then GelDecoder.new(asset, @options)
                             end
 
             plates << asset_decoder.call

@@ -36,6 +36,7 @@ module Lims::BridgeApp::Decoders
       end
     end
 
+
     context "when transfering a plate to another plate" do
       let(:result) { described_class.decode(transfer_plate_message) }
 
@@ -52,6 +53,25 @@ module Lims::BridgeApp::Decoders
 
       it "decodes the transfer map" do
         result[:transfer_map].should == [{"source_uuid"=>"82805a60-5b7d-0131-978c-282066132de2", "source_location"=>"A1", "target_uuid"=>"8283b500-5b7d-0131-978c-282066132de2", "target_location"=>"B2"}] 
+      end
+    end
+
+
+    context "when transfering from plates to plates" do
+      let(:result) { described_class.decode(transfer_plates_to_plates_message) }   
+
+      it_behaves_like "decoding the date"
+
+      it "decodes the plates involved in the transfers" do
+        result[:plates].should be_a(Array)
+        result[:plates].size.should == 2
+        result[:plates].each do |plate_data|
+          plate_data[:plate].should be_a(Lims::LaboratoryApp::Laboratory::Plate)
+        end
+      end
+
+      it "decodes the transfer map" do
+        result[:transfer_map].should == [{"source_uuid"=>"8c243f30-5c2b-0131-979c-282066132de2", "target_uuid"=>"8c27b680-5c2b-0131-979c-282066132de2", "source_location"=>"A1", "target_location"=>"A2", "fraction"=>0.5}, {"source_uuid"=>"8c243f30-5c2b-0131-979c-282066132de2", "target_uuid"=>"8c27b680-5c2b-0131-979c-282066132de2", "source_location"=>"B1", "target_location"=>"B2", "fraction"=>0.5}] 
       end
     end
   end

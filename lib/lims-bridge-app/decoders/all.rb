@@ -7,7 +7,4 @@ require 'lims-bridge-app/decoders/plate_transfer_decoder'
 require 'lims-bridge-app/decoders/swap_samples_decoder'
 require 'lims-bridge-app/decoders/transfer_plates_to_plates_decoder'
 require 'lims-bridge-app/decoders/tube_rack_decoder'
-require 'lims-bridge-app/decoders/tube_rack_move_decoder'
-require 'lims-bridge-app/decoders/tube_rack_transfer_decoder'
-
 require 'lims-bridge-app/decoders/sample_decoder'
