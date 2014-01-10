@@ -409,11 +409,13 @@ module Lims::BridgeApp
           gel_image.scores.each do |location, score|
             well_id = well_id_by_location(gel_id, location)
 
+            # TODO : exclude is use to exclude the identity transfer 
+            # which could be found sometimes. To be fixed.
             stock_well = db[:requests].from_self(:alias => :requests_stock_wd).join(
               :requests, :asset_id => :requests_stock_wd__target_asset_id
             ).select(:requests_stock_wd__asset_id).where(
               :requests__target_asset_id => well_id
-            ).first
+            ).exclude(:requests__asset_id => well_id).first
 
             next unless stock_well
             stock_well_id = stock_well[:asset_id]
