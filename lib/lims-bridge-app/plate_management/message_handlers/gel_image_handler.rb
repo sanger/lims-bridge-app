@@ -8,7 +8,7 @@ module Lims::BridgeApp::PlateManagement
 
       def _call_in_transaction
         begin
-          update_gel_scores(s2_resource[:gel_image])          
+          update_gel_scores(s2_resource[:gel_image], s2_resource[:date])
         rescue PlateNotFoundInSequencescape => e
           metadata.reject(:requeue => true)
           log.info("Error updating gel score in Sequencescape: #{e}")
