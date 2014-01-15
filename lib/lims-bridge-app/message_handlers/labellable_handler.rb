@@ -10,8 +10,8 @@ module Lims::BridgeApp::PlateManagement
         begin 
           if s2_resource.has_key?(:labellables)
             s2_resource[:labellables].each do |labellable|
-              set_barcode_to_a_plate(labellable[:labellable], labellable[:date])
-              plate_uuid = labellable[:labellable].name
+              set_barcode_to_a_plate(labellable, s2_resource[:date])
+              plate_uuid = labellable.name
               bus.publish(plate_uuid)
             end
           else
