@@ -1,5 +1,6 @@
 require 'lims-bridge-app/sequencescape_model'
 require 'lims-bridge-app/sequencescape_wrappers/asset_creation'
+require 'lims-bridge-app/sequencescape_wrappers/gel_score_update'
 require 'lims-bridge-app/sequencescape_wrappers/helper'
 
 module Lims::BridgeApp
@@ -7,6 +8,7 @@ module Lims::BridgeApp
     include SequencescapeModel
     include SequencescapeWrapper::Helper
     include SequencescapeWrapper::AssetCreation
+    include SequencescapeWrapper::GelScoreUpdate
 
     attr_accessor :date
     attr_reader :settings

@@ -1,5 +1,4 @@
-require 'lims-bridge-app/message_handlers/spec_helper'
-require 'lims-bridge-app/message_handlers/asset_creation_handler'
+require 'lims-bridge-app/sequencescape_wrappers/spec_helper'
 require 'lims-bridge-app/message_handlers/factories'
 require 'lims-laboratory-app/laboratory/plate'
 require 'lims-laboratory-app/laboratory/aliquot'
@@ -43,6 +42,11 @@ module Lims::BridgeApp::MessageHandlers
       it_behaves_like "changing table", :location_associations, 1
       it_behaves_like "changing table", :requests, 3
       it_behaves_like "changing table", :well_attributes, 2
+
+      it "creates the plate with a correct sti type"
+      it "creates the wells with a correct sti type and association to the plate"
+      it "sets the volume on the well attributes"
+      it "creates aliquots"
     end
   end
 end

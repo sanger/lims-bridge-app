@@ -15,13 +15,26 @@ module Lims::BridgeApp
     module SetupSequencescapeDefaultModel
       def self.included(klass)
         SequencescapeDB.tables.each do |table|
+          table_to_class_name  = table.to_s.capitalize.gsub(/_./) {|p| p[1].upcase}
+          singular_model_class_name = table_to_class_name.tap { |str| str.chop! if str =~ /s$/ }
           SequencescapeModel.class_eval %Q{
-            class #{table.capitalize} < Sequel::Model
+            class #{singular_model_class_name} < Sequel::Model
+              def self.get_or_create(criteria={})
+                self[criteria] || self.new(criteria)
+              end
             end
           }
         end
       end
     end
+
+    module SetupSequencescapeModelDataset
+      def self.included(klass)
+        SequencescapeModel::SampleMetadata.set_dataset :sample_metadata
+      end
+    end
+
     include SetupSequencescapeDefaultModel
+    include SetupSequencescapeModelDataset
   end
 end

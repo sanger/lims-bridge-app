@@ -1,6 +1,8 @@
 module Lims::BridgeApp
   class SequencescapeWrapper
     UnknownLocation = Class.new(StandardError)
+    StudyNotFound = Class.new(StandardError)
+    AssetNotFound = Class.new(StandardError)
 
     module Helper
       # @param [String] resource_type
@@ -8,7 +10,7 @@ module Lims::BridgeApp
       # @param [String] external_id
       # @return [Integer] uuid internal id
       def create_uuid(resource_type, resource_id, external_id)
-        SequencescapeModel::Uuids.new.tap do |uuid|
+        SequencescapeModel::Uuid.new.tap do |uuid|
           uuid.resource_type = resource_type
           uuid.resource_id = resource_id
           uuid.external_id = external_id
@@ -19,20 +21,22 @@ module Lims::BridgeApp
       # @return [Integer] location associations internal id
       # @raise [UnknownLocation]
       def create_location(asset_id)
-        location_model = SequencescapeModel::Locations[:name => settings["plate_location"]]
+        location_model = SequencescapeModel::Location[:name => settings["plate_location"]]
         raise UnknownLocation, "The location #{settings["plate_location"]} cannot be found in Sequencescape" unless location_model
 
-        SequencescapeModel::LocationAssociations.new.tap do |la|
+        SequencescapeModel::LocationAssociation.new.tap do |la|
           la.locatable_id = asset_id
           la.location_id = location_model.id
         end.save
       end
 
-      # @param [String] location
       # @param [Integer] asset_size
+      # @param [String] location
       # @return [Integer] map id
-      def map_id(location, asset_size)
-        SequencescapeModel::Maps[:description => location, :asset_size => asset_size].id
+      def map_id(asset_size, location)
+        map_model = SequencescapeModel::Map[:description => location, :asset_size => asset_size]              
+        raise UnknownLocation, "The location #{location} cannot be found" unless map_model
+        map_model.id
       end
 
       # @param [Integer] sample_id
@@ -53,8 +57,31 @@ module Lims::BridgeApp
 
       # @param [Integer] sample_id
       # @return [Integer] study id
+      # @raise [StudyNotFound]
       def study_id(sample_id)
-        SequencescapeModel::StudySamples[:sample_id => sample_id].order(:created_at).study_id
+        study_samples_model = SequencescapeModel::StudySample.where(:sample_id => sample_id).order(:created_at).first
+        raise StudyNotFound, "Cannot find study for the sample id #{sample_id}" unless study_samples_model 
+        study_samples_model.study_id
+      end
+
+      # @param [String] uuid
+      # @return [Integer] asset id
+      # @raise [AssetNotFound]
+      def asset_id_by_uuid(uuid)
+        uuid_model = SequencescapeModel::Uuid[:external_id => uuid]
+        raise AssetNotFound, "The resource #{uuid} cannot be found in Sequencescape" unless uuid_model
+        uuid_model.resource_id
+      end
+
+      # @param [Integer] container_id
+      # @param [String] location
+      # @return [Integer] well id
+      def well_id_by_location(container_id, location)
+        asset_size = SequencescapeModel::Asset[:id => container_id].size
+        map_id = map_id(asset_size, location)
+        SequencescapeModel::Asset.select(:assets__id).join(
+          :container_associations, :content_id => :assets__id
+        ).where(:container_id => container_id, :sti_type => settings["well_type"], :map_id => map_id).first.id
       end
     end
   end
