@@ -1,23 +1,22 @@
-require 'lims-bridge-app/plate_management/base_handler'
+require 'lims-bridge-app/base_handler'
 
-module Lims::BridgeApp::PlateManagement
-  module MessageHandler
+module Lims::BridgeApp
+  module MessageHandlers
     class SwapSamplesHandler < BaseHandler
 
       private
 
       def _call_in_transaction
         begin
-          s2_resource[:resources].each do |resource|
-            plate_uuid = resource[:uuid]
-            location_samples = resource[:sample_uuids]
-            date = resource[:date]
-            swaps = swaps_for(plate_uuid) 
+          resource[:resources].each do |resource|
+            asset_uuid = resource[:uuid]
+            asset_sample_uuids = resource[:sample_uuids]
+            swaps = swaps_for(asset_uuid) 
 
-            swap_samples(plate_uuid, location_samples, swaps, date)
-            bus.publish(plate_uuid)
+            sequencescape.swap_samples(asset_uuid, asset_sample_uuids, swaps)
+            bus.publish(asset_uuid)
           end
-        rescue Sequel::Rollback, PlateNotFoundInSequencescape, UnknownSample => e
+        rescue Sequel::Rollback, SequencescapeWrapper::AssetNotFound, SequencescapeWrapper::UnknownSample => e
           metadata.reject(:requeue => true)
           log.info("Error swapping samples in Sequencescape: #{e}")
           raise Sequel::Rollback
@@ -27,11 +26,11 @@ module Lims::BridgeApp::PlateManagement
         end
       end
 
-      # @param [String] plate_uuid
+      # @param [String] asset_uuid
       # @return [Hash]
-      def swaps_for(plate_uuid)
-        s2_resource[:swaps].each do |swap_parameters|
-          return swap_parameters["swaps"] if swap_parameters["resource_uuid"] == plate_uuid
+      def swaps_for(asset_uuid)
+        resource[:swaps].each do |swap_parameters|
+          return swap_parameters["swaps"] if swap_parameters["resource_uuid"] == asset_uuid
         end
       end
     end

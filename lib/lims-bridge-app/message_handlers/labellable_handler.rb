@@ -1,31 +1,29 @@
-require 'lims-bridge-app/plate_management/base_handler'
+require 'lims-bridge-app/base_handler'
 
-module Lims::BridgeApp::PlateManagement
-  module MessageHandler
+module Lims::BridgeApp
+  module MessageHandlers
     class LabellableHandler < BaseHandler
-
-      private
 
       def _call_in_transaction
         begin 
-          if s2_resource.has_key?(:labellables)
-            s2_resource[:labellables].each do |labellable|
-              set_barcode_to_a_plate(labellable, s2_resource[:date])
-              plate_uuid = labellable.name
-              bus.publish(plate_uuid)
+          if resource.has_key?(:labellables)
+            resource[:labellables].each do |labellable|
+              sequencescape.barcode_an_asset(labellable)
+              asset_uuid = labellable.name
+              bus.publish(asset_uuid)
             end
           else
-            set_barcode_to_a_plate(s2_resource[:labellable], s2_resource[:date])
-            plate_uuid = s2_resource[:labellable].name
-            bus.publish(plate_uuid)
+            sequencescape.barcode_an_asset(resource[:labellable])
+            asset_uuid = resource[:labellable].name
+            bus.publish(asset_uuid)
           end
-        rescue Sequel::Rollback, PlateNotFoundInSequencescape => e
+        rescue Sequel::Rollback, SequencescapeWrapper::AssetNotFound => e
           metadata.reject(:requeue => true)
           log.info("Error updating barcode in Sequencescape: #{e}")
           # Need to reraise a rollback exception as we are still 
           # in a sequel transaction block.
           raise Sequel::Rollback
-        rescue InvalidBarcode => e
+        rescue SequencescapeWrapper::InvalidBarcode => e
           metadata.reject
           log.info("Error updating barcode in Sequencescape: #{e}")
           raise Sequel::Rollback
@@ -34,6 +32,7 @@ module Lims::BridgeApp::PlateManagement
           log.info("Labellable message processed and acknowledged")
         end
       end
+      private :_call_in_transaction
     end
   end
 end

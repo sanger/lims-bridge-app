@@ -9,7 +9,6 @@ module Lims::BridgeApp
           sample_uuids = resource[:sample_uuids]
           asset = resource[resource.keys.first]
           asset_uuid = resource[:uuid]
-          sequencescape.date = resource[:date]
 
           sequencescape.create_asset(asset, sample_uuids).tap do |asset_id|
             sequencescape.create_uuid(settings["asset_type"], asset_id, asset_uuid)

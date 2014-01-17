@@ -69,6 +69,8 @@ module Lims::BridgeApp
           sample_id = sample_uuid_model.resource_id
           study_id = study_id(sample_id)
           tag_id = tag_id(sample_id)
+
+          next if SequencescapeModel::Aliquot.where(:receptacle_id => well_id, :sample_id => sample_id, :tag_id => tag_id).count > 0
           create_asset_request(well_id, study_id) 
 
           SequencescapeModel::Aliquot.new.tap do |aliquot|
@@ -130,18 +132,18 @@ module Lims::BridgeApp
             wa.created_at = date
             wa.updated_at = date
             parameters.each do |key,value|
-              wa.send(key, value) if wa.respond_to?(key)
+              wa.send(key, value) if wa.respond_to?(key) && value
             end
           end.save
         end
   
         to_update = false
         parameters.each do |key,value|
-          to_update |= (well_attribute.send(key) != value) 
+          to_update |= (well_attribute.send(key) != value && value) 
           well_attribute.send(key, value)
         end
 
-        well_attribute.tap { |wa| wa.updated_at = date }.save
+        well_attribute.tap { |wa| wa.updated_at = date }.save if to_update
       end
     end
   end

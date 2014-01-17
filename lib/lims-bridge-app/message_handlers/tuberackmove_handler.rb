@@ -1,24 +1,22 @@
-require 'lims-bridge-app/plate_management/message_handlers/update_aliquots_handler'
-require 'lims-bridge-app/plate_management/base_handler'
+require 'lims-bridge-app/base_handler'
 
-module Lims::BridgeApp::PlateManagement
-  module MessageHandler
+module Lims::BridgeApp
+  module MessageHandlers
     class TubeRackMoveHandler < BaseHandler
 
-      private
-
       def _call_in_transaction
-        moves = s2_resource.delete(:moves)
-        date = s2_resource.delete(:date)
-
         begin
-          moves.each do |move|
-            move_wells_in_sequencescape(move, date)
+          resource[:moves].each do |move|
+            source_uuid = sequencescape.asset_id_by_uuid(move["source_uuid"])
+            target_uuid = sequencescape.asset_id_by_uuid(move["target_uuid"])
+            source_location, target_location = move["source_location"], move["target_location"]
 
-            bus.publish(move["source_uuid"])
-            bus.publish(move["target_uuid"])
+            sequencescape.move_well(source_uuid, source_location, target_uuid, target_location)
+
+            bus.publish(source_uuid)
+            bus.publish(target_uuid)
           end
-        rescue PlateNotFoundInSequencescape => e
+        rescue SequencescapeWrapper::AssetNotFound => e
           metadata.reject(:requeue => true)
           log.info("Error moving plates in Sequencescape: #{e}")
         else
@@ -26,6 +24,7 @@ module Lims::BridgeApp::PlateManagement
           log.info("Tube rack move message processed and acknowledged")
         end
       end 
+      private :_call_in_transaction
     end
   end
 end

@@ -39,6 +39,15 @@ module Lims::BridgeApp
         map_model.id
       end
 
+      # @param [Integer] asset_id
+      # @return [Integer] asset size
+      # @raise [AssetNotFound]
+      def asset_size(asset_id)
+        asset = SequencescapeModel::Asset[:id => asset_id]
+        raise AssetNotFound, "The asset #{asset_id} cannot be found" 
+        asset.size
+      end
+
       # @param [Integer] sample_id
       # @return [Integer] tag id
       def tag_id(sample_id)

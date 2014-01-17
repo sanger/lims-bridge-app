@@ -41,6 +41,7 @@ module Lims::BridgeApp
           # @param [Hash] settings
           def initialize(bus, log, metadata, resource, settings)
             @sequencescape = Lims::BridgeApp::SequencescapeWrapper.new(settings)
+            @sequencescape.date = resource[:date]
             @bus = bus
             @log = log
             @metadata = metadata

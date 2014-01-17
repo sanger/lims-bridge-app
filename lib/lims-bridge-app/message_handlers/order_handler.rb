@@ -1,7 +1,7 @@
-require 'lims-bridge-app/plate_management/base_handler'
+require 'lims-bridge-app/base_handler'
 
-module Lims::BridgeApp::PlateManagement
-  module MessageHandler
+module Lims::BridgeApp
+  module MessageHandlers
     class OrderHandler < BaseHandler
 
       private
@@ -11,22 +11,21 @@ module Lims::BridgeApp::PlateManagement
       # For these items, we update the corresponding plate purpose id in
       # sequencescape.
       def _call_in_transaction
-        order = s2_resource[:order]
-        order_uuid = s2_resource[:uuid]
-        date = s2_resource[:date]
+        order = resource[:order]
+        order_uuid = resource[:uuid]
+        order_items = order_items(order)
 
-        plate_items = plate_items(order)
         unless plate_items.empty?
           success = true
           plate_items.each do |items|
             items[:items].each do |item|
               if item.status == settings["item_done_status"]
                 begin
-                  plate_uuid = item.uuid
+                  asset_uuid = item.uuid
                   plate_purpose_id = plate_purpose_id(items[:role])
-                  update_plate_purpose_in_sequencescape(plate_uuid, date, plate_purpose_id)
-                  bus.publish(plate_uuid)
-                rescue PlateNotFoundInSequencescape, Sequel::Rollback => e
+                  sequencescape.update_plate_purpose(asset_uuid, plate_purpose_id)
+                  bus.publish(asset_uuid)
+                rescue SequencescapeWrapper::AssetNotFound, Sequel::Rollback => e
                   success = false
                   log.info("Error updating plate in Sequencescape: #{e}")
                 else
@@ -49,17 +48,15 @@ module Lims::BridgeApp::PlateManagement
         end
       end
 
-      # Get all the plate items from an order which match a pattern
+      # Get all the items from an order which match a pattern
       # defined in item_role_patterns.
       # @param [Lims::Core::Organization::Order] order
-      # @return [Array] plate items
-      def plate_items(order)
+      # @return [Array] order items
+      def order_items(order)
         [].tap do |items|
           settings["item_role_patterns"].each do |pattern|
             order.each do |role, _|
-              if role.match(pattern)
-                items << {:role => role, :items => order[role]}
-              end
+              items << {:role => role, :items => order[role]} if role.match(pattern)
             end
           end
         end
