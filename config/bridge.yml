@@ -48,8 +48,6 @@ sample_management: &sample_management_settings
   study_sample_type: "StudySample"
 
 default: &default
-  plate_management:
-    <<: *plate_management_settings
-  sample_management:
-    <<: *sample_management_settings
+  <<: *plate_management_settings
+  <<: *sample_management_settings
 
