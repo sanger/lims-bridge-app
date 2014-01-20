@@ -64,7 +64,9 @@ module Lims::BridgeApp::Decoders
       it "decodes the samples" do
         result[:samples].should be_a(Array)
         result[:samples].each do |sample|
-          sample.should be_a(Lims::ManagementApp::Sample) 
+          sample.should be_a(Hash)
+          sample[:sample].should be_a(Lims::ManagementApp::Sample)
+          sample[:uuid].should_not be_nil
         end
       end
     end

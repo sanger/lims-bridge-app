@@ -10,7 +10,7 @@ module Lims::BridgeApp
       # @raise [InvalidBarcode, AssetNotFound]
       def barcode_an_asset(labellable)
         asset_uuid = labellable.name
-        asset_uuid = Regexp.last_match[1..5].join("-") if plate_uuid =~ UuidWithoutDashes
+        asset_uuid = Regexp.last_match[1..5].join("-") if asset_uuid =~ UuidWithoutDashes
         asset_id = asset_id_by_uuid(asset_uuid)
         barcode = sanger_barcode(labellable)
         prefix = barcode[:prefix]

@@ -22,7 +22,7 @@ module Lims::BridgeApp
         samples_hash = resource_hash["result"]["samples"]
         samples = []
         samples_hash.each do |sample_hash|
-          samples << decode_sample(sample_hash)
+          samples << SampleDecoder.new({"sample" => sample_hash}, @options).call
         end
         {:samples => samples}
       end

@@ -42,6 +42,7 @@ module Lims::BridgeApp
       @bus = MessageBus.new(sequencescape_bus_settings)
       @settings = bridge_settings
       consumer_setup(amqp_settings)
+      run
     end
 
     def run

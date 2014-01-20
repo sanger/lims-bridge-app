@@ -31,6 +31,7 @@ module Lims::BridgeApp
     module SetupSequencescapeModelDataset
       def self.included(klass)
         SequencescapeModel::SampleMetadata.set_dataset :sample_metadata
+        SequencescapeModel::StudyMetadata.set_dataset :study_metadata
       end
     end
 

@@ -5,6 +5,8 @@ require 'lims-bridge-app/sequencescape_wrappers/gel_score_update'
 require 'lims-bridge-app/sequencescape_wrappers/barcode'
 require 'lims-bridge-app/sequencescape_wrappers/plate_purpose'
 require 'lims-bridge-app/sequencescape_wrappers/transfer'
+require 'lims-bridge-app/sequencescape_wrappers/aliquots_update'
+require 'lims-bridge-app/sequencescape_wrappers/sample'
 require 'lims-bridge-app/sequencescape_wrappers/helper'
 
 module Lims::BridgeApp
@@ -17,6 +19,8 @@ module Lims::BridgeApp
     include SequencescapeWrapper::Barcode
     include SequencescapeWrapper::PlatePurpose
     include SequencescapeWrapper::Transfer
+    include SequencescapeWrapper::AliquotsUpdate
+    include SequencescapeWrapper::Sample
 
     attr_accessor :date
     attr_reader :settings

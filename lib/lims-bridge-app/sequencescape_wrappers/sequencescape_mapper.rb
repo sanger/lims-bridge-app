@@ -1,5 +1,5 @@
 module Lims::BridgeApp
-  module SampleManagement
+  class SequencescapeWrapper
     module SequencescapeMapper
 
       # Mapping sequencescape attributes to s2 attributes

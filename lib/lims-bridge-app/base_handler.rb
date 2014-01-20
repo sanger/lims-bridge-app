@@ -1,4 +1,5 @@
 require 'amqp'
+require 'sequel'
 require 'sequel/adapters/mysql2'
 require 'lims-bridge-app/message_bus'
 require 'virtus'

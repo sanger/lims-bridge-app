@@ -15,9 +15,9 @@ module Lims::BridgeApp
         order_uuid = resource[:uuid]
         order_items = order_items(order)
 
-        unless plate_items.empty?
+        unless order_items.empty?
           success = true
-          plate_items.each do |items|
+          order_items.each do |items|
             items[:items].each do |item|
               if item.status == settings["item_done_status"]
                 begin
