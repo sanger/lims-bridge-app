@@ -8,7 +8,7 @@ module Lims::BridgeApp
       # @param [String] resource_type
       # @param [Integer] resource_id
       # @param [String] external_id
-      # @return [Integer] uuid internal id
+      # @return [SequencescapeModel::Uuid]
       def create_uuid(resource_type, resource_id, external_id)
         SequencescapeModel::Uuid.new.tap do |uuid|
           uuid.resource_type = resource_type
@@ -20,7 +20,7 @@ module Lims::BridgeApp
       # @param [Integer] asset_id
       # @return [Integer] location associations internal id
       # @raise [UnknownLocation]
-      def create_location(asset_id)
+      def create_location_association(asset_id)
         location_model = SequencescapeModel::Location[:name => settings["plate_location"]]
         raise UnknownLocation, "The location #{settings["plate_location"]} cannot be found in Sequencescape" unless location_model
 
@@ -44,7 +44,7 @@ module Lims::BridgeApp
       # @raise [AssetNotFound]
       def asset_size(asset_id)
         asset = SequencescapeModel::Asset[:id => asset_id]
-        raise AssetNotFound, "The asset #{asset_id} cannot be found" 
+        raise AssetNotFound, "The asset #{asset_id} cannot be found" unless asset 
         asset.size
       end
 
@@ -86,7 +86,10 @@ module Lims::BridgeApp
       # @param [String] location
       # @return [Integer] well id
       def well_id_by_location(container_id, location)
-        asset_size = SequencescapeModel::Asset[:id => container_id].size
+        asset = SequencescapeModel::Asset[:id => container_id]
+        raise AssetNotFound, "The asset #{container_id} cannot be found" unless asset
+        asset_size = asset.size
+
         map_id = map_id(asset_size, location)
         SequencescapeModel::Asset.select(:assets__id).join(
           :container_associations, :content_id => :assets__id

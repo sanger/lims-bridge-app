@@ -12,7 +12,7 @@ module Lims::BridgeApp
 
           sequencescape.create_asset(asset, sample_uuids).tap do |asset_id|
             sequencescape.create_uuid(settings["asset_type"], asset_id, asset_uuid)
-            sequencescape.create_location(asset_id)
+            sequencescape.create_location_association(asset_id)
             bus.publish(asset_uuid) 
           end
         rescue Sequel::Rollback, SequencescapeWrapper::UnknownSample, SequencescapeWrapper::InvalidContainer => e
