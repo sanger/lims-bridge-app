@@ -13,7 +13,7 @@ shared_context "handler setup" do
   let(:sequencescape) { handler.send(:sequencescape) }
 end
 
-shared_examples_for "changing table" do |table, quantity|
+shared_examples_for "changing table old" do |table, quantity|
   it "updates the table #{table} by #{quantity} records" do
     expect do
       handler.call

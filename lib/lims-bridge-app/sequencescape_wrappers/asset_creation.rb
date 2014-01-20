@@ -1,3 +1,7 @@
+require 'lims-laboratory-app/laboratory/plate'
+require 'lims-laboratory-app/laboratory/aliquot'
+require 'lims-laboratory-app/laboratory/gel'
+
 module Lims::BridgeApp
   class SequencescapeWrapper
     InvalidContainer = Class.new(StandardError)
@@ -9,13 +13,13 @@ module Lims::BridgeApp
       # @return [Integer] asset internal id
       # @raise [InvalidContainer,UnknownSample]
       def create_asset(container, sample_uuids)
-        asset_size = container.number_of_rows * container.number_of_columns
         sti_type = case container
                    when Lims::LaboratoryApp::Laboratory::Plate then settings["plate_type"]
                    when Lims::LaboratoryApp::Laboratory::Gel then settings["gel_type"]
                    else raise InvalidContainer, "The container #{container.class} is not supported yet"
                    end
 
+        asset_size = container.number_of_rows * container.number_of_columns
         asset_id = SequencescapeModel::Asset.new.tap do |asset|
           asset.sti_type = sti_type
           asset.plate_purpose_id = settings["unassigned_plate_purpose_id"]
@@ -32,7 +36,7 @@ module Lims::BridgeApp
           # Add volume information to the well
           solvent = receptacle.find { |aliquot| aliquot.type == "solvent" }
           volume = solvent.quantity if solvent
-          set_well_attributes(well_id, :volume => volume) if volume
+          set_well_attributes(well_id, :current_volume => volume) if volume
 
           # Create aliquots for the well
           if sample_uuids.has_key?(location)
@@ -132,15 +136,15 @@ module Lims::BridgeApp
             wa.created_at = date
             wa.updated_at = date
             parameters.each do |key,value|
-              wa.send(key, value) if wa.respond_to?(key) && value
+              wa[key] = value if wa.respond_to?(key) && value
             end
           end.save
         end
   
         to_update = false
         parameters.each do |key,value|
-          to_update |= (well_attribute.send(key) != value && value) 
-          well_attribute.send(key, value)
+          to_update |= (well_attribute[key] != value && value) 
+          well_attribute[key] = value
         end
 
         well_attribute.tap { |wa| wa.updated_at = date }.save if to_update

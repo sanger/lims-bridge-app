@@ -12,6 +12,8 @@ module Lims::BridgeApp
       let(:external_id) { uuid([1,2,3,4,5]) }
       let(:result) { wrapper.create_uuid(resource_type, resource_id, external_id) }
 
+      it_behaves_like "changing table", :uuids, 1
+
       it "saves the new uuid" do
         result.id.should_not be_nil
       end
@@ -35,6 +37,8 @@ module Lims::BridgeApp
           SequencescapeModel::Location.insert(:name => settings["plate_location"])
         end
 
+        it_behaves_like "changing table", :location_associations, 1
+        
         it "saves the location association" do
           result.id.should_not be_nil 
         end
