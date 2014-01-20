@@ -1,7 +1,7 @@
 require 'lims-bridge-app/spec_helper'
 
 module Lims::BridgeApp
-  shared_context "plate management consumer" do
+  shared_context "consumer" do
     let(:consumer) do
       amqp_settings = YAML.load_file(File.join('config','amqp.yml'))["test"]
       bridge_settings = YAML.load_file(File.join('config','bridge.yml'))
@@ -21,7 +21,24 @@ module Lims::BridgeApp
 
     it "calls the handler" do
       handler_class.any_instance.should_receive(:call)
-      consumer.send(:route_message, metadata, mock(:resource)) 
+      resource = mock(:resource).tap { |r| r.stub(:[]) }
+      consumer.send(:route_message, metadata, resource) 
+    end
+  end
+
+  shared_examples_for "failing to route message" do
+    context "fail to route messages" do
+      it "doesn't find the route from the routing key" do
+        expect do
+          consumer.send(:route_for, "dummy")
+        end.to raise_error(BaseConsumer::NoRouteFound)
+      end
+
+      it "doesn't find the handler from the route" do
+        expect do
+          MessageHandlers.handler_for("dummy") 
+        end.to raise_error(MessageHandlers::UndefinedHandler)
+      end
     end
   end
 end

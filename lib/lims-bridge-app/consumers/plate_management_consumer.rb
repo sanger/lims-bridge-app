@@ -33,7 +33,7 @@ module Lims::BridgeApp
       when /tuberackmove/                                           then :tube_rack_move
       when /deletetuberack/                                         then :asset_deletion
       when /label/                                                  then :labellable
-      when /swapsamples/                                            then :samples_swap
+      when /swapsamples/                                            then :swap_samples
       else raise NoRouteFound, "No route found for routing key #{routing_key}"
       end   
     end
