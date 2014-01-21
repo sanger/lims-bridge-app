@@ -11,7 +11,6 @@ require 'lims-bridge-app/sequencescape_wrappers/helper'
 
 module Lims::BridgeApp
   class SequencescapeWrapper
-    include SequencescapeModel
     include SequencescapeWrapper::Helper
     include SequencescapeWrapper::AssetCreation
     include SequencescapeWrapper::AssetDeletion

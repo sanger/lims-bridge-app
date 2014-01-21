@@ -3,9 +3,10 @@ require 'lims-bridge-app/spec_helper'
 module Lims::BridgeApp
   shared_context "sequencescape wrapper" do
     let(:settings) { YAML.load_file(File.join('config', 'bridge.yml'))["default"] }
+    let(:date) { Time.now.utc.to_s }
     let(:wrapper) do 
       described_class.new(settings).tap do |w|
-        w.date = Time.now.utc.to_s
+        w.date = date 
       end
     end
   end
