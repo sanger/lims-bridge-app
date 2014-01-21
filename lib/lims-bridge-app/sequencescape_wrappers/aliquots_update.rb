@@ -22,8 +22,8 @@ module Lims::BridgeApp
             solvent = receptacle.find { |aliquot| aliquot.type == "solvent" }
             aliquot = receptacle.find { |aliquot| aliquot.type != "solvent" && aliquot.out_of_bounds }
             volume = solvent.quantity if solvent
-            concentration = aliquot.out.of_bounds[settings["out_of_bounds_concentration_key"]] if aliquot
-            set_well_attributes(well_id, {:volume => volume, :concentration => concentration}) if volume || concentration
+            concentration = aliquot.out_of_bounds[settings["out_of_bounds_concentration_key"]] if aliquot
+            set_well_attributes(well_id, {:current_volume => volume, :concentration => concentration}) if volume || concentration
 
             # If we have a value for the concentration, it means we have received a working 
             # dilution plate. We need then to update the concentration of the associated stock 
@@ -37,7 +37,7 @@ module Lims::BridgeApp
       # @param [Float] concentration
       # @raise [TransferRequestNotFound]
       def update_stock_plate_well_concentration(working_dilution_well_id, concentration)
-        transfer_request_stock_to_wd = SequencescapeModel::TransferRequest[{
+        transfer_request_stock_to_wd = SequencescapeModel::Request[{
           :target_asset_id => working_dilution_well_id,
           :state => settings["transfer_request_state"],
           :request_type_id => settings["transfer_request_type_id"],
