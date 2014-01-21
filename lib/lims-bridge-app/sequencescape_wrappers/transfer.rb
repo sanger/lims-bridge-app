@@ -35,6 +35,8 @@ module Lims::BridgeApp
       # @param [String] target_uuid
       # @param [String] target_location
       # @raise [AssetNotFound,UnknownLocation]
+      # Moving well is done by swapping the source well with the target well,
+      # as the target_well should be empty.
       def move_well(source_uuid, source_location, target_uuid, target_location)
         source_id, target_id = asset_id_by_uuid(source_uuid), asset_id_by_uuid(target_uuid)  
         source_size, target_size = asset_size(source_id), asset_size(target_id)
@@ -49,7 +51,7 @@ module Lims::BridgeApp
         # Finally, we update the location of the well.
         SequencescapeModel::ContainerAssociation[:container_id => source_id, :content_id => source_well_id].delete
         SequencescapeModel::ContainerAssociation.new.tap do |ca|
-          ca.container_id = target_plate_id
+          ca.container_id = target_id
           ca.content_id = source_well_id
         end.save
 
