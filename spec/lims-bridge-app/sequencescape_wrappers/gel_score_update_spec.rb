@@ -7,18 +7,6 @@ module Lims::BridgeApp
     include_context "sequencescape wrapper"
     include_context "prepare database"
 
-
-    shared_context "create a gel" do
-      let(:gel) { Lims::LaboratoryApp::Laboratory::Gel.new(:number_of_rows => 8, :number_of_columns => 12) }
-      let(:gel_uuid) { uuid [1,2,3,4,6] }
-
-      before do
-        gel_id = wrapper.create_asset(gel, {})
-        wrapper.create_uuid(settings["gel_type"], gel_id, gel_uuid)
-      end
-    end
-
-
     context "when updating gel scores" do
       include_context "create a gel"
 

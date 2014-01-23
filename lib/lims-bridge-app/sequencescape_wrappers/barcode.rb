@@ -13,8 +13,9 @@ module Lims::BridgeApp
         asset_uuid = Regexp.last_match[1..5].join("-") if asset_uuid =~ UuidWithoutDashes
         asset_id = asset_id_by_uuid(asset_uuid)
         barcode = sanger_barcode(labellable)
-        prefix = barcode[:prefix]
+        return if barcode.empty?
 
+        prefix = barcode[:prefix]
         unless settings["barcode_prefixes"].keys.map { |p| p.downcase }.include?(prefix.downcase)
           raise InvalidBarcode, "#{prefix} is not a supported barcode prefix"
         end

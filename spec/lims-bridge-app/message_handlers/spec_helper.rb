@@ -12,11 +12,3 @@ shared_context "handler setup" do
   let(:handler) { described_class.new(bus, log, metadata, resource, settings) }
   let(:sequencescape) { handler.send(:sequencescape) }
 end
-
-shared_examples_for "changing table old" do |table, quantity|
-  it "updates the table #{table} by #{quantity} records" do
-    expect do
-      handler.call
-    end.to change { db[table.to_sym].count }.by(quantity)
-  end
-end

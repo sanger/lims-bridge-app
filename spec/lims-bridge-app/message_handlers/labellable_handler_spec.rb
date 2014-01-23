@@ -1,90 +1,103 @@
 require 'lims-bridge-app/message_handlers/spec_helper'
+require 'lims-bridge-app/message_handlers/labellable_handler'
+require 'lims-bridge-app/sequencescape_wrappers/spec_helper'
+require 'lims-laboratory-app/labels/labellable'
 
-module Lims::BridgeApp::PlateManagement
-  describe "Setting a barcode to a plate" do
-    include_context "prepare database for plate management"
-    include_context "updater"
-    include_context "a plate"
-    include_context "a labellable"
+module Lims::BridgeApp::MessageHandlers
+  describe LabellableHandler do
+    include_context "handler setup"
+    include_context "prepare database"
+    include_context "sequencescape wrapper"
 
-    context "set barcode to a plate" do
-      before do 
-        updater.create_plate_in_sequencescape(plate, plate_uuid, Time.now, sample_uuids)
-      end
+    let(:asset_uuid) { uuid [1,2,3,4,5] }
+    let(:labellable_uuid) { uuid [1,2,3,4,6] }
+    let(:labellable) {
+      Lims::LaboratoryApp::Labels::Labellable.new(:name => asset_uuid, :type => "resource").tap { |l|
+        l["front"] = Lims::LaboratoryApp::Labels::Labellable::Label.new({
+          :type => settings["sanger_barcode_type"],
+          :value => barcode_value 
+        })
+      }
+    }
 
-      let(:resource_uuid) { plate_uuid }
+    after { handler.call }
 
-      context "invalid" do
-        it "raises an exception if the plate to barcode cannot be found" do
-          expect do
-            updater.set_barcode_to_a_plate(labellable.class.new(:name => "dummy uuid"), Time.now)
-          end.to raise_error(SequencescapeUpdater::PlateNotFoundInSequencescape)
-        end
-      end
+    context "with a valid call" do
+      include_context "create an asset"
+      let(:barcode_value) { "WD123456A" }
 
-      let(:plate_row) do
-        db[:assets].join(:uuids, :resource_id => :assets__id).where(:uuids__external_id => plate_uuid).qualify.first
-      end
-
-      context "with a known prefix" do
-        before do
-          updater.set_barcode_to_a_plate(labellable, Time.now)
-        end
-
-        context "with a dashed uuid" do
-          it "set the barcode to the plate" do
-            plate_row[:name].should == "Plate 12345"
-            plate_row[:barcode].should == "12345"
-            plate_row[:barcode_prefix_id].should == 1
+      context "with one labellable" do
+        let(:resource) do
+          {}.tap do |resource|
+            resource[:labellable] = labellable
+            resource[:uuid] = labellable_uuid 
+            resource[:date] = Time.now
           end
         end
 
-        context "with a non dashed uuid" do
-          let(:resource_uuid) { "11111111222233334444555555555555" }
+        before do
+          bus.should_receive(:publish).with("11111111-2222-3333-4444-555555555555")
+          metadata.should_receive(:ack)
+        end
 
-          it "set the barcode to the plate" do
-            plate_row[:name].should == "Plate 12345"
-            plate_row[:barcode].should == "12345"
-            plate_row[:barcode_prefix_id].should == 1           
+        it "calls the barcode_an_asset method" do
+          sequencescape.should_receive(:barcode_an_asset).with(labellable).and_call_original 
+        end
+      end
+
+      context "with an array of labellables" do
+        let(:labellables) do
+          [].tap do |l|
+            5.times do
+              l << Lims::LaboratoryApp::Labels::Labellable.new(:name => asset_uuid, :type => "resource")
+            end
+          end
+        end
+        let(:resource) do
+          {}.tap do |resource|
+            resource[:labellables] = labellables
+            resource[:date] = Time.now
+          end
+        end
+
+        before do
+          5.times { bus.should_receive(:publish).with("11111111-2222-3333-4444-555555555555") }
+          metadata.should_receive(:ack)
+        end
+
+        it "calls 5 times the barcode_an_asset method" do
+          labellables.each do |labellable|
+            sequencescape.should_receive(:barcode_an_asset).with(labellable).and_call_original
           end
         end
       end
+    end
 
-      context "with a Working Dilution plate" do
-        before do
-          updater.set_barcode_to_a_plate(labellable, Time.now)
-        end
 
-        let(:barcode_value) { "WD0012345A" }
-
-        context "with a dashed uuid" do
-          it "set the barcode to the plate" do
-            plate_row[:name].should == "Working dilution 12345"
-            plate_row[:barcode].should == "12345"
-            plate_row[:barcode_prefix_id].should == 2
-          end
+    context "with an invalid call" do
+      let(:resource) do
+        {}.tap do |resource|
+          resource[:labellable] = labellable
+          resource[:uuid] = labellable_uuid 
+          resource[:date] = Time.now
         end
       end
 
-      context "with an unknown valid prefix" do
-        before do
-          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "NR12345A"}, Time.now)
-        end
-
-        it "set the barcode to the plate" do
-          plate_row[:name].should == "Plate 12345"
-          plate_row[:barcode].should == "12345"
-          plate_row[:barcode_prefix_id].should == 2
+      context "with an unknown asset" do
+        let(:barcode_value) { "WD123456A" }
+        it "rejects the message" do
+          metadata.should_receive(:reject).with(:requeue => true)
         end
       end
 
-      context "with an invalid prefix" do
-        it "raises an InvalidBarcode error" do
-          expect do
-          updater.set_barcode_to_a_plate(labellable.tap {|l| l["position"][:value] = "AA12345A"}, Time.now)
-          end.to raise_error(SequencescapeUpdater::InvalidBarcode)
+      context "with an invalid sanger barcode" do
+        include_context "create an asset"
+        let(:barcode_value) { "ZZ123456A" }
+        it "rejects the message" do
+          metadata.should_receive(:reject)
         end
       end
     end
   end
 end
+

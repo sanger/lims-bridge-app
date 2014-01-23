@@ -10,7 +10,7 @@ module Lims::BridgeApp
 
       def _call_in_transaction
         sample_handler do |sample, sample_uuid|
-          sequencescape.delete_sample(sample, sample_uuid)
+          sequencescape.delete_sample(sample_uuid)
         end
       end
     end
