@@ -8,4 +8,5 @@ env:
 script:
   - bundle exec rspec
 before_script:
-  - sqlite3 test.db < db/test/sequencescape_test.sql
+  - sqlite3 test.db < db/test/sequencescape_test_schema.sql
+  - sqlite3 test.db < db/test/sequencescape_test_seeds.sql
