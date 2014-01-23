@@ -7,8 +7,8 @@ module Lims::BridgeApp
       def _call_in_transaction
         begin
           resource[:moves].each do |move|
-            source_uuid = sequencescape.asset_id_by_uuid(move["source_uuid"])
-            target_uuid = sequencescape.asset_id_by_uuid(move["target_uuid"])
+            source_uuid = move["source_uuid"]
+            target_uuid = move["target_uuid"]
             source_location, target_location = move["source_location"], move["target_location"]
 
             sequencescape.move_well(source_uuid, source_location, target_uuid, target_location)

@@ -34,6 +34,11 @@ module Lims::BridgeApp
           log.info("Error plate aliquots in Sequencescape: #{e}")
           raise Sequel::Rollback
 
+        rescue SequencescapeWrapper::UnknownLocation => e
+          metadata.reject
+          log.error("Error, some locations in the transfer map are unknown: #{e}")
+          raise Sequel::Rollback
+
         else
           metadata.ack
           log.info("Transfer message processed and acknowledged")
