@@ -6,8 +6,7 @@ Sequel.default_timezone = :utc
 module Lims::BridgeApp
   module SequencescapeModel
     unless defined?(SequencescapeDB)
-      #env = ENV["LIMS_BRIDGE_APP_ENV"]
-      env = "development"
+      env = ENV["LIMS_BRIDGE_APP_ENV"]
       sequencescape_db_settings = YAML.load_file(File.join('config','database.yml'))
       SequencescapeDB = Sequel.connect(sequencescape_db_settings[env])
     end
