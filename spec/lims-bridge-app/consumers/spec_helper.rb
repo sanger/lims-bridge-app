@@ -5,6 +5,9 @@ module Lims::BridgeApp
     let(:consumer) do
       amqp_settings = YAML.load_file(File.join('config','amqp.yml'))["test"]
       bridge_settings = YAML.load_file(File.join('config','bridge.yml'))
+      MessageBus.any_instance.tap do |bus|
+        bus.stub(:message_bus_connection)
+      end
       described_class.new(amqp_settings, bridge_settings)
     end
   end
