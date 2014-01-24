@@ -19,9 +19,11 @@ module Lims::BridgeApp
         rescue Sequel::Rollback, SequencescapeWrapper::AssetNotFound => e
           metadata.reject(:requeue => true)
           log.info("Error saving sample in Sequencescape: #{e}")
+          raise Sequel::Rollback
         rescue SequencescapeWrapper::UnknownStudy => e
           metadata.reject
           log.error("Error saving sample in Sequencescape: #{e}")
+          raise Sequel::Rollback
         else
           metadata.ack
           log.info("Sample message processed and acknowledged")

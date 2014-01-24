@@ -11,9 +11,11 @@ module Lims::BridgeApp
         rescue SequencescapeWrapper::AssetNotFound => e
           metadata.reject(:requeue => true)
           log.info("Error updating gel score in Sequencescape: #{e}")
+          raise Sequel::Rollback
         rescue SequencescapeWrapper::UnknownLocation => e
           metadata.reject
           log.error("Error updating gel score in Sequencescape: #{e}")
+          raise Sequel::Rollback
         else
           metadata.ack
           log.info("Plate message processed and acknowledged")

@@ -19,6 +19,7 @@ module Lims::BridgeApp
         rescue SequencescapeWrapper::AssetNotFound => e
           metadata.reject(:requeue => true)
           log.info("Error moving plates in Sequencescape: #{e}")
+          raise Sequel::Rollback
         else
           metadata.ack
           log.info("Tube rack move message processed and acknowledged")
