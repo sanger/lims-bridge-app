@@ -29,7 +29,7 @@ module Lims::BridgeApp
     end
 
     def call(&block)
-      SequencescapeDB.transaction do
+      Lims::BridgeApp::SequencescapeModel::SequencescapeDB.transaction do
         block.call
       end
     end

@@ -15,7 +15,8 @@ module Lims::BridgeApp
             sequencescape.create_location_association(asset_id)
             bus.publish(asset_uuid) 
           end
-        rescue Sequel::Rollback, SequencescapeWrapper::UnknownSample, SequencescapeWrapper::InvalidContainer => e
+        rescue Sequel::Rollback, SequencescapeWrapper::StudyNotFound, 
+          SequencescapeWrapper::UnknownSample, SequencescapeWrapper::InvalidContainer => e
           metadata.reject(:requeue => true)
           log.info("Error creating asset in Sequencescape: #{e}")
           # Need to reraise a rollback exception as we are still 

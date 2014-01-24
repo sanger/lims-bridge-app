@@ -9,7 +9,7 @@ module Lims::BridgeApp
       def _call_in_transaction
         begin
           update_aliquots
-        rescue Sequel::Rollback, SequencescapeWrapper::AssetNotFound, SequencescapeWrapper::UnknownSample => e
+        rescue Sequel::Rollback, SequencescapeWrapper::StudyNotFound, SequencescapeWrapper::AssetNotFound, SequencescapeWrapper::UnknownSample => e
           metadata.reject(:requeue => true)
           log.info("Error updating plate aliquots in Sequencescape: #{e}")
           raise Sequel::Rollback
