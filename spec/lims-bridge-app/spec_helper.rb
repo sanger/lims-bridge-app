@@ -1,9 +1,11 @@
 require 'spec_helper'
 require 'sequel'
 
-unless defined?(SequencescapeDB)
-  sequencescape_db_settings = YAML.load_file(File.join('config','database.yml'))
-  SequencescapeDB = Sequel.connect(sequencescape_db_settings["test"])
+module Lims::BridgeApp::SequencescapeModel
+  unless defined?(SequencescapeDB)
+    sequencescape_db_settings = YAML.load_file(File.join('config','database.yml'))
+    SequencescapeDB = Sequel.connect(sequencescape_db_settings["test"])
+  end
 end
 
 def uuid(pattern=[])
