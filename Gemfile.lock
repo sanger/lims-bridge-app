@@ -16,6 +16,14 @@ GIT
       virtus (= 0.2.0)
 
 GIT
+  remote: http://github.com/sanger/lims-exception-notifier-app.git
+  revision: 4e789cdb62446d6b0b3496046350a111d245fd38
+  branch: master
+  specs:
+    lims-exception-notifier-app (0.1.2)
+      mustache (~> 0.99.4)
+
+GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
   revision: e8d71a31e71b826b29347edbf8dc29a57ca3e7f9
   branch: development
@@ -49,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-quality-app.git
-  revision: 0f5494bf72a973c46f7bd9db1f09913b96e330b5
-  branch: development
+  revision: 70c7ed7f247af9f57581623008343c040349720c
+  branch: uat
   specs:
-    lims-quality-app (0.7.0)
+    lims-quality-app (0.8.0.pre)
       bunny (= 0.9.0.pre10)
 
 PATH
@@ -101,6 +109,7 @@ GEM
     macaddr (1.6.1)
       systemu (~> 2.5.0)
     modularity (0.6.1)
+    mustache (0.99.5)
     mysql2 (0.3.14)
     rack (1.5.2)
     rake (10.1.0)
@@ -137,6 +146,7 @@ DEPENDENCIES
   lims-laboratory-app (~> 3.4.0)!
   lims-management-app (~> 3.2.0)!
   lims-quality-app (~> 0.7.0)!
+  lims-exception-notifier-app (~> 0.1.2)!
   psd_logger!
   rake
   rspec (~> 2.12.0)
