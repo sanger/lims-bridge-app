@@ -16,11 +16,19 @@ GIT
       virtus (= 0.2.0)
 
 GIT
+  remote: http://github.com/sanger/lims-exception-notifier-app.git
+  revision: 4e789cdb62446d6b0b3496046350a111d245fd38
+  branch: master
+  specs:
+    lims-exception-notifier-app (0.1.2)
+      mustache (~> 0.99.4)
+
+GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 5f39a54df30efff1e73e3fea8c891846e6f18e09
+  revision: 7559432f2365889225d8d8db6137b7d7b1a87d87
   branch: uat
   specs:
-    lims-laboratory-app (3.3.1.pre)
+    lims-laboratory-app (3.4.0.pre)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -41,25 +49,25 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: 29bd112327fed176cda38f1f1f36b1b76c20a6a2
+  revision: ca62913de3286f193b6a51a1a3a0b59b7c03384c
   branch: uat
   specs:
-    lims-management-app (3.0.1.rc1)
+    lims-management-app (3.1.0.pre)
       bunny (= 0.9.0.pre10)
       json
 
 GIT
   remote: https://github.com/sanger/lims-quality-app.git
-  revision: 9c39e0907b2b8a53c7aa2908bfaf88dc5849ebf4
+  revision: 70c7ed7f247af9f57581623008343c040349720c
   branch: uat
   specs:
-    lims-quality-app (0.7.1.pre)
+    lims-quality-app (0.8.0.pre)
       bunny (= 0.9.0.pre10)
 
 PATH
   remote: .
   specs:
-    lims-bridge-app (1.11.4.pre)
+    lims-bridge-app (1.12.0.pre)
       aequitas
       amqp
       facets
@@ -103,6 +111,7 @@ GEM
     macaddr (1.6.1)
       systemu (~> 2.5.0)
     modularity (0.6.1)
+    mustache (0.99.5)
     mysql2 (0.3.14)
     rack (1.5.2)
     rake (10.1.0)
@@ -136,9 +145,10 @@ DEPENDENCIES
   lims-bridge-app!
   lims-busclient (~> 0.4.1.rc1)!
   lims-core (~> 3.1.0.pre)!
-  lims-laboratory-app (~> 3.3.1.pre)!
-  lims-management-app (~> 3.0.1.rc1)!
-  lims-quality-app (~> 0.7.1.pre)!
+  lims-exception-notifier-app (~> 0.1.2)!
+  lims-laboratory-app (~> 3.4.0.pre)!
+  lims-management-app (~> 3.1.0.pre)!
+  lims-quality-app (~> 0.8.0.pre)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
