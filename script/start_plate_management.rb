@@ -30,5 +30,5 @@ module Lims
     end
 
     Logging::LOGGER.info("Plate Creator stopped")
-    end
+  end
 end
