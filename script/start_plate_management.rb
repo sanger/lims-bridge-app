@@ -1,6 +1,7 @@
 require 'yaml'
 require 'lims-bridge-app'
 require 'logging'
+require 'lims-exception-notifier-app/exception_notifier'
 
 module Lims
   module BridgeApp
@@ -10,11 +11,22 @@ module Lims
     bridge_data = YAML.load_file(File.join('config', 'bridge.yml'))
     bridge_settings = bridge_data[env] || bridge_data['default']
 
-    consumer = PlateManagementConsumer.new(amqp_settings, bridge_settings)
-    consumer.set_logger(Logging::LOGGER)
+    notifier = Lims::ExceptionNotifierApp::ExceptionNotifier.new
 
-    Logging::LOGGER.info("Plate management started")
-    consumer.start
-    Logging::LOGGER.info("Plate management stopped")
+    begin
+      consumer = PlateManagementConsumer.new(amqp_settings, bridge_settings)
+      consumer.set_logger(Logging::LOGGER)
+      
+      Logging::LOGGER.info("Plate Creator started")
+
+      notifier.notify do
+        consumer.start
+      end
+    rescue StandardError, LoadError, SyntaxError => e
+      # log the caught exception
+      notifier.send_notification_email(e)
+    end
+
+    Logging::LOGGER.info("Plate Creator stopped")
   end
 end
