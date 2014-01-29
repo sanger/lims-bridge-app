@@ -1,0 +1,8 @@
+require 'lims-bridge-app/decoders/gel_decoder'
+require 'lims-bridge-app/decoders/gel_image_decoder'
+require 'lims-bridge-app/decoders/labellable_decoder'
+require 'lims-bridge-app/decoders/order_decoder'
+require 'lims-bridge-app/decoders/plate_decoder'
+require 'lims-bridge-app/decoders/swap_samples_decoder'
+require 'lims-bridge-app/decoders/tube_rack_decoder'
+require 'lims-bridge-app/decoders/sample_decoder'

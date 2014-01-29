@@ -1,0 +1,13 @@
+require 'lims-bridge-app/message_handlers/order_handler'
+require 'lims-bridge-app/message_handlers/asset_creation_handler'
+require 'lims-bridge-app/message_handlers/tuberackmove_handler'
+require 'lims-bridge-app/message_handlers/aliquots_update_handler'
+require 'lims-bridge-app/message_handlers/labellable_handler'
+require 'lims-bridge-app/message_handlers/swap_samples_handler'
+require 'lims-bridge-app/message_handlers/asset_deletion_handler'
+require 'lims-bridge-app/message_handlers/transfer_handler'
+require 'lims-bridge-app/message_handlers/gel_image_handler'
+
+require 'lims-bridge-app/message_handlers/sample_creation_handler'
+require 'lims-bridge-app/message_handlers/sample_update_handler'
+require 'lims-bridge-app/message_handlers/sample_deletion_handler'
