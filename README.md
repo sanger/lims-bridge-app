@@ -9,13 +9,13 @@ Everytime an action is performed using S2, a message is sent on the bus and some
 Currently, the bridge has 2 entry points: one consumer which deal with plate/racks related messages, and an other consumer dealing with sample related messages. 
 To start them:
 
-bundle exec ruby script/start\_plate\_management.rb
-bundle exec ruby script/start\_sample\_management.rb
+- bundle exec ruby script/start\_plate\_management.rb
+- bundle exec ruby script/start\_sample\_management.rb
 
 or to start the consumer as daemons (replace <identity> with the worker name):
 
-sh script/worker plate <identity> start 
-sh script/worker sample <identity> start 
+- sh script/worker plate <identity> start 
+- sh script/worker sample <identity> start 
 
 ## Development
 
