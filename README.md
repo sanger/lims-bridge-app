@@ -1,5 +1,7 @@
 # Lims-bridge-app
 
+[![Build Status](https://travis-ci.org/llh1/lims-bridge-app.png?branch=52629993_refactoring)](https://travis-ci.org/llh1/lims-bridge-app)
+
 Lims-bridge-app creates a bridge from S2 to Sequencescape. It is used for different S2 actions in order to replicate them into Sequencescape.
 In particular, lims-bridge-app is responsible to create and update S2 plates/tube racks/samples in Sequencescape.
 Everytime an action is performed using S2, a message is sent on the bus and some of them are used by the bridge to update accordingly Sequencescape.
