@@ -1,15 +1,15 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: 70785367d45b535c37cb469a3f5b828f765d5fa2
-  branch: uat
+  revision: 0783d708108391ae5235aa11aac66a0e1a738fa4
+  branch: uat_blood_reception
   specs:
-    lims-core (3.1.0.pre)
+    lims-core (3.2.0.pre)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
       dm-validations
       facets (= 2.9.3)
-      modularity
+      modularity (= 0.6.1)
       sequel
       state_machine
       uuid
@@ -25,10 +25,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 7559432f2365889225d8d8db6137b7d7b1a87d87
-  branch: uat
+  revision: ad17ec9345e2a6974c18cf9ebb98d8573a7785d9
+  branch: uat_blood_reception
   specs:
-    lims-laboratory-app (3.4.0.pre)
+    lims-laboratory-app (3.5.0.pre)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -49,19 +49,19 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: ca62913de3286f193b6a51a1a3a0b59b7c03384c
-  branch: uat
+  revision: 49f6b143afba0ef1ddfd643486198ba3d13b49c1
+  branch: uat_blood_reception
   specs:
-    lims-management-app (3.1.0.pre)
+    lims-management-app (3.2.0.pre)
       bunny (= 0.9.0.pre10)
       json
 
 GIT
   remote: https://github.com/sanger/lims-quality-app.git
-  revision: 70c7ed7f247af9f57581623008343c040349720c
-  branch: uat
+  revision: 42eee7e917c86dfa97791985242442d78c0a7028
+  branch: uat_blood_reception
   specs:
-    lims-quality-app (0.8.0.pre)
+    lims-quality-app (0.9.0.pre)
       bunny (= 0.9.0.pre10)
 
 PATH
@@ -144,11 +144,11 @@ DEPENDENCIES
   debugger-completion
   lims-bridge-app!
   lims-busclient (~> 0.4.1.rc1)!
-  lims-core (~> 3.1.0.pre)!
+  lims-core (~> 3.2.0.pre)!
   lims-exception-notifier-app (~> 0.1.2)!
-  lims-laboratory-app (~> 3.4.0.pre)!
-  lims-management-app (~> 3.1.0.pre)!
-  lims-quality-app (~> 0.8.0.pre)!
+  lims-laboratory-app (~> 3.5.0.pre)!
+  lims-management-app (~> 3.2.0.pre)!
+  lims-quality-app (~> 0.9.0.pre)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
