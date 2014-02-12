@@ -8,6 +8,7 @@ gem 'lims-busclient', '~>0.4.1', :git => 'https://github.com/sanger/lims-busclie
 gem 'lims-management-app', '~>3.2.0', :git => 'https://github.com/sanger/lims-management-app.git', :branch => 'development'
 gem 'lims-quality-app', '~>0.7.0', :git => 'https://github.com/sanger/lims-quality-app.git', :branch => 'development'
 
+gem 'lims-exception-notifier-app', '~>0.1.3', :git => 'http://github.com/sanger/lims-exception-notifier-app.git', :branch => 'master'
 
 group :development do
   gem 'sqlite3', :platforms => :mri
