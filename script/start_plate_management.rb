@@ -25,6 +25,7 @@ module Lims
     rescue StandardError, LoadError, SyntaxError => e
       # log the caught exception
       notifier.send_notification_email(e)
+      raise e
     end
 
     Logging::LOGGER.info("Plate Creator stopped")
