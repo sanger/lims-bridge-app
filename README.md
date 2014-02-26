@@ -69,3 +69,6 @@ By default, Sequel assumes that the name of the table in Sequencescape database 
 Example: Asset model class corresponds to the table assets in the database.
 To change this behaviour, one can use the class method "set\_dataset" to set the name of the table.
 
+### Notes
+
+The mapping between S2 samples and the sample related tables in Sequencescape is done in lib/lims-bridge-app/sequencescape\_wrappers/sequencescape_mapper.rb.
