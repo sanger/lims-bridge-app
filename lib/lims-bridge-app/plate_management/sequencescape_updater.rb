@@ -38,10 +38,11 @@ module Lims::BridgeApp
       # @param [Hash] sample uuids
       def create_plate_in_sequencescape(plate, plate_uuid, date, sample_uuids)
         asset_size = plate.number_of_rows * plate.number_of_columns
+        sti_type = plate.is_a?(Lims::LaboratoryApp::Laboratory::Gel) ? settings["gel_type"] : settings["plate_type"]
 
         # Save plate and plate uuid
         plate_id = db[:assets].insert(
-          :sti_type => settings["plate_type"],
+          :sti_type => sti_type,
           :plate_purpose_id => settings["unassigned_plate_purpose_id"],
           :size => asset_size,
           :created_at => date,
@@ -392,6 +393,45 @@ module Lims::BridgeApp
 
               source_concentration = concentration * settings["stock_plate_concentration_multiplier"]
               set_well_volume_and_concentration(source_well_id, nil, source_concentration, date)
+            end
+          end
+        end
+      end
+
+      # @param [GelImage] gel_image
+      # @param [Time] date
+      # The score is updated in the original stock plate from which
+      # a transfer has been done to a working dilution plate and then 
+      # to a gel plate.
+      def update_gel_scores(gel_image, date)
+        unless gel_image.scores.empty?
+          gel_id = plate_id_by_uuid(gel_image.gel_uuid)
+          gel_image.scores.each do |location, score|
+            well_id = well_id_by_location(gel_id, location)
+
+            # TODO : exclude is use to exclude the identity transfer 
+            # which could be found sometimes. To be fixed.
+            stock_well = db[:requests].from_self(:alias => :requests_stock_wd).join(
+              :requests, :asset_id => :requests_stock_wd__target_asset_id
+            ).select(:requests_stock_wd__asset_id).where(
+              :requests__target_asset_id => well_id
+            ).exclude(:requests__asset_id => well_id).first
+
+            next unless stock_well
+            stock_well_id = stock_well[:asset_id]
+
+            if db[:well_attributes].where(:well_id => stock_well_id).count > 0
+              db[:well_attributes].where(:well_id => stock_well_id).update(
+                :gel_pass => settings["gel_image_s2_scores_to_sequencescape_scores"][score],
+                :updated_at => date
+              )
+            else
+              db[:well_attributes].insert(
+                :well_id => stock_well_id,
+                :gel_pass => settings["gel_image_s2_scores_to_sequencescape_scores"][score],
+                :created_at => date,
+                :updated_at => date
+              )
             end
           end
         end
