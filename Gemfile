@@ -3,9 +3,11 @@ source "http://www.rubygems.org"
 gemspec
 
 gem 'lims-core', '~>3.1.0', :git => 'http://github.com/sanger/lims-core.git' , :branch => 'master'
-gem 'lims-laboratory-app', '~>3.3.1', :git => 'http://github.com/sanger/lims-laboratory-app.git' , :branch => 'master'
+gem 'lims-laboratory-app', '~>3.6.0', :git => 'http://github.com/sanger/lims-laboratory-app.git' , :branch => 'master'
 gem 'lims-busclient', '~>0.4.1', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'master'
-gem 'lims-management-app', '~>3.0.1', :git => 'https://github.com/sanger/lims-management-app.git', :branch => 'master'
+gem 'lims-management-app', '~>3.2.0', :git => 'https://github.com/sanger/lims-management-app.git', :branch => 'master'
+gem 'lims-quality-app', '~>0.8.0', :git => 'https://github.com/sanger/lims-quality-app.git', :branch => 'master'
+gem 'lims-exception-notifier-app', '~>0.1', :git => 'http://github.com/sanger/lims-exception-notifier-app.git', :branch => 'master'
 
 group :development do
   gem 'sqlite3', :platforms => :mri

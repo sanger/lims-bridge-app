@@ -67,11 +67,13 @@ module Lims::BridgeApp
 
         case metadata.routing_key
         # Plate and tuberack are stored in the same place in sequencescape
-        when /(plate|tuberack)\.create/ then handler_for[:plate].call
+        when /(plate|tuberack|gel)\.create/ then handler_for[:plate].call
+          # Gel image
+        when /gelimage/ then handler_for[:gel_image].call
           # On reception of an order creation/update message
         when /order\.(create|updateorder)/ then handler_for[:order].call
           # On reception of a plate update message
-        when /updatetuberack|updateplate/ then handler_for[:update_aliquots].call
+        when /updatetuberack|updateplate|updategel/ then handler_for[:update_aliquots].call
           # On reception of a plate transfer message
         when /platetransfer|transferplatestoplates|tuberacktransfer/ then handler_for[:transfer].call
           # Tube rack move messages have a custom handler as it needs to delete aliquots in the source racks.

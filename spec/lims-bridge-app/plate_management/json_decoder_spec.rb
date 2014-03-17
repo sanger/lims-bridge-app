@@ -14,6 +14,14 @@ module Lims::BridgeApp::PlateManagement
         decoder.json_decoder_for("plate").should == JsonDecoder::PlateJsonDecoder 
       end
 
+      it "gets the right decoder for a gel message" do
+        decoder.json_decoder_for("gel").should == JsonDecoder::GelJsonDecoder 
+      end
+
+      it "gets the right decoder for a gel message" do
+        decoder.json_decoder_for("gel_image").should == JsonDecoder::GelImageJsonDecoder 
+      end
+
       it "gets the right decoder for a tube rack message" do
         decoder.json_decoder_for("tube_rack").should == JsonDecoder::TubeRackJsonDecoder
       end
@@ -44,6 +52,14 @@ module Lims::BridgeApp::PlateManagement
 
       it "gets the right decoder for a move tube rack message" do
         decoder.json_decoder_for("bulk_create_labellable").should == JsonDecoder::BulkCreateLabellableJsonDecoder
+      end
+
+      it "gets the right decoder for an update label message" do
+        decoder.json_decoder_for("update_label").should == JsonDecoder::UpdateLabelJsonDecoder
+      end
+
+      it "gets the right decoder for a bulk update label message" do
+        decoder.json_decoder_for("bulk_update_label").should == JsonDecoder::BulkUpdateLabelJsonDecoder
       end
 
       it "gets the right decoder for a swap samples message" do
