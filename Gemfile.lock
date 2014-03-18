@@ -1,15 +1,15 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: 89efb696d273f66e68b519e4a389235a9d74c6df
+  revision: af87a596a8ede246c6e86c6574a75053302382c7
   branch: master
   specs:
-    lims-core (3.1.0)
+    lims-core (3.2.0)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
       dm-validations
       facets (= 2.9.3)
-      modularity
+      modularity (= 0.6.1)
       sequel
       state_machine
       uuid
@@ -25,10 +25,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: e7dfeaf944965bd296341eebc4b8f55cac28e70b
+  revision: 438c3c01bd952fefb1a2be92064d4a08534cc412
   branch: master
   specs:
-    lims-laboratory-app (3.6.0)
+    lims-laboratory-app (3.7.0)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -49,19 +49,19 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: 639587172ee5cfbb8e549ac5d77549851b4d7be5
+  revision: fb70648ea879df33588d9e0fa24fbad3e6180ed0
   branch: master
   specs:
-    lims-management-app (3.2.0)
+    lims-management-app (3.2.1)
       bunny (= 0.9.0.pre10)
       json
 
 GIT
   remote: https://github.com/sanger/lims-quality-app.git
-  revision: 1f80fe4199071174491a9759f2782d8065644e48
+  revision: 673a966d760c11a2ebf814877d514dfcd1b70cc4
   branch: master
   specs:
-    lims-quality-app (0.8.0)
+    lims-quality-app (0.9.0)
       bunny (= 0.9.0.pre10)
 
 PATH
@@ -83,7 +83,7 @@ GEM
     activesupport (3.0.0)
     addressable (2.3.5)
     aequitas (0.0.2)
-    amq-protocol (1.9.0)
+    amq-protocol (1.9.2)
     amqp (1.1.3)
       amq-protocol (>= 1.9.0)
       eventmachine
@@ -108,8 +108,8 @@ GEM
     eventmachine (1.0.3)
     facets (2.9.3)
     json (1.8.1)
-    macaddr (1.6.1)
-      systemu (~> 2.5.0)
+    macaddr (1.6.7)
+      systemu (~> 2.6.2)
     modularity (0.6.1)
     mustache (0.99.5)
     mysql2 (0.3.14)
@@ -123,12 +123,12 @@ GEM
     rspec-expectations (2.8.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.8.0)
-    sequel (4.4.0)
+    sequel (4.8.0)
     shotgun (0.9)
       rack (>= 1.0)
     sqlite3 (1.3.8)
     state_machine (1.2.0)
-    systemu (2.5.2)
+    systemu (2.6.4)
     uuid (2.3.7)
       macaddr (~> 1.0)
     virtus (0.2.0)
@@ -144,11 +144,11 @@ DEPENDENCIES
   debugger-completion
   lims-bridge-app!
   lims-busclient (~> 0.4.1)!
-  lims-core (~> 3.1.0)!
+  lims-core (~> 3.2.0)!
   lims-exception-notifier-app (~> 0.1)!
-  lims-laboratory-app (~> 3.6.0)!
-  lims-management-app (~> 3.2.0)!
-  lims-quality-app (~> 0.8.0)!
+  lims-laboratory-app (~> 3.7.0)!
+  lims-management-app (~> 3.2.1)!
+  lims-quality-app (~> 0.9.0)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
