@@ -1,15 +1,15 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: 70785367d45b535c37cb469a3f5b828f765d5fa2
+  revision: 586d2d6075d819957522bf09d6ad0c789660f325
   branch: uat
   specs:
-    lims-core (3.1.0.pre)
+    lims-core (3.2.0.rc1)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
       dm-validations
       facets (= 2.9.3)
-      modularity
+      modularity (= 0.6.1)
       sequel
       state_machine
       uuid
@@ -17,18 +17,18 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-exception-notifier-app.git
-  revision: 4e789cdb62446d6b0b3496046350a111d245fd38
+  revision: 360dda5975b21a7b5bea1575ed5de176ad9ba8fb
   branch: master
   specs:
-    lims-exception-notifier-app (0.1.2)
+    lims-exception-notifier-app (0.1.3)
       mustache (~> 0.99.4)
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 7559432f2365889225d8d8db6137b7d7b1a87d87
+  revision: bd85d7cc2e832335f849b21934ec53c35060bc7e
   branch: uat
   specs:
-    lims-laboratory-app (3.4.0.pre)
+    lims-laboratory-app (3.7.0.rc1)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -49,25 +49,25 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: ca62913de3286f193b6a51a1a3a0b59b7c03384c
+  revision: 414cf30230ef9cd41911df846f62a4056d520d04
   branch: uat
   specs:
-    lims-management-app (3.1.0.pre)
+    lims-management-app (3.2.1.rc1)
       bunny (= 0.9.0.pre10)
       json
 
 GIT
   remote: https://github.com/sanger/lims-quality-app.git
-  revision: 70c7ed7f247af9f57581623008343c040349720c
+  revision: 07b0bab5a481ff83af36fd3757130f67284224e1
   branch: uat
   specs:
-    lims-quality-app (0.8.0.pre)
+    lims-quality-app (0.9.0.rc1)
       bunny (= 0.9.0.pre10)
 
 PATH
   remote: .
   specs:
-    lims-bridge-app (1.12.0.pre)
+    lims-bridge-app (1.12.0.rc1)
       aequitas
       amqp
       facets
@@ -81,9 +81,9 @@ GEM
     active_support (3.0.0)
       activesupport (= 3.0.0)
     activesupport (3.0.0)
-    addressable (2.3.5)
+    addressable (2.3.6)
     aequitas (0.0.2)
-    amq-protocol (1.9.0)
+    amq-protocol (1.9.2)
     amqp (1.1.3)
       amq-protocol (>= 1.9.0)
       eventmachine
@@ -108,8 +108,8 @@ GEM
     eventmachine (1.0.3)
     facets (2.9.3)
     json (1.8.1)
-    macaddr (1.6.1)
-      systemu (~> 2.5.0)
+    macaddr (1.6.7)
+      systemu (~> 2.6.2)
     modularity (0.6.1)
     mustache (0.99.5)
     mysql2 (0.3.14)
@@ -123,12 +123,12 @@ GEM
     rspec-expectations (2.8.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.8.0)
-    sequel (4.4.0)
+    sequel (4.8.0)
     shotgun (0.9)
       rack (>= 1.0)
     sqlite3 (1.3.8)
     state_machine (1.2.0)
-    systemu (2.5.2)
+    systemu (2.6.4)
     uuid (2.3.7)
       macaddr (~> 1.0)
     virtus (0.2.0)
@@ -144,11 +144,11 @@ DEPENDENCIES
   debugger-completion
   lims-bridge-app!
   lims-busclient (~> 0.4.1.rc1)!
-  lims-core (~> 3.1.0.pre)!
-  lims-exception-notifier-app (~> 0.1.2)!
-  lims-laboratory-app (~> 3.4.0.pre)!
-  lims-management-app (~> 3.1.0.pre)!
-  lims-quality-app (~> 0.8.0.pre)!
+  lims-core (~> 3.2.0.rc1)!
+  lims-exception-notifier-app (~> 0.1)!
+  lims-laboratory-app (~> 3.7.0.rc1)!
+  lims-management-app (~> 3.2.1.rc1)!
+  lims-quality-app (~> 0.9.0.rc1)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
