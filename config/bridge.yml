@@ -15,7 +15,7 @@ plate_management: &plate_management_settings
     "samples.qc_gel.ebase.rna.batched": 14
     "samples.qc_gel.imager.rna.done": 14
     "samples.qc_gel.imager.rna.done.scored": 14
-    "samples.qc_gel.fx.rna": 14
+    "samples.qc_gel.fx.rna": 1
   unassigned_plate_purpose_id: 2
   item_role_patterns:
     - "stock"
