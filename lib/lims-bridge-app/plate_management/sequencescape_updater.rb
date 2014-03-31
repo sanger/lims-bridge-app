@@ -12,9 +12,11 @@ module Lims::BridgeApp
       UnknownLocation = Class.new(StandardError)
       InvalidBarcode = Class.new(StandardError)
       TransferRequestNotFound = Class.new(StandardError)
+      UnsupportedPlateType = Class.new(StandardError)
 
       Pattern = [8, 4, 4, 4, 12]
       UuidWithoutDashes = /#{Pattern.map { |n| "(\\w{#{n}})"}.join}/i
+      SupportedPlateSize = 96
 
       # Ensure that all the requests for a message are made in a
       # transaction.
@@ -38,6 +40,12 @@ module Lims::BridgeApp
       # @param [Hash] sample uuids
       def create_plate_in_sequencescape(plate, plate_uuid, date, sample_uuids)
         asset_size = plate.number_of_rows * plate.number_of_columns
+
+        # Sequencescape does not have the concept other than 96 wells plate,
+        # so we are not creating other plate types for now. However, it could be change in the future
+        # and we could add additional plate types to Sequencescape.
+        raise UnsupportedPlateType, "The plate size is #{asset_size}. Currently we are only supporting plate with #{SupportedPlateSize} wells." unless asset_size == SupportedPlateSize
+
         sti_type = plate.is_a?(Lims::LaboratoryApp::Laboratory::Gel) ? settings["gel_type"] : settings["plate_type"]
 
         # Save plate and plate uuid
@@ -59,6 +67,7 @@ module Lims::BridgeApp
 
         # Save wells and set the associations with the plate
         plate.keys.each do |location|
+          debugger
           map_id = db[:maps].select(:id).where(
             :description => location, 
             :asset_size => asset_size
