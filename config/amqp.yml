@@ -1,7 +1,7 @@
 defaults: &defaults
-  url: "amqp://localhost:5672"
-  sample_queue_name: "psd.s2.samples"
-  plate_management_queue_name: "psd.s2.plates"
+  url: "amqp://localhost:5672/%2F"
+  sample_queue_name: "psd.s2.bridge.sample"
+  plate_management_queue_name: "psd.s2.bridge.plate"
   durable: true
   empty_queue_disconnect_interval: 0
   message_timeout: 120
