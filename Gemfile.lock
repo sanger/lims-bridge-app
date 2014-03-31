@@ -1,9 +1,9 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: 586d2d6075d819957522bf09d6ad0c789660f325
-  branch: uat
+  revision: 7c11e5f3e12ed6e5b991d9e9390f7873e92dc6eb
+  branch: master
   specs:
-    lims-core (3.2.0.rc1)
+    lims-core (3.2.0)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
@@ -25,10 +25,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: bd85d7cc2e832335f849b21934ec53c35060bc7e
-  branch: uat
+  revision: 438c3c01bd952fefb1a2be92064d4a08534cc412
+  branch: master
   specs:
-    lims-laboratory-app (3.7.0.rc1)
+    lims-laboratory-app (3.7.0)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -38,10 +38,10 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-busclient.git
-  revision: 09730aba1fe7ff4d6fa36a9940c3fc8e04ae1bd1
-  branch: uat
+  revision: 0da129dbd07a064e62e44c7d8a8fdc98131b92ce
+  branch: master
   specs:
-    lims-busclient (0.4.1.rc1)
+    lims-busclient (0.4.1)
       aequitas
       amqp
       facets
@@ -49,19 +49,19 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: 414cf30230ef9cd41911df846f62a4056d520d04
-  branch: uat
+  revision: fb70648ea879df33588d9e0fa24fbad3e6180ed0
+  branch: master
   specs:
-    lims-management-app (3.2.1.rc1)
+    lims-management-app (3.2.1)
       bunny (= 0.9.0.pre10)
       json
 
 GIT
   remote: https://github.com/sanger/lims-quality-app.git
-  revision: 07b0bab5a481ff83af36fd3757130f67284224e1
-  branch: uat
+  revision: 673a966d760c11a2ebf814877d514dfcd1b70cc4
+  branch: master
   specs:
-    lims-quality-app (0.9.0.rc1)
+    lims-quality-app (0.9.0)
       bunny (= 0.9.0.pre10)
 
 PATH
@@ -143,12 +143,12 @@ DEPENDENCIES
   debugger
   debugger-completion
   lims-bridge-app!
-  lims-busclient (~> 0.4.1.rc1)!
-  lims-core (~> 3.2.0.rc1)!
+  lims-busclient (~> 0.4.1)!
+  lims-core (~> 3.2.0)!
   lims-exception-notifier-app (~> 0.1)!
-  lims-laboratory-app (~> 3.7.0.rc1)!
-  lims-management-app (~> 3.2.1.rc1)!
-  lims-quality-app (~> 0.9.0.rc1)!
+  lims-laboratory-app (~> 3.7.0)!
+  lims-management-app (~> 3.2.1)!
+  lims-quality-app (~> 0.9.0)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
