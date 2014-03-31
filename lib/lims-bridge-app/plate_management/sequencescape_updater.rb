@@ -67,7 +67,6 @@ module Lims::BridgeApp
 
         # Save wells and set the associations with the plate
         plate.keys.each do |location|
-          debugger
           map_id = db[:maps].select(:id).where(
             :description => location, 
             :asset_size => asset_size
