@@ -1,5 +1,5 @@
 module Lims
   module BridgeApp
-    VERSION = "1.12.0"
+    VERSION = "1.12.2"
   end
 end
