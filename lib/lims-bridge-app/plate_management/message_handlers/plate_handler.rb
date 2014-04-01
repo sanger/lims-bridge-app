@@ -24,6 +24,9 @@ module Lims::BridgeApp::PlateManagement
           # Need to reraise a rollback exception as we are still 
           # in a sequel transaction block.
           raise Sequel::Rollback
+        rescue UnsupportedPlateType => e
+          metadata.reject(:requeue => false)
+          log.info("Warning! Not supported plate type: #{e}")
         else
           metadata.ack
           log.info("Plate message processed and acknowledged")
