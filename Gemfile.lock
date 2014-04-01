@@ -1,10 +1,10 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: 7c11e5f3e12ed6e5b991d9e9390f7873e92dc6eb
+  revision: e4a27a2d9dd93d35af6bd3b92466ab02f468f4aa
   branch: master
   specs:
-    lims-core (3.2.0)
-      active_support
+    lims-core (3.2.1)
+      activesupport
       aequitas
       bunny (= 0.9.0.pre10)
       dm-validations
@@ -25,10 +25,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 438c3c01bd952fefb1a2be92064d4a08534cc412
+  revision: ac9fad6f2803ff94ce895c68dd2f56e3f6a52706
   branch: master
   specs:
-    lims-laboratory-app (3.7.0)
+    lims-laboratory-app (3.7.1)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -49,25 +49,25 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: fb70648ea879df33588d9e0fa24fbad3e6180ed0
+  revision: e4f73732e876ab21c34a6aed15fb741e83045819
   branch: master
   specs:
-    lims-management-app (3.2.1)
+    lims-management-app (3.2.2)
       bunny (= 0.9.0.pre10)
       json
 
 GIT
   remote: https://github.com/sanger/lims-quality-app.git
-  revision: 673a966d760c11a2ebf814877d514dfcd1b70cc4
+  revision: 67efca7f70658b3d574f9cabd85f30d18484e823
   branch: master
   specs:
-    lims-quality-app (0.9.0)
+    lims-quality-app (0.9.1)
       bunny (= 0.9.0.pre10)
 
 PATH
   remote: .
   specs:
-    lims-bridge-app (1.12.2)
+    lims-bridge-app (1.12.3)
       aequitas
       amqp
       facets
@@ -78,15 +78,19 @@ PATH
 GEM
   remote: http://www.rubygems.org/
   specs:
-    active_support (3.0.0)
-      activesupport (= 3.0.0)
-    activesupport (3.0.0)
+    activesupport (4.0.4)
+      i18n (~> 0.6, >= 0.6.9)
+      minitest (~> 4.2)
+      multi_json (~> 1.3)
+      thread_safe (~> 0.1)
+      tzinfo (~> 0.3.37)
     addressable (2.3.6)
     aequitas (0.0.2)
     amq-protocol (1.9.2)
     amqp (1.1.3)
       amq-protocol (>= 1.9.0)
       eventmachine
+    atomic (1.1.16)
     bond (0.4.3)
     bunny (0.9.0.pre10)
       amq-protocol (>= 1.4.0)
@@ -107,10 +111,13 @@ GEM
       dm-core (~> 1.2.0)
     eventmachine (1.0.3)
     facets (2.9.3)
+    i18n (0.6.9)
     json (1.8.1)
     macaddr (1.6.7)
       systemu (~> 2.6.2)
+    minitest (4.7.5)
     modularity (0.6.1)
+    multi_json (1.9.2)
     mustache (0.99.5)
     mysql2 (0.3.14)
     rack (1.5.2)
@@ -129,6 +136,9 @@ GEM
     sqlite3 (1.3.8)
     state_machine (1.2.0)
     systemu (2.6.4)
+    thread_safe (0.3.1)
+      atomic (>= 1.1.7, < 2)
+    tzinfo (0.3.39)
     uuid (2.3.7)
       macaddr (~> 1.0)
     virtus (0.2.0)
@@ -144,11 +154,11 @@ DEPENDENCIES
   debugger-completion
   lims-bridge-app!
   lims-busclient (~> 0.4.1)!
-  lims-core (~> 3.2.0)!
+  lims-core (~> 3.2.1)!
   lims-exception-notifier-app (~> 0.1)!
-  lims-laboratory-app (~> 3.7.0)!
-  lims-management-app (~> 3.2.1)!
-  lims-quality-app (~> 0.9.0)!
+  lims-laboratory-app (~> 3.7.1)!
+  lims-management-app (~> 3.2.2)!
+  lims-quality-app (~> 0.9.1)!
   psd_logger!
   rake
   rspec (~> 2.8.0)
