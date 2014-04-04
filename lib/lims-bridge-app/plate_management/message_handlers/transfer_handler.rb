@@ -16,7 +16,7 @@ module Lims::BridgeApp::PlateManagement
 
         begin 
           s2_resource[:plates].each do |plate|
-            aliquot_updater.send(:update_aliquots, plate)
+            aliquot_updater.send(:update_aliquots, plate) if plate[:plate].size == SupportedPlateSize
           end
           date = s2_resource[:plates].first[:date]
           add_asset_links(s2_resource[:transfer_map], date)
