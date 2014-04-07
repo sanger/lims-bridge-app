@@ -221,6 +221,13 @@ module Lims::BridgeApp
         plate_uuid_data[:resource_id]
       end
 
+      def plate_size_by_uuid(uuid)
+        plate_size_data = db[:assets].select(:size).where(:id => plate_id_by_uuid(uuid)).first
+        raise PlateNotFoundInSequencescape, "The plate #{uuid} cannot be found in Sequencescape" unless plate_size_data
+
+        plate_size_data[:size]
+      end
+
       def set_asset_link(asset_link_set)
         db[:asset_links].multi_insert(asset_link_set)
       end
