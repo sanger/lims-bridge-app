@@ -49,10 +49,10 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-management-app.git
-  revision: e4f73732e876ab21c34a6aed15fb741e83045819
+  revision: 007505cc9bb7a79b3589a45431739604496092a7
   branch: master
   specs:
-    lims-management-app (3.2.2)
+    lims-management-app (3.3.0)
       bunny (= 0.9.0.pre10)
       json
 
@@ -67,7 +67,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-bridge-app (1.12.6)
+    lims-bridge-app (1.12.7)
       aequitas
       amqp
       facets
@@ -157,7 +157,7 @@ DEPENDENCIES
   lims-core (~> 3.2.1)!
   lims-exception-notifier-app (~> 0.1)!
   lims-laboratory-app (~> 3.7.1)!
-  lims-management-app (~> 3.2.2)!
+  lims-management-app (~> 3.3.0)!
   lims-quality-app (~> 0.9.1)!
   psd_logger!
   rake
