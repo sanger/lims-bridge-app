@@ -72,7 +72,7 @@ module Lims::BridgeApp::PlateManagement::MessageHandler
       end
 
       it_behaves_like "finding processable items", ["samples.rack.stock.dna", "samples.qc.nx_nanodrop.working_dilution_rna"]
-      it_behaves_like "updating the plate with the right plate purpose", [2, 1]
+      it_behaves_like "updating the plate with the right plate purpose", [2, 206]
     end
 
     context "Order with a stock plate dna item and a working dilution item" do
@@ -87,7 +87,7 @@ module Lims::BridgeApp::PlateManagement::MessageHandler
       end
 
       it_behaves_like "finding processable items", ["samples.rack.stock.dna", "samples.rack.stock.rna", "samples.qc.nx_nanodrop.working_dilution_rna"]
-      it_behaves_like "updating the plate with the right plate purpose", [2, 183, 1]
+      it_behaves_like "updating the plate with the right plate purpose", [2, 183, 206]
     end
 
     context "Order with volume checked stock rna racks" do
