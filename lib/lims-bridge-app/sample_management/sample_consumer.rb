@@ -31,8 +31,9 @@ module Lims::BridgeApp
 
           log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
           s2_resource = s2_resource(payload)
+
           action = case metadata.routing_key
-                   when /sample\.create|bulkcreatesample/ then "create"
+                   when /sample\.create|bulkcreatesample|bulkcopysample/ then "create"
                    when /sample\.updatesample|bulkupdatesample/ then "update"
                    when /sample\.deletesample|bulkdeletesample/ then "delete"
                    end
