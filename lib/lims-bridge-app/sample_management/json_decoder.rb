@@ -53,6 +53,12 @@ module Lims::BridgeApp
           BulkSampleJsonDecoder.call("bulk_delete_sample", json, options)
         end
       end
+
+      module BulkCopySampleJsonDecoder
+        def self.call(json, options)
+          BulkSampleJsonDecoder.call("bulk_copy_sample", json, options)
+        end
+      end
     end
   end
 end

@@ -35,3 +35,4 @@ sample_management:
   - '*.*.bulkcreatesample.*'
   - '*.*.bulkupdatesample.*'
   - '*.*.bulkdeletesample.*'
+  - '*.*.bulkcopysample.*'
