@@ -63,8 +63,6 @@ module Lims::BridgeApp
           :external_id => plate_uuid
         ) 
 
-        set_plate_location(plate_id)
-
         # Save wells and set the associations with the plate
         plate.keys.each do |location|
           map_id = db[:maps].select(:id).where(
@@ -115,15 +113,6 @@ module Lims::BridgeApp
             end
           end 
         end
-      end
-
-      # @param [Integer] plate_id
-      def set_plate_location(plate_id)
-        location = db[:locations].where(:name => settings["plate_location"]).first
-        raise UnknownLocation, "The location #{settings["plate_location"]} cannot be found in Sequencescape" unless location
-
-        location_id = location[:id]
-        db[:location_associations].insert(:locatable_id => plate_id, :location_id => location_id)
       end
 
       # @param [Integer] well_id

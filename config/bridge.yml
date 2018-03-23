@@ -23,7 +23,6 @@ plate_management: &plate_management_settings
     - "qc_gel"
   item_done_status: "done"
   sanger_barcode_type: "sanger-barcode"
-  plate_location: "Sample logistics freezer"
   create_asset_request_sti_type: "CreateAssetRequest"
   create_asset_request_type_id: 11
   create_asset_request_state: "passed"
