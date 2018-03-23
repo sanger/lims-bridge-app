@@ -28,7 +28,7 @@ module Lims::BridgeApp
       SETTINGS = {:well_type => String, :plate_type => String, :asset_type => String, :sample_type => String,
                   :roles_purpose_ids => Hash, :unassigned_plate_purpose_id => Integer, 
                   :item_role_patterns => Array, :item_done_status => String, :sanger_barcode_type => String, 
-                  :plate_location => String, :create_asset_request_sti_type => String, :create_asset_request_type_id => Integer, 
+                  :create_asset_request_sti_type => String, :create_asset_request_type_id => Integer, 
                   :create_asset_request_state => String, :transfer_request_sti_type => String, :transfer_request_type_id => Integer,
                   :transfer_request_state => String, :barcode_prefixes => Hash, :out_of_bounds_concentration_key => String,
                   :stock_plate_concentration_multiplier => Float}
