@@ -525,7 +525,7 @@ module Lims::BridgeApp
           :name => plate_name,
           :updated_at => date
         })
-        db[:barcodes].insert({barcode: barcode[:barcode], asset_id: plate_id, format: 0})
+        db[:barcodes].insert({barcode: barcode[:barcode], asset_id: plate_id, format: 0, created_at: date, updated_at: date})
       end
 
       # @param [String] prefix
