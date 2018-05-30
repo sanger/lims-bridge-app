@@ -523,10 +523,9 @@ module Lims::BridgeApp
 
         db[:assets].where(:id => plate_id).update({
           :name => plate_name,
-          :barcode => barcode[:number], 
-          :barcode_prefix_id => barcode_prefix_id,
           :updated_at => date
         })
+        db[:barcodes].insert({barcode: barcode[:barcode], asset_id: plate_id, format: 0})
       end
 
       # @param [String] prefix
@@ -552,7 +551,7 @@ module Lims::BridgeApp
             label.value.match(/^(\w{2})([0-9]*)\w$/)
             prefix = $1
             number = $2.to_i.to_s
-            return {:prefix => prefix, :number => number} 
+            return {:prefix => prefix, :number => number, :barcode => label.value}
           end
         end
       end
