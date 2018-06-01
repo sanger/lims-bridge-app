@@ -548,10 +548,11 @@ module Lims::BridgeApp
       def sanger_barcode(labellable)
         labellable.each do |position, label|
           if label.type == settings["sanger_barcode_type"]
-            label.value.match(/^(\w{2})([0-9]*)\w$/)
+            label.value.match(/^(\w{2})([0-9]*)(\w)$/)
             prefix = $1
             number = $2.to_i.to_s
-            return {:prefix => prefix, :number => number, :barcode => label.value}
+            sufix = $3
+            return {:prefix => prefix, :number => number, :barcode => "#{prefix}#{number}#{sufix}"}
           end
         end
       end
